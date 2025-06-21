@@ -10,43 +10,45 @@ class SUser(models.Model):
 
   # This identifies who the current user is
   UserId = models.CharField(max_length=10, null=False, blank=False, unique=True)
-  EmailAddress = models.CharField(max_length=50)
-  FirstName = models.CharField(max_length=32)
-  LastName = models.CharField(max_length=32)
+  EmailAddress = models.CharField(max_length=50, null=True)
+  FirstName = models.CharField(max_length=32, null=True)
+  LastName = models.CharField(max_length=32, null=True)
   # Hash value of the user's Salted password
-  PasswordHash = models.CharField(max_length=32)
+  PasswordHash = models.CharField(max_length=32, null=True)
   # The Salt value used for hashing the password (two identical passwords will not yield the same Hash value with different Salt values)
-  PasswordSalt = models.CharField(max_length=32)
+  PasswordSalt = models.CharField(max_length=32, null=True)
   # Version Number of the password hashing scheme (source code gives details about what algorithm/parameters combination is used for each number).
-  PwdSchemeVersion = models.IntegerField(default=1)
+  PwdSchemeVersion = models.IntegerField(default=1, null=True)
   # Forces change of password at next login. Set when the SYSADMIN changes a password for a user. Also, data migration from legacy system will set this. Further to this it can *optionally* be set if a new password hashing scheme got introduced and the user should be forced to change to it by means of an enforced password change.
-  PasswordNeedsChange = models.BooleanField(default=False)
-  FailedLogins = models.IntegerField(default=0)
-  AccountLocked = models.BooleanField(default=False)
-  Retired = models.BooleanField(default=False)
-  LastLoginTime = models.IntegerField(default=0)
+  PasswordNeedsChange = models.BooleanField(default=False, null=True)
+  FailedLogins = models.IntegerField(default=0, null=True)
+  AccountLocked = models.BooleanField(default=False, null=True)
+  Retired = models.BooleanField(default=False, null=True)
+  LastLoginTime = models.IntegerField(default=0, null=True)
   # The date the user last logged in.
-  LastLoginDate = models.DateTimeField()
+  LastLoginDate = models.DateTimeField(null=True)
   # This is the code used to identify a language.
-  LanguageCode = models.CharField(max_length=10, default='99')
+  LanguageCode = models.CharField(max_length=10, default='99', null=True)
   # This defines if the code can be modified
-  CanModify = models.BooleanField(default=True)
-  RecordDelete = models.BooleanField(default=False)
+  CanModify = models.BooleanField(default=True, null=True)
+  RecordDelete = models.BooleanField(default=False, null=True)
   # This code identifies the method of aquisition.
-  AcquisitionCode = models.CharField(max_length=8)
+  AcquisitionCode = models.CharField(max_length=8, null=True)
   # This is used as a key field in most of the accounting system files
-  DefaultLedgerNumber = models.IntegerField(default=0)
+  DefaultLedgerNumber = models.IntegerField(default=0, null=True)
   # The last time a user failed to log in
-  FailedLoginTime = models.IntegerField(default=0)
+  FailedLoginTime = models.IntegerField(default=0, null=True)
   # The last date a user failed to log in.
-  FailedLoginDate = models.DateTimeField()
+  FailedLoginDate = models.DateTimeField(null=True)
   # If the user has a Partner record this is the key to it
-  PartnerKey = models.IntegerField()
+  PartnerKey = models.IntegerField(null=True)
   # If this token is set and it is still valid, then the user can reset his password using this token
-  PasswordResetToken = models.CharField(max_length=32)
+  PasswordResetToken = models.CharField(max_length=32, null=True)
   # The date until the password reset token is valid
-  PasswordResetValidUntil = models.DateTimeField()
+  PasswordResetValidUntil = models.DateTimeField(null=True)
 
+  def __str__(self):
+    return str(self.UserId)
 
 class PLanguage(models.Model):
   """
@@ -57,10 +59,12 @@ class PLanguage(models.Model):
   Code = models.CharField(max_length=10, null=False, blank=False, unique=True)
   LanguageDescription = models.CharField(max_length=40, null=False, blank=False)
   # This field indicates whether or not the language is one that is 'officially' used at conferences. These are the languages for which translation could be provided.
-  CongressLanguage = models.BooleanField(default=False)
+  CongressLanguage = models.BooleanField(default=False, null=True)
   # This defines if the language code can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class AFrequency(models.Model):
   """
@@ -70,11 +74,13 @@ class AFrequency(models.Model):
   Code = models.CharField(max_length=12, null=False, blank=False, unique=True)
   FrequencyDescription = models.CharField(max_length=32, null=False, blank=False)
   NumberOfYears = models.IntegerField(default=0, null=False, blank=False)
-  NumberOfMonths = models.IntegerField(default=0)
-  NumberOfDays = models.IntegerField(default=0)
-  NumberOfHours = models.IntegerField(default=0)
-  NumberOfMinutes = models.IntegerField(default=0)
+  NumberOfMonths = models.IntegerField(default=0, null=True)
+  NumberOfDays = models.IntegerField(default=0, null=True)
+  NumberOfHours = models.IntegerField(default=0, null=True)
+  NumberOfMinutes = models.IntegerField(default=0, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PInternationalPostalType(models.Model):
   """
@@ -86,6 +92,8 @@ class PInternationalPostalType(models.Model):
   # This defines if the international postal type code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.InternatPostalTypeCode)
 
 class PCountry(models.Model):
   """
@@ -97,23 +105,25 @@ class PCountry(models.Model):
   # The name of the country
   Name = models.CharField(max_length=40, null=False, blank=False)
   # Describes if the country is politically sensitive.
-  Undercover = models.BooleanField(default=False)
+  Undercover = models.BooleanField(default=False, null=True)
   # The telephone code needed to dial into a country
-  InternatTelephoneCode = models.IntegerField(default=0)
-  InternatPostalType = models.ForeignKey(PInternationalPostalType, related_name="PCountry_InternatPostalType", on_delete=models.CASCADE)
+  InternatTelephoneCode = models.IntegerField(default=0, null=True)
+  InternatPostalType = models.ForeignKey(PInternationalPostalType, null=True, related_name="PCountry_InternatPostalType", on_delete=models.CASCADE)
   # The code needed to dial out of a country.
-  InternatAccessCode = models.CharField(max_length=4)
+  InternatAccessCode = models.CharField(max_length=4, null=True)
   # Number of hours +/- GMT
-  TimeZoneMinimum = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+  TimeZoneMinimum = models.DecimalField(max_digits=6, decimal_places=2, default=0, null=True)
   # Number of hours +/- GMT
-  TimeZoneMaximum = models.DecimalField(max_digits=6, decimal_places=2, default=0)
+  TimeZoneMaximum = models.DecimalField(max_digits=6, decimal_places=2, default=0, null=True)
   # This defines if the country code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
   # Tab order of the city, county, and post code fields on the Partner Edit screen
-  AddressOrder = models.IntegerField(default=0)
+  AddressOrder = models.IntegerField(default=0, null=True)
   # The name of the country in the Local language
-  CountryNameLocal = models.CharField(max_length=40)
+  CountryNameLocal = models.CharField(max_length=40, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class ACurrency(models.Model):
   """
@@ -133,6 +143,8 @@ class ACurrency(models.Model):
   # Indicates whether currency is part of the european exchange rate mechanism/ European Monetary Union
   InEmu = models.BooleanField(default=False, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class SSession(models.Model):
   """
@@ -144,10 +156,12 @@ class SSession(models.Model):
   # This session is valid till this point in time
   ValidUntil = models.DateTimeField(null=False, blank=False)
   # JSON encoded list of session values.
-  SessionValues = models.CharField(max_length=20)
+  SessionValues = models.CharField(max_length=20, null=True)
   # This is the system user id. Each user of the system is allocated one
-  UserId = models.CharField(max_length=10)
+  UserId = models.CharField(max_length=10, null=True)
 
+  def __str__(self):
+    return str(self.SessionId)
 
 class SReportResult(models.Model):
   """
@@ -161,13 +175,15 @@ class SReportResult(models.Model):
   # This session is valid till this point in time
   ValidUntil = models.DateTimeField(null=False, blank=False)
   # Parameters list in json
-  ParameterList = models.CharField(max_length=20)
+  ParameterList = models.CharField(max_length=20, null=True)
   # result represented in HTML
   # Did the report finish successfully to be calculated?
-  Success = models.BooleanField(default=False)
+  Success = models.BooleanField(default=False, null=True)
   # in case of failure, this contains the error message
-  ErrorMessage = models.CharField(max_length=20)
+  ErrorMessage = models.CharField(max_length=20, null=True)
 
+  def __str__(self):
+    return str(self.ReportId)
 
 class SUserAccountActivity(models.Model):
   """
@@ -183,12 +199,15 @@ class SUserAccountActivity(models.Model):
   # Type of the recorded account activity. This is a hard-coded constant value (there's no 'lookup table' for it); for available values and their meaning please check program code (TUserAccountActivityLog Class).
   ActivityType = models.CharField(max_length=25, null=False, blank=False)
   # Details/description of the recorded account activity. This is a localised string, i.e. it can be recorded in the language of the Site! Refer to s_activity_type_c for exact identification of what the recorded account activity is about if text in here can't be understood because it is recorded in a foreign language.
-  ActivityDetails = models.CharField(max_length=500)
+  ActivityDetails = models.CharField(max_length=500, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_user_account_activity_pk', fields=['UserId', 'ActivityDate', 'ActivityTime', 'ActivityType']),
     ]
+  def __str__(self):
+    return f"{self.UserId} - {self.ActivityDate} - {self.ActivityTime} - {self.ActivityType}"
+
 
 class SForm(models.Model):
   """
@@ -199,7 +218,7 @@ class SForm(models.Model):
   Name = models.CharField(max_length=10, null=False, blank=False, unique=True)
   # This is a description of the form
   FormDescription = models.CharField(max_length=40, null=False, blank=False)
-  DefaultFont = models.CharField(max_length=32)
+  DefaultFont = models.CharField(max_length=32, null=True)
   # Default font size (points)
   DefaultFontSize = models.IntegerField(default=0, null=False, blank=False)
   # Number of lines per unit of measure
@@ -210,18 +229,20 @@ class SForm(models.Model):
   FormLength = models.DecimalField(max_digits=6, decimal_places=3, default=0, null=False, blank=False)
   # Width of the page
   FormWidth = models.DecimalField(max_digits=6, decimal_places=3, default=0, null=False, blank=False)
-  FormOrientation = models.CharField(max_length=20, default='P')
+  FormOrientation = models.CharField(max_length=20, default='P', null=True)
   # Unit of measure for the form.  True if inches, false if centimeters.
-  UnitOfMeasure = models.BooleanField()
+  UnitOfMeasure = models.BooleanField(null=True)
   # Top margin
-  TopMargin = models.DecimalField(max_digits=6, decimal_places=3, default=0)
+  TopMargin = models.DecimalField(max_digits=6, decimal_places=3, default=0, null=True)
   # Bottom margin
-  BottomMargin = models.DecimalField(max_digits=6, decimal_places=3, default=0)
+  BottomMargin = models.DecimalField(max_digits=6, decimal_places=3, default=0, null=True)
   # Left margin
-  LeftMargin = models.DecimalField(max_digits=6, decimal_places=3, default=0)
+  LeftMargin = models.DecimalField(max_digits=6, decimal_places=3, default=0, null=True)
   # Right margin
-  RightMargin = models.DecimalField(max_digits=6, decimal_places=3, default=0)
+  RightMargin = models.DecimalField(max_digits=6, decimal_places=3, default=0, null=True)
 
+  def __str__(self):
+    return str(self.Name)
 
 class SGroup(models.Model):
   """
@@ -233,14 +254,17 @@ class SGroup(models.Model):
   # Field that the group belongs to
   UnitKey = models.IntegerField(default=0, null=False, blank=False)
   # Describes a group
-  Name = models.CharField(max_length=50)
+  Name = models.CharField(max_length=50, null=True)
   # This defines if the code can be modified
-  CanModify = models.BooleanField(default=True)
+  CanModify = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_pk', fields=['GroupId', 'UnitKey']),
     ]
+  def __str__(self):
+    return f"{self.GroupId} - {self.UnitKey}"
+
 
 class SUserGroup(models.Model):
   """
@@ -255,6 +279,9 @@ class SUserGroup(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_user_group_pk', fields=['User', 'Group']),
     ]
+  def __str__(self):
+    return f"{self.User} - {self.Group}"
+
 
 class SModule(models.Model):
   """
@@ -264,8 +291,10 @@ class SModule(models.Model):
   # Identifies a module. A module is any part of aprogram which is related to each menu entry or to the sub-system. Eg, partner administration, AP, AR etc.
   ModuleId = models.CharField(max_length=10, null=False, blank=False, unique=True)
   # This is the name of the module
-  Name = models.CharField(max_length=32)
+  Name = models.CharField(max_length=32, null=True)
 
+  def __str__(self):
+    return str(self.ModuleId)
 
 class SValidOutputForm(models.Model):
   """
@@ -279,6 +308,9 @@ class SValidOutputForm(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_valid_output_form_pk', fields=['Module', 'Form']),
     ]
+  def __str__(self):
+    return f"{self.Module} - {self.Form}"
+
 
 class SGroupModuleAccessPermission(models.Model):
   """
@@ -288,12 +320,15 @@ class SGroupModuleAccessPermission(models.Model):
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupModuleAccessPermission_Group", on_delete=models.CASCADE)
   Module = models.ForeignKey(SModule, null=False, blank=False, related_name="SGroupModuleAccessPermission_Module", on_delete=models.CASCADE)
   # Permission to access this module
-  CanAccess = models.BooleanField(default=True)
+  CanAccess = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_module_acc_perm_pk', fields=['Group', 'Module']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.Module}"
+
 
 class SGroupTableAccessPermission(models.Model):
   """
@@ -303,18 +338,21 @@ class SGroupTableAccessPermission(models.Model):
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupTableAccessPermission_Group", on_delete=models.CASCADE)
   TableName = models.CharField(max_length=32, null=False, blank=False)
   # Permission to allow creation.
-  CanCreate = models.BooleanField(default=True)
+  CanCreate = models.BooleanField(default=True, null=True)
   # Permission to allow modification.
-  CanModify = models.BooleanField(default=True)
+  CanModify = models.BooleanField(default=True, null=True)
   # Permission to allow deletion.
-  CanDelete = models.BooleanField(default=True)
+  CanDelete = models.BooleanField(default=True, null=True)
   # Permission to allow inquiry.
-  CanInquire = models.BooleanField(default=True)
+  CanInquire = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_table_acc_perm_pk', fields=['Group', 'TableName']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.TableName}"
+
 
 class SModuleTableAccessPermission(models.Model):
   """
@@ -324,18 +362,21 @@ class SModuleTableAccessPermission(models.Model):
   Module = models.ForeignKey(SModule, null=False, blank=False, related_name="SModuleTableAccessPermission_Module", on_delete=models.CASCADE)
   TableName = models.CharField(max_length=32, null=False, blank=False)
   # Permission to allow creation.
-  CanCreate = models.BooleanField(default=True)
+  CanCreate = models.BooleanField(default=True, null=True)
   # Permission to allow modification.
-  CanModify = models.BooleanField(default=True)
+  CanModify = models.BooleanField(default=True, null=True)
   # Permission to allow deletion.
-  CanDelete = models.BooleanField(default=True)
+  CanDelete = models.BooleanField(default=True, null=True)
   # Permission to allow inquiry.
-  CanInquire = models.BooleanField(default=True)
+  CanInquire = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_module_table_acc_perm_pk', fields=['Module', 'TableName']),
     ]
+  def __str__(self):
+    return f"{self.Module} - {self.TableName}"
+
 
 class SUserModuleAccessPermission(models.Model):
   """
@@ -346,12 +387,15 @@ class SUserModuleAccessPermission(models.Model):
   User = models.ForeignKey(SUser, null=False, blank=False, related_name="SUserModuleAccessPermission_User", on_delete=models.CASCADE)
   Module = models.ForeignKey(SModule, null=False, blank=False, related_name="SUserModuleAccessPermission_Module", on_delete=models.CASCADE)
   # Permission to access this module
-  CanAccess = models.BooleanField(default=True)
+  CanAccess = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_user_module_acc_perm_pk', fields=['User', 'Module']),
     ]
+  def __str__(self):
+    return f"{self.User} - {self.Module}"
+
 
 class SUserTableAccessPermission(models.Model):
   """
@@ -362,18 +406,21 @@ class SUserTableAccessPermission(models.Model):
   User = models.ForeignKey(SUser, null=False, blank=False, related_name="SUserTableAccessPermission_User", on_delete=models.CASCADE)
   TableName = models.CharField(max_length=32, null=False, blank=False)
   # Permission to allow creation.
-  CanCreate = models.BooleanField(default=True)
+  CanCreate = models.BooleanField(default=True, null=True)
   # Permission to allow modification.
-  CanModify = models.BooleanField(default=True)
+  CanModify = models.BooleanField(default=True, null=True)
   # Permission to allow deletion.
-  CanDelete = models.BooleanField(default=True)
+  CanDelete = models.BooleanField(default=True, null=True)
   # Permission to allow inquiry.
-  CanInquire = models.BooleanField(default=True)
+  CanInquire = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_user_table_acc_perm_pk', fields=['User', 'TableName']),
     ]
+  def __str__(self):
+    return f"{self.User} - {self.TableName}"
+
 
 class SLanguageSpecific(models.Model):
   """
@@ -381,7 +428,7 @@ class SLanguageSpecific(models.Model):
   """
 
   # This is the code used to identify a language.
-  Language = models.ForeignKey(PLanguage, null=False, blank=False, related_name="SLanguageSpecific_Language", on_delete=models.CASCADE)
+  Language = models.OneToOneField(PLanguage, null=False, blank=False, related_name="SLanguageSpecific_Language", on_delete=models.CASCADE)
   # The language specific month name 1.
   MonthNameC = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 2.
@@ -431,6 +478,8 @@ class SLanguageSpecific(models.Model):
   # The language specific short month name 12.
   MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Language)
 
 class SLogin(models.Model):
   """
@@ -448,10 +497,12 @@ class SLogin(models.Model):
   # Type of the login/logout record. This is a hard-coded constant value (there's no 'lookup table' for it); for available values and their meaning please check program code (TLoginLog Class).
   LoginType = models.CharField(max_length=25, null=False, blank=False)
   # Details/description of the login/login attempt/logout. This is a localised string, i.e. it can be recorded in the language of the Site! Refer to s_login_type_c for exact identification of what the recorded account activity is about if text in here can't be understood because it is recorded in a foreign language.
-  LoginDetails = models.CharField(max_length=250)
+  LoginDetails = models.CharField(max_length=250, null=True)
   # Reference to s_login_process_id_r (OpenPetra process ID of the login record) - only set for a record of s_login_status_type_c 'LOGOUT' (connects the logout log entry with the corresponding login log entry.)
-  LoginProcessIdRef = models.IntegerField()
+  LoginProcessIdRef = models.IntegerField(null=True)
 
+  def __str__(self):
+    return str(self.LoginProcessId)
 
 class SLogonMessage(models.Model):
   """
@@ -459,10 +510,12 @@ class SLogonMessage(models.Model):
   """
 
   # This is the code used to identify a language.
-  Language = models.ForeignKey(PLanguage, null=False, blank=False, related_name="SLogonMessage_Language", on_delete=models.CASCADE)
+  Language = models.OneToOneField(PLanguage, null=False, blank=False, related_name="SLogonMessage_Language", on_delete=models.CASCADE)
   # Message displayed when a user logs onto to the system
-  LogonMessage = models.CharField(max_length=150)
+  LogonMessage = models.CharField(max_length=150, null=True)
 
+  def __str__(self):
+    return str(self.Language)
 
 class SPatchLog(models.Model):
   """
@@ -471,10 +524,12 @@ class SPatchLog(models.Model):
 
   PatchName = models.CharField(max_length=12, null=False, blank=False, unique=True)
   # The user who ran the patch
-  User = models.ForeignKey(SUser, related_name="SPatchLog_User", on_delete=models.CASCADE)
+  User = models.ForeignKey(SUser, null=True, related_name="SPatchLog_User", on_delete=models.CASCADE)
   # The date the patch was run.
   DateRun = models.DateTimeField(null=False, blank=False)
 
+  def __str__(self):
+    return str(self.PatchName)
 
 class SReportTemplate(models.Model):
   """
@@ -500,6 +555,8 @@ class SReportTemplate(models.Model):
   # Compressed XML text
   XmlText = models.CharField(max_length=20, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.TemplateId)
 
 class SReportsToArchive(models.Model):
   """
@@ -509,6 +566,8 @@ class SReportsToArchive(models.Model):
   # Title of the Report
   ReportTitle = models.CharField(max_length=50, null=False, blank=False, unique=True)
 
+  def __str__(self):
+    return str(self.ReportTitle)
 
 class SSystemStatus(models.Model):
   """
@@ -516,15 +575,17 @@ class SSystemStatus(models.Model):
   """
 
   # This is the system user id. Each user of the system is allocated one
-  User = models.ForeignKey(SUser, null=False, blank=False, related_name="SSystemStatus_User", on_delete=models.CASCADE)
-  SystemDisabledDate = models.DateTimeField()
-  SystemDisabledTime = models.IntegerField(default=0)
-  SystemDisabledReason = models.CharField(max_length=80)
-  SystemAvailableDate = models.DateTimeField()
-  SystemAvailableTime = models.IntegerField(default=0)
+  User = models.OneToOneField(SUser, null=False, blank=False, related_name="SSystemStatus_User", on_delete=models.CASCADE)
+  SystemDisabledDate = models.DateTimeField(null=True)
+  SystemDisabledTime = models.IntegerField(default=0, null=True)
+  SystemDisabledReason = models.CharField(max_length=80, null=True)
+  SystemAvailableDate = models.DateTimeField(null=True)
+  SystemAvailableTime = models.IntegerField(default=0, null=True)
   # The log in status of the system.
-  SystemLoginStatus = models.BooleanField(default=False)
+  SystemLoginStatus = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.User)
 
 class SUserDefaults(models.Model):
   """
@@ -536,12 +597,15 @@ class SUserDefaults(models.Model):
   # The name of the default
   DefaultCode = models.CharField(max_length=50, null=False, blank=False)
   # The value of the default
-  DefaultValue = models.CharField(max_length=250)
+  DefaultValue = models.CharField(max_length=250, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_user_defaults_pk', fields=['User', 'DefaultCode']),
     ]
+  def __str__(self):
+    return f"{self.User} - {self.DefaultCode}"
+
 
 class SSystemDefaults(models.Model):
   """
@@ -550,17 +614,19 @@ class SSystemDefaults(models.Model):
 
   DefaultCode = models.CharField(max_length=50, null=False, blank=False, unique=True)
   # Default Code in easy to read format
-  DefaultCodeLocal = models.CharField(max_length=50)
+  DefaultCodeLocal = models.CharField(max_length=50, null=True)
   # Default Code in easy to read format in English
-  DefaultCodeIntl = models.CharField(max_length=50)
+  DefaultCodeIntl = models.CharField(max_length=50, null=True)
   # Description of what this code does
-  DefaultDescription = models.CharField(max_length=250)
+  DefaultDescription = models.CharField(max_length=250, null=True)
   # Category of code (e.g. Partner, Gift)
-  Category = models.CharField(max_length=50)
-  DefaultValue = models.CharField(max_length=250)
+  Category = models.CharField(max_length=50, null=True)
+  DefaultValue = models.CharField(max_length=250, null=True)
   # Determines if the value can be edited in the GUI
   ReadOnly = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.DefaultCode)
 
 class SSystemDefaultsGui(models.Model):
   """
@@ -575,14 +641,17 @@ class SSystemDefaultsGui(models.Model):
   # Type of control (e.g. txt, cmb, dtp)
   ControlType = models.CharField(max_length=10, null=False, blank=False)
   # Optional values that apply to a control of type cmb
-  ControlOptionalValues = models.CharField(max_length=100)
+  ControlOptionalValues = models.CharField(max_length=100, null=True)
   # List of comma separated additional control attributes, e.g. Width, Type etc.
-  ControlAttributes = models.CharField(max_length=250)
+  ControlAttributes = models.CharField(max_length=250, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_system_defaults_gui_pk', fields=['Default', 'ControlId']),
     ]
+  def __str__(self):
+    return f"{self.Default} - {self.ControlId}"
+
 
 class SErrorLog(models.Model):
   """
@@ -597,15 +666,18 @@ class SErrorLog(models.Model):
   # This is the software release number
   ReleaseNumber = models.CharField(max_length=12, null=False, blank=False)
   FileName = models.CharField(max_length=40, null=False, blank=False)
-  ProcessId = models.CharField(max_length=8)
+  ProcessId = models.CharField(max_length=8, null=True)
   MessageLine1 = models.CharField(max_length=60, null=False, blank=False)
-  MessageLine2 = models.CharField(max_length=40)
-  MessageLine3 = models.CharField(max_length=40)
+  MessageLine2 = models.CharField(max_length=40, null=True)
+  MessageLine3 = models.CharField(max_length=40, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_error_log_pk', fields=['ErrorCode', 'User', 'Date', 'Time']),
     ]
+  def __str__(self):
+    return f"{self.ErrorCode} - {self.User} - {self.Date} - {self.Time}"
+
 
 class PPartnerStatus(models.Model):
   """
@@ -616,11 +688,13 @@ class PPartnerStatus(models.Model):
   StatusCode = models.CharField(max_length=8, null=False, blank=False, unique=True)
   PartnerStatusDescription = models.CharField(max_length=60, null=False, blank=False)
   # If set to yes, then Partners with this status are considered as active Partners
-  PartnerIsActive = models.BooleanField(default=True)
-  IncludePartnerOnReport = models.BooleanField(default=False)
+  PartnerIsActive = models.BooleanField(default=True, null=True)
+  IncludePartnerOnReport = models.BooleanField(default=False, null=True)
   # This defines if the partner status code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.StatusCode)
 
 class PAcquisition(models.Model):
   """
@@ -632,12 +706,14 @@ class PAcquisition(models.Model):
   # This describes the method of aquisition.
   AcquisitionDescription = models.CharField(max_length=80, null=False, blank=False)
   # Defines if the acquisition code is still for use
-  ValidAcquisition = models.BooleanField(default=True)
+  ValidAcquisition = models.BooleanField(default=True, null=True)
   # This defines if the acquisition code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
   # This defines if the acquisition code listed represents a recruiting effort.
-  RecruitingEffort = models.BooleanField(default=False)
+  RecruitingEffort = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PAddresseeType(models.Model):
   """
@@ -649,6 +725,8 @@ class PAddresseeType(models.Model):
   # This defines if the addressee type code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PTitle(models.Model):
   """
@@ -658,10 +736,12 @@ class PTitle(models.Model):
   # Title
   Title = models.CharField(max_length=32, null=False, blank=False, unique=True)
   # Default addressee type code to be used for this title
-  DefaultAddresseeType = models.ForeignKey(PAddresseeType, related_name="PTitle_DefaultAddresseeType", on_delete=models.CASCADE)
+  DefaultAddresseeType = models.ForeignKey(PAddresseeType, null=True, related_name="PTitle_DefaultAddresseeType", on_delete=models.CASCADE)
   # This defines if the title is a common one to be used more often in this system
-  CommonTitle = models.BooleanField(default=True)
+  CommonTitle = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Title)
 
 class PPartnerClasses(models.Model):
   """
@@ -669,8 +749,10 @@ class PPartnerClasses(models.Model):
   """
 
   PartnerClass = models.CharField(max_length=12, null=False, blank=False, unique=True)
-  Description = models.CharField(max_length=50)
+  Description = models.CharField(max_length=50, null=True)
 
+  def __str__(self):
+    return str(self.PartnerClass)
 
 class PLocation(models.Model):
   """
@@ -681,42 +763,45 @@ class PLocation(models.Model):
   SiteKey = models.IntegerField(default=0, null=False, blank=False)
   LocationKey = models.IntegerField(default=0, null=False, blank=False)
   # The name of the building
-  Building1 = models.CharField(max_length=50)
+  Building1 = models.CharField(max_length=50, null=True)
   # The name of the building (continued)
-  Building2 = models.CharField(max_length=50)
+  Building2 = models.CharField(max_length=50, null=True)
   # The name of the street that the house is located on
-  StreetName = models.CharField(max_length=50)
+  StreetName = models.CharField(max_length=50, null=True)
   # This is the first element of an address
-  Locality = models.CharField(max_length=50)
+  Locality = models.CharField(max_length=50, null=True)
   # The name of the suburb
-  Suburb = models.CharField(max_length=50)
+  Suburb = models.CharField(max_length=50, null=True)
   # This can be a post town or city
-  City = models.CharField(max_length=32)
+  City = models.CharField(max_length=32, null=True)
   # This can be a county (UK), a state (US), province (CDN), canton (CH) etc.
-  County = models.CharField(max_length=32)
+  County = models.CharField(max_length=32, null=True)
   # This is the national post code
-  PostalCode = models.CharField(max_length=20)
+  PostalCode = models.CharField(max_length=20, null=True)
   # This is a code which identifies a country. <br/>It is taken from the ISO 3166-1-alpha-2 code elements.
-  Country = models.ForeignKey(PCountry, related_name="PLocation_Country", on_delete=models.CASCADE)
+  Country = models.ForeignKey(PCountry, null=True, related_name="PLocation_Country", on_delete=models.CASCADE)
   # This is the third element of an address (if required)
-  Address3 = models.CharField(max_length=50)
+  Address3 = models.CharField(max_length=50, null=True)
   # The latitude of the location; a number between -90 and +90; precision is 6 digits (11cm)
-  GeoLatitude = models.DecimalField(max_digits=9, decimal_places=6)
+  GeoLatitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
   # The longitude of the location; a number between -180 and +180; precision is 6 digits (11cm)
-  GeoLongitude = models.DecimalField(max_digits=9, decimal_places=6)
+  GeoLongitude = models.DecimalField(max_digits=9, decimal_places=6, null=True)
   # The distance in km of this location to the location 0 if location 0 was on the same longitude; this is for improving query performance
-  GeoKmX = models.IntegerField()
+  GeoKmX = models.IntegerField(null=True)
   # The distance in km of this location to the location 0 if location 0 was on the same latitude; this is for improving query performance
-  GeoKmY = models.IntegerField()
+  GeoKmY = models.IntegerField(null=True)
   # The accuracy of the stored geo data;                 -2: server did not respond;                 -1: not processed yet;                 0: Unknown Location;                 1: Country level accuracy;                 2: Region;                 3: Sub-Region;                 4: Town/City/Village;                 5: Post code;                 6: Street;                 7: Intersection;                 8: Address level accuracy
-  GeoAccuracy = models.IntegerField(default=-1)
+  GeoAccuracy = models.IntegerField(default=-1, null=True)
   # Indicates whether or not the location has restricted access. If it does then the access will be controlled by s_group_location.
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_location_pk', fields=['SiteKey', 'LocationKey']),
     ]
+  def __str__(self):
+    return f"{self.SiteKey} - {self.LocationKey}"
+
 
 class PLocationType(models.Model):
   """
@@ -728,6 +813,8 @@ class PLocationType(models.Model):
   Deletable = models.BooleanField(default=True, null=False, blank=False)
   Assignable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PPartnerAttributeCategory(models.Model):
   """
@@ -747,6 +834,8 @@ class PPartnerAttributeCategory(models.Model):
   # Flag to indicate whether this Partner Attribute Category is deletable by a user or not. Should be set to be true for records where p_system_category_l is true.
   Deletable = models.BooleanField(default=False, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.CategoryCode)
 
 class PPartnerAttributeType(models.Model):
   """
@@ -764,16 +853,18 @@ class PPartnerAttributeType(models.Model):
   # Describes the kind (type) of Value that the Partner Attributes that are linked to this Partner Attribute Type are. Valid values for Contact Detail Attributes: 'CONTACTDETAIL_GENERAL', 'CONTACTDETAIL_HYPERLINK', 'CONTACTDETAIL_HYPERLINK_WITHVALUE', 'CONTACTDETAIL_EMAILADDRESS', 'CONTACTDETAIL_SKYPEID'.
   AttributeTypeValueKind = models.CharField(max_length=40, null=False, blank=False)
   # For use with p_attribute_type_value_kind_c 'CONTACTDETAIL_HYPERLINK_WITHVALUE' only. Specifies how to 'construct' a hyperlink where the Value of a Partner Attribute is part of the URL.
-  HyperlinkFormat = models.CharField(max_length=60)
+  HyperlinkFormat = models.CharField(max_length=60, null=True)
   # Label that should be displayed/printed instead of p_code_c if a Partner Attribute's 'specialised' Flag is set.
-  SpecialLabel = models.CharField(max_length=50)
+  SpecialLabel = models.CharField(max_length=50, null=True)
   # Can this Partner Attribute Type be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date where the record was set to unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Flag to indicate whether this Partner Attribute Type is deletable by a user or not.
   Deletable = models.BooleanField(default=False, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.AttributeType)
 
 class UUnitType(models.Model):
   """
@@ -785,6 +876,8 @@ class UUnitType(models.Model):
   # This defines if the type code can be deleted. <br/>This can only be updated by the system manager.
   TypeDeletable = models.BooleanField(default=False, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtMaritalStatus(models.Model):
   """
@@ -798,10 +891,12 @@ class PtMaritalStatus(models.Model):
   # Indicates if this code can still be assigned?
   Assignable = models.BooleanField(default=True, null=False, blank=False)
   # Date from which this code was made unassignable.
-  AssignableDate = models.DateTimeField()
+  AssignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class POccupation(models.Model):
   """
@@ -810,10 +905,12 @@ class POccupation(models.Model):
 
   Code = models.CharField(max_length=16, default='UNKNOWN', null=False, blank=False, unique=True)
   OccupationDescription = models.CharField(max_length=40, null=False, blank=False)
-  ValidOccupation = models.BooleanField(default=True)
+  ValidOccupation = models.BooleanField(default=True, null=True)
   # This defines if the occupation code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PDenomination(models.Model):
   """
@@ -827,6 +924,8 @@ class PDenomination(models.Model):
   # This defines if the denomination code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PBusiness(models.Model):
   """
@@ -838,6 +937,8 @@ class PBusiness(models.Model):
   # This defines if the business code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PBankingType(models.Model):
   """
@@ -847,10 +948,12 @@ class PBankingType(models.Model):
   # Human readable form of this type
   Type = models.CharField(max_length=12, null=False, blank=False, unique=True)
   # What it means
-  Description = models.CharField(max_length=25)
+  Description = models.CharField(max_length=25, null=True)
   # A procedure to check the fields...
-  Check = models.CharField(max_length=25)
+  Check = models.CharField(max_length=25, null=True)
 
+  def __str__(self):
+    return str(self.Type)
 
 class PBankingDetailsUsageType(models.Model):
   """
@@ -864,10 +967,12 @@ class PBankingDetailsUsageType(models.Model):
   # Can this usage type be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date where the record was set to unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Type)
 
 class PTypeCategory(models.Model):
   """
@@ -877,14 +982,16 @@ class PTypeCategory(models.Model):
   # This code indicates the category of a type.
   Code = models.CharField(max_length=20, null=False, blank=False, unique=True)
   # This describes the type category.
-  Description = models.CharField(max_length=50)
+  Description = models.CharField(max_length=50, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PType(models.Model):
   """
@@ -896,18 +1003,20 @@ class PType(models.Model):
   # This describes the method of aquisition.
   TypeDescription = models.CharField(max_length=60, null=False, blank=False)
   # This is a category, by which partner types can be grouped.
-  Category = models.ForeignKey(PTypeCategory, related_name="PType_Category", on_delete=models.CASCADE)
+  Category = models.ForeignKey(PTypeCategory, null=True, related_name="PType_Category", on_delete=models.CASCADE)
   # Defines if the type code is still for use
-  ValidType = models.BooleanField(default=True)
+  ValidType = models.BooleanField(default=True, null=True)
   # This type can only be assigned by the system
-  SystemType = models.BooleanField(default=False)
+  SystemType = models.BooleanField(default=False, null=True)
   # This defines if the type code can be deleted. <br/>This can only be updated by the system manager.
-  TypeDeletable = models.BooleanField(default=True)
+  TypeDeletable = models.BooleanField(default=True, null=True)
   # This Mot Group will be selected by default when entering gifts for Partners with this Special Type
-  TypeMotivationGroup = models.CharField(max_length=8)
+  TypeMotivationGroup = models.CharField(max_length=8, null=True)
   # This Mot Detail will be selected by default when entering gifts for Partners with this Special Type
-  TypeMotivationDetail = models.CharField(max_length=8)
+  TypeMotivationDetail = models.CharField(max_length=8, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PRelationCategory(models.Model):
   """
@@ -917,14 +1026,16 @@ class PRelationCategory(models.Model):
   # This code indicates the category of a relation.
   Code = models.CharField(max_length=20, null=False, blank=False, unique=True)
   # This describes the relation category.
-  Description = models.CharField(max_length=50)
+  Description = models.CharField(max_length=50, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PRelation(models.Model):
   """
@@ -936,14 +1047,16 @@ class PRelation(models.Model):
   # This describes the relation.
   RelationDescription = models.CharField(max_length=50, null=False, blank=False)
   # This is a category, by which relations can be grouped.
-  RelationCategory = models.ForeignKey(PRelationCategory, related_name="PRelation_RelationCategory", on_delete=models.CASCADE)
+  RelationCategory = models.ForeignKey(PRelationCategory, null=True, related_name="PRelation_RelationCategory", on_delete=models.CASCADE)
   # This defines if the relation name can be deleted. <br/>This can only be updated by the system manager. <br/>It default to Yes.
   Deletable = models.BooleanField(default=True, null=False, blank=False)
   # This describes the relation in the reverse direction, eg Husband and Wife.
   ReciprocalDescription = models.CharField(max_length=50, null=False, blank=False)
   # Determines whether the record is still assignable
-  ValidRelation = models.BooleanField(default=True)
+  ValidRelation = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Name)
 
 class MExtractType(models.Model):
   """
@@ -953,10 +1066,12 @@ class MExtractType(models.Model):
   # Extract Type Code
   Code = models.CharField(max_length=25, null=False, blank=False, unique=True)
   # Function that is run to create the extract (4GL function, Delphi, etc.)
-  Function = models.CharField(max_length=250)
+  Function = models.CharField(max_length=250, null=True)
   # Description of Extract Type
-  Description = models.CharField(max_length=100)
+  Description = models.CharField(max_length=100, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class MExtractMaster(models.Model):
   """
@@ -968,30 +1083,32 @@ class MExtractMaster(models.Model):
   # Short name for the extract to be used in filenames
   ExtractName = models.CharField(max_length=25, null=False, blank=False)
   # This is a long description for the extract
-  ExtractDesc = models.CharField(max_length=80)
-  LastRef = models.DateTimeField()
+  ExtractDesc = models.CharField(max_length=80, null=True)
+  LastRef = models.DateTimeField(null=True)
   Deletable = models.BooleanField(default=True, null=False, blank=False)
   # The user can set the frozen field when the extract should not be updated.
   Frozen = models.BooleanField(default=False, null=False, blank=False)
-  KeyCount = models.IntegerField(default=0)
+  KeyCount = models.IntegerField(default=0, null=True)
   Public = models.BooleanField(default=True, null=False, blank=False)
   # Indicates that the extract has been edited by a user
   ManualMod = models.BooleanField(default=False, null=False, blank=False)
   # Date the extract was manually modified
-  ManualMod = models.DateTimeField()
+  ManualMod = models.DateTimeField(null=True)
   # Who made the last manual modification ?
-  ManualModBy = models.ForeignKey(SUser, related_name="MExtractMaster_ManualModBy", on_delete=models.CASCADE)
+  ManualModBy = models.ForeignKey(SUser, null=True, related_name="MExtractMaster_ManualModBy", on_delete=models.CASCADE)
   # Indicate the extract type. Which function was the extract created through?
-  ExtractType = models.ForeignKey(MExtractType, related_name="MExtractMaster_ExtractType", on_delete=models.CASCADE)
+  ExtractType = models.ForeignKey(MExtractType, null=True, related_name="MExtractMaster_ExtractType", on_delete=models.CASCADE)
   # Is this extract just a template that has not yet been run?
-  Template = models.BooleanField(default=False)
+  Template = models.BooleanField(default=False, null=True)
   # Indicates whether or not the extract has restricted access. If it does then the access will be controlled by s_group_extract
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='m_extract_master_uk', fields=['ExtractName']),
     ]
+  def __str__(self):
+    return str(self.ExtractId)
 
 class MExtractParameter(models.Model):
   """
@@ -1005,12 +1122,15 @@ class MExtractParameter(models.Model):
   # Index for Parameter Value. Only relevant if a parameter is a list of values in which case a new index is used for each list item.
   ValueIndex = models.IntegerField(default=0, null=False, blank=False)
   # Extract Parameter Value
-  ParameterValue = models.CharField(max_length=100)
+  ParameterValue = models.CharField(max_length=100, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='m_extract_parameter_pk', fields=['Extract', 'ParameterCode', 'ValueIndex']),
     ]
+  def __str__(self):
+    return f"{self.Extract} - {self.ParameterCode} - {self.ValueIndex}"
+
 
 class PMailing(models.Model):
   """
@@ -1020,22 +1140,24 @@ class PMailing(models.Model):
   # Mailing Code
   Code = models.CharField(max_length=25, null=False, blank=False, unique=True)
   # Mailing Description
-  MailingDescription = models.CharField(max_length=80)
+  MailingDescription = models.CharField(max_length=80, null=True)
   # Date Of Mailing
-  MailingDate = models.DateTimeField()
+  MailingDate = models.DateTimeField(null=True)
   # This defines a motivation group.
-  MotivationGroupCode = models.CharField(max_length=8)
+  MotivationGroupCode = models.CharField(max_length=8, null=True)
   # This defines the motivation detail within a motivation group.
-  MotivationDetailCode = models.CharField(max_length=8)
+  MotivationDetailCode = models.CharField(max_length=8, null=True)
   # Cost of Mailing
-  MailingCost = models.DecimalField(max_digits=19, decimal_places=2, default=0)
+  MailingCost = models.DecimalField(max_digits=19, decimal_places=2, default=0, null=True)
   # Gift amount attributed to this mailing
-  MailingAttributedAmount = models.DecimalField(max_digits=19, decimal_places=2, default=0)
+  MailingAttributedAmount = models.DecimalField(max_digits=19, decimal_places=2, default=0, null=True)
   # Indicates if the mailing is viewable in comboboxes where the user can select it
-  Viewable = models.BooleanField(default=True)
+  Viewable = models.BooleanField(default=True, null=True)
   # Date until this mailing is viewable for users (if p_viewable_l is set)
-  ViewableUntil = models.DateTimeField()
+  ViewableUntil = models.DateTimeField(null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PAddressLayoutCode(models.Model):
   """
@@ -1045,14 +1167,16 @@ class PAddressLayoutCode(models.Model):
   # Address Layout Code
   Code = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # Description for Address Layout Code
-  Description = models.CharField(max_length=50)
+  Description = models.CharField(max_length=50, null=True)
   # Index for Display Order (to determine the display position of the layout in a list)
   DisplayIndex = models.IntegerField(null=False, blank=False)
   # Comment for Address Layout Code
-  Comment = models.CharField(max_length=300)
+  Comment = models.CharField(max_length=300, null=True)
   # Can this layout code be deleted by the user?
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PAddressLayout(models.Model):
   """
@@ -1064,14 +1188,17 @@ class PAddressLayout(models.Model):
   AddressLineNumber = models.IntegerField(default=0, null=False, blank=False)
   AddressLineCode = models.CharField(max_length=8, null=False, blank=False)
   # This field is a short description of the Address Line Code record
-  AddressPrompt = models.CharField(max_length=15)
+  AddressPrompt = models.CharField(max_length=15, null=True)
   # System flag indicates a lock is on the record
-  Locked = models.BooleanField(default=False)
+  Locked = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_address_layout_pk', fields=['Country', 'AddressLayout', 'AddressLineNumber', 'AddressLineCode']),
     ]
+  def __str__(self):
+    return f"{self.Country} - {self.AddressLayout} - {self.AddressLineNumber} - {self.AddressLineCode}"
+
 
 class PAddressBlock(models.Model):
   """
@@ -1087,6 +1214,9 @@ class PAddressBlock(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_address_block_pk', fields=['Country', 'AddressLayout']),
     ]
+  def __str__(self):
+    return f"{self.Country} - {self.AddressLayout}"
+
 
 class PAddressElement(models.Model):
   """
@@ -1095,12 +1225,14 @@ class PAddressElement(models.Model):
 
   # This Code is used to identify the address element.
   Code = models.CharField(max_length=12, null=False, blank=False, unique=True)
-  AddressElementDescription = models.CharField(max_length=80)
+  AddressElementDescription = models.CharField(max_length=80, null=True)
   # Address element field name
-  FieldName = models.CharField(max_length=30)
+  FieldName = models.CharField(max_length=30, null=True)
   # This is usually a ""."" or a "";"" or a "","" etc
-  AddressElementText = models.CharField(max_length=1)
+  AddressElementText = models.CharField(max_length=1, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PAddressBlockElement(models.Model):
   """
@@ -1109,10 +1241,12 @@ class PAddressBlockElement(models.Model):
 
   # This Code is used to identify the address element.
   AddressElementCode = models.CharField(max_length=24, null=False, blank=False, unique=True)
-  AddressElementDescription = models.CharField(max_length=80)
+  AddressElementDescription = models.CharField(max_length=80, null=True)
   # System flag indicates the element is a print directive and not a data placeholder
   IsDirective = models.BooleanField(null=False, blank=False)
 
+  def __str__(self):
+    return str(self.AddressElementCode)
 
 class PAddressLine(models.Model):
   """
@@ -1129,6 +1263,9 @@ class PAddressLine(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_address_line_pk', fields=['Code', 'AddressElementPosition']),
     ]
+  def __str__(self):
+    return f"{self.Code} - {self.AddressElementPosition}"
+
 
 class PAddresseeTitleOverride(models.Model):
   """
@@ -1146,6 +1283,9 @@ class PAddresseeTitleOverride(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_addressee_title_override_pk', fields=['Language', 'Title']),
     ]
+  def __str__(self):
+    return f"{self.Language} - {self.Title}"
+
 
 class PFormality(models.Model):
   """
@@ -1158,15 +1298,18 @@ class PFormality(models.Model):
   Country = models.ForeignKey(PCountry, null=False, blank=False, related_name="PFormality_Country", on_delete=models.CASCADE)
   AddresseeType = models.ForeignKey(PAddresseeType, null=False, blank=False, related_name="PFormality_AddresseeType", on_delete=models.CASCADE)
   FormalityLevel = models.IntegerField(default=1, null=False, blank=False)
-  SalutationText = models.CharField(max_length=32)
-  Title = models.CharField(max_length=12)
-  ComplimentaryClosingText = models.CharField(max_length=32)
-  PersonalPronoun = models.CharField(max_length=12)
+  SalutationText = models.CharField(max_length=32, null=True)
+  Title = models.CharField(max_length=12, null=True)
+  ComplimentaryClosingText = models.CharField(max_length=32, null=True)
+  PersonalPronoun = models.CharField(max_length=12, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_formality_pk', fields=['Language', 'Country', 'AddresseeType', 'FormalityLevel']),
     ]
+  def __str__(self):
+    return f"{self.Language} - {self.Country} - {self.AddresseeType} - {self.FormalityLevel}"
+
 
 class PLabel(models.Model):
   """
@@ -1176,16 +1319,18 @@ class PLabel(models.Model):
   Code = models.CharField(max_length=8, null=False, blank=False, unique=True)
   # This identifies the form
   Form = models.ForeignKey(SForm, null=False, blank=False, related_name="PLabel_Form", on_delete=models.CASCADE)
-  GapLines = models.IntegerField(default=0)
+  GapLines = models.IntegerField(default=0, null=True)
   Height = models.IntegerField(default=0, null=False, blank=False)
   Width = models.IntegerField(default=0, null=False, blank=False)
-  GapColumns = models.IntegerField(default=0)
+  GapColumns = models.IntegerField(default=0, null=True)
   LabelsAcross = models.IntegerField(default=0, null=False, blank=False)
   LabelsDown = models.IntegerField(default=0, null=False, blank=False)
   Description = models.CharField(max_length=35, null=False, blank=False)
-  StartColumn = models.IntegerField(default=0)
-  StartLine = models.IntegerField(default=0)
+  StartColumn = models.IntegerField(default=0, null=True)
+  StartLine = models.IntegerField(default=0, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PMergeForm(models.Model):
   """
@@ -1195,8 +1340,10 @@ class PMergeForm(models.Model):
   # Name of Merge Form
   Name = models.CharField(max_length=8, null=False, blank=False, unique=True)
   # Form description
-  MergeFormDescription = models.CharField(max_length=32)
+  MergeFormDescription = models.CharField(max_length=32, null=True)
 
+  def __str__(self):
+    return str(self.Name)
 
 class PMergeField(models.Model):
   """
@@ -1208,16 +1355,19 @@ class PMergeField(models.Model):
   # Name of the field in the Word document which will be filled with the data
   Name = models.CharField(max_length=16, null=False, blank=False)
   # Position to define order of merge fields
-  MergeFieldPosition = models.IntegerField(default=0)
+  MergeFieldPosition = models.IntegerField(default=0, null=True)
   # Type of this field.  This defines the parameters which are required to generate the insert
-  MergeType = models.CharField(max_length=16)
+  MergeType = models.CharField(max_length=16, null=True)
   # List of parameters required to create the actual insert
-  MergeParameters = models.CharField(max_length=256)
+  MergeParameters = models.CharField(max_length=256, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_merge_field_pk', fields=['MergeForm', 'Name']),
     ]
+  def __str__(self):
+    return f"{self.MergeForm} - {self.Name}"
+
 
 class PPostcodeRange(models.Model):
   """
@@ -1227,10 +1377,12 @@ class PPostcodeRange(models.Model):
   # Name of the postcode range
   Range = models.CharField(max_length=32, null=False, blank=False, unique=True)
   # Start of postcode range
-  From = models.CharField(max_length=20)
+  From = models.CharField(max_length=20, null=True)
   # End of postcode range
-  To = models.CharField(max_length=20)
+  To = models.CharField(max_length=20, null=True)
 
+  def __str__(self):
+    return str(self.Range)
 
 class PPostcodeRegion(models.Model):
   """
@@ -1240,8 +1392,10 @@ class PPostcodeRegion(models.Model):
   # Name of a postcode region
   Region = models.CharField(max_length=32, null=False, blank=False, unique=True)
   # This describes the region.
-  Description = models.CharField(max_length=50)
+  Description = models.CharField(max_length=50, null=True)
 
+  def __str__(self):
+    return str(self.Region)
 
 class PPostcodeRegionRange(models.Model):
   """
@@ -1257,6 +1411,9 @@ class PPostcodeRegionRange(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_postcode_region_range_pk', fields=['Region', 'Range']),
     ]
+  def __str__(self):
+    return f"{self.Region} - {self.Range}"
+
 
 class PPublication(models.Model):
   """
@@ -1265,17 +1422,19 @@ class PPublication(models.Model):
 
   # This is the key to the publication table
   Code = models.CharField(max_length=10, null=False, blank=False, unique=True)
-  NumberOfIssues = models.IntegerField(default=0)
+  NumberOfIssues = models.IntegerField(default=0, null=True)
   # The number of free issues and reminders to send out.
-  NumberOfReminders = models.IntegerField(default=1)
+  NumberOfReminders = models.IntegerField(default=1, null=True)
   # A short description of the publication
-  PublicationDescription = models.CharField(max_length=40)
-  ValidPublication = models.BooleanField(default=True)
+  PublicationDescription = models.CharField(max_length=40, null=True)
+  ValidPublication = models.BooleanField(default=True, null=True)
   Frequency = models.ForeignKey(AFrequency, null=False, blank=False, related_name="PPublication_Frequency", on_delete=models.CASCADE)
   # The publication short code that is used on an address label
-  LabelCode = models.CharField(max_length=3)
-  PublicationLanguage = models.ForeignKey(PLanguage, related_name="PPublication_PublicationLanguage", on_delete=models.CASCADE)
+  LabelCode = models.CharField(max_length=3, null=True)
+  PublicationLanguage = models.ForeignKey(PLanguage, null=True, related_name="PPublication_PublicationLanguage", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PPublicationCost(models.Model):
   """
@@ -1288,7 +1447,7 @@ class PPublicationCost(models.Model):
   # This is a number of currency units
   PublicationCost = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # The cost of posting each item
-  PostageCost = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  PostageCost = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # This defines which currency is being used
   Currency = models.ForeignKey(ACurrency, null=False, blank=False, related_name="PPublicationCost_Currency", on_delete=models.CASCADE)
 
@@ -1296,6 +1455,9 @@ class PPublicationCost(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_publication_cost_pk', fields=['Publication', 'DateEffective']),
     ]
+  def __str__(self):
+    return f"{self.Publication} - {self.DateEffective}"
+
 
 class PReasonSubscriptionGiven(models.Model):
   """
@@ -1305,6 +1467,8 @@ class PReasonSubscriptionGiven(models.Model):
   Code = models.CharField(max_length=12, null=False, blank=False, unique=True)
   Description = models.CharField(max_length=80, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PReasonSubscriptionCancelled(models.Model):
   """
@@ -1314,6 +1478,27 @@ class PReasonSubscriptionCancelled(models.Model):
   Code = models.CharField(max_length=12, null=False, blank=False, unique=True)
   Description = models.CharField(max_length=80, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
+
+class PMembership(models.Model):
+  """
+  Details of a membership
+  """
+
+  # This is the key to the membership table
+  Code = models.CharField(max_length=10, null=False, blank=False, unique=True)
+  # A short description of the membership
+  MembershipDescription = models.CharField(max_length=40, null=True)
+  ValidMembership = models.BooleanField(default=True, null=True)
+  Frequency = models.ForeignKey(AFrequency, null=False, blank=False, related_name="PMembership_Frequency", on_delete=models.CASCADE)
+  # This is the amount charged for each membership period.
+  MembershipFee = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+  # This is the time required to do service for each membership period.
+  MembershipHoursService = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+
+  def __str__(self):
+    return str(self.Code)
 
 class PContactAttribute(models.Model):
   """
@@ -1323,10 +1508,12 @@ class PContactAttribute(models.Model):
   # Contact Attribute Code
   Code = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # This is a contact attribute description.
-  Descr = models.CharField(max_length=32)
+  Descr = models.CharField(max_length=32, null=True)
   # allowed to use this attribute for new contacts?
   Active = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PContactAttributeDetail(models.Model):
   """
@@ -1338,16 +1525,19 @@ class PContactAttributeDetail(models.Model):
   # code for attribute detail
   ContactAttrDetailCode = models.CharField(max_length=16, null=False, blank=False)
   # This is a contact attribute detail description.
-  ContactAttrDetailDescr = models.CharField(max_length=32)
+  ContactAttrDetailDescr = models.CharField(max_length=32, null=True)
   # allowed to use this attribute detail for new contacts?
   Active = models.BooleanField(default=True, null=False, blank=False)
   # Contact attribute detail comment
-  Comment = models.CharField(max_length=4000)
+  Comment = models.CharField(max_length=4000, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_contact_attribute_detail_pk', fields=['ContactAttribute', 'ContactAttrDetailCode']),
     ]
+  def __str__(self):
+    return f"{self.ContactAttribute} - {self.ContactAttrDetailCode}"
+
 
 class PMethodOfContact(models.Model):
   """
@@ -1355,12 +1545,14 @@ class PMethodOfContact(models.Model):
   """
 
   Code = models.CharField(max_length=8, null=False, blank=False, unique=True)
-  Description = models.CharField(max_length=32)
-  ContactType = models.CharField(max_length=8)
+  Description = models.CharField(max_length=32, null=True)
+  ContactType = models.CharField(max_length=8, null=True)
   ValidMethod = models.BooleanField(default=True, null=False, blank=False)
   # This defines if the method of contact code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PContactLog(models.Model):
   """
@@ -1372,26 +1564,28 @@ class PContactLog(models.Model):
   # Date of contact
   ContactDate = models.DateTimeField(null=False, blank=False)
   # Time of contact
-  ContactTime = models.IntegerField(default=0)
+  ContactTime = models.IntegerField(default=0, null=True)
   # Contact code
   Contact = models.ForeignKey(PMethodOfContact, null=False, blank=False, related_name="PContactLog_Contact", on_delete=models.CASCADE)
   # User who made the contact
-  Contactor = models.CharField(max_length=10)
+  Contactor = models.CharField(max_length=10, null=True)
   # The Message ID (only applies if the type of contact is an email); this helps to identify the email and to interface with the EMail application
-  ContactMessageId = models.CharField(max_length=100)
+  ContactMessageId = models.CharField(max_length=100, null=True)
   # Contact Comment (also used to hold contents of emails)
-  ContactComment = models.CharField(max_length=15000)
+  ContactComment = models.CharField(max_length=15000, null=True)
   # Identifies a module. A module is any part of aprogram which is related to each menu entry or to the sub-system. Eg, partner administration, AP, AR etc.
-  Module = models.ForeignKey(SModule, related_name="PContactLog_Module", on_delete=models.CASCADE)
+  Module = models.ForeignKey(SModule, null=True, related_name="PContactLog_Module", on_delete=models.CASCADE)
   # If set, this contact is restricted to one user.
-  User = models.ForeignKey(SUser, related_name="PContactLog_User", on_delete=models.CASCADE)
+  User = models.ForeignKey(SUser, null=True, related_name="PContactLog_User", on_delete=models.CASCADE)
   # The mailing code associated with the contact
-  Mailing = models.ForeignKey(PMailing, related_name="PContactLog_Mailing", on_delete=models.CASCADE)
+  Mailing = models.ForeignKey(PMailing, null=True, related_name="PContactLog_Mailing", on_delete=models.CASCADE)
   # Indicates whether or not the contact has restricted access. If it does then the access will be controlled by s_group_partner_contact
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
   # Location of contact
-  ContactLocation = models.CharField(max_length=4000)
+  ContactLocation = models.CharField(max_length=4000, null=True)
 
+  def __str__(self):
+    return str(self.ContactLogId)
 
 class PPartnerContactAttribute(models.Model):
   """
@@ -1406,6 +1600,9 @@ class PPartnerContactAttribute(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_partner_contact_attribute_pk', fields=['Contact', 'ContactAttributeDetail']),
     ]
+  def __str__(self):
+    return f"{self.Contact} - {self.ContactAttributeDetail}"
+
 
 class PForm(models.Model):
   """
@@ -1419,32 +1616,35 @@ class PForm(models.Model):
   # The language that this form is written in.  Use 99 if the form can be used for unspecified languages.
   FormLanguage = models.ForeignKey(PLanguage, null=False, blank=False, related_name="PForm_FormLanguage", on_delete=models.CASCADE)
   # Description of the form
-  FormDescription = models.CharField(max_length=50)
+  FormDescription = models.CharField(max_length=50, null=True)
   # If there are several types of form then it can be specified here.  Eg an annual receipt and an individual receipt.
   TypeCode = models.CharField(max_length=12, null=False, blank=False)
   # The address layout code that defines the address block content.
-  AddressLayout = models.ForeignKey(PAddressLayoutCode, related_name="PForm_AddressLayout", on_delete=models.CASCADE)
+  AddressLayout = models.ForeignKey(PAddressLayoutCode, null=True, related_name="PForm_AddressLayout", on_delete=models.CASCADE)
   # The formality level to use if the template contains greetings or salutations. 1=Informal, 6=Very formal
   FormalityLevel = models.IntegerField(default=1, null=False, blank=False)
   # Is the template available in the database.
   TemplateAvailable = models.BooleanField(default=False, null=False, blank=False)
   # The binary template file encoded as Base64 text
   # The file type associated with the template.
-  TemplateFileExtension = models.CharField(max_length=8)
+  TemplateFileExtension = models.CharField(max_length=8, null=True)
   # Date the template was uploaded to the database
-  TemplateUploadDate = models.DateTimeField()
+  TemplateUploadDate = models.DateTimeField(null=True)
   # Time the template was uploaded to the database
-  TemplateUploadTime = models.IntegerField()
-  TemplateUploadedByUser = models.ForeignKey(SUser, related_name="PForm_TemplateUploadedByUser", on_delete=models.CASCADE)
+  TemplateUploadTime = models.IntegerField(null=True)
+  TemplateUploadedByUser = models.ForeignKey(SUser, null=True, related_name="PForm_TemplateUploadedByUser", on_delete=models.CASCADE)
   # The minimum amount that is acceptable on a receipt
   MinimumAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # Allows the exclusion of certain records from a report
-  Options = models.CharField(max_length=32)
+  Options = models.CharField(max_length=32, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_form_pk', fields=['Code', 'Name', 'FormLanguage']),
     ]
+  def __str__(self):
+    return f"{self.Code} - {self.Name} - {self.FormLanguage}"
+
 
 class ASubSystem(models.Model):
   """
@@ -1456,10 +1656,12 @@ class ASubSystem(models.Model):
   # Name of a sub system
   Name = models.CharField(max_length=32, null=False, blank=False)
   # The filename of the process to call
-  SetupSubSystemProcess = models.CharField(max_length=12, null=False, blank=False)
+  SetupSubSystemProcess = models.CharField(max_length=12, null=True)
   # The filename of the process to call
-  SubSystemToCall = models.CharField(max_length=12)
+  SubSystemToCall = models.CharField(max_length=12, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class ATaxType(models.Model):
   """
@@ -1469,8 +1671,10 @@ class ATaxType(models.Model):
   # This is whether it is GST, VAT
   Code = models.CharField(max_length=8, null=False, blank=False, unique=True)
   # This is a short description which is 32 characters long
-  TaxTypeDescription = models.CharField(max_length=32)
+  TaxTypeDescription = models.CharField(max_length=32, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class ALedger(models.Model):
   """
@@ -1480,7 +1684,7 @@ class ALedger(models.Model):
   # This is used as a key field in most of the accounting system files .It is created from the first 4 digits of a partner key of type ""ledger"".
   LedgerNumber = models.IntegerField(default=0, null=False, blank=False, unique=True)
   # This is the ledger name
-  Name = models.CharField(max_length=32)
+  Name = models.CharField(max_length=32, null=True)
   # Defines if the ledger is in use
   LedgerStatus = models.BooleanField(null=False, blank=False)
   # This is the last batch number used within a ledger
@@ -1492,21 +1696,21 @@ class ALedger(models.Model):
   LastPoNumber = models.IntegerField(default=0, null=False, blank=False)
   LastSoNumber = models.IntegerField(default=0, null=False, blank=False)
   # This is a number of currency units
-  MaxGiftAidAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  MaxGiftAidAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # This is a number of currency units
-  MinGiftAidAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  MinGiftAidAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   NumberOfGiftsToDisplay = models.IntegerField(default=0, null=False, blank=False)
-  TaxType = models.ForeignKey(ATaxType, related_name="ALedger_TaxType", on_delete=models.CASCADE)
+  TaxType = models.ForeignKey(ATaxType, null=True, related_name="ALedger_TaxType", on_delete=models.CASCADE)
   # The account for inter-ledger transfers.
-  IltGlAccountCode = models.CharField(max_length=8)
+  IltGlAccountCode = models.CharField(max_length=8, null=True)
   # This identifies the account the financial transaction must be stored against
-  ProfitLossGlAccountCode = models.CharField(max_length=8)
+  ProfitLossGlAccountCode = models.CharField(max_length=8, null=True)
   # This defines which accounting period is being used
   NumberOfAccountingPeriods = models.IntegerField(default=0, null=False, blank=False)
   # This identifies a country. It uses the ISO 3166-1-alpha-2 code elements.
-  Country = models.ForeignKey(PCountry, related_name="ALedger_Country", on_delete=models.CASCADE)
+  Country = models.ForeignKey(PCountry, null=True, related_name="ALedger_Country", on_delete=models.CASCADE)
   # This defines which currency is being used
-  BaseCurrency = models.ForeignKey(ACurrency, related_name="ALedger_BaseCurrency", on_delete=models.CASCADE)
+  BaseCurrency = models.ForeignKey(ACurrency, null=True, related_name="ALedger_BaseCurrency", on_delete=models.CASCADE)
   # Used to get a yes no response from the user
   TransactionAccount = models.BooleanField(default=False, null=False, blank=False)
   # Used to get a yes no response from the user
@@ -1526,71 +1730,73 @@ class ALedger(models.Model):
   # Used to get a yes no response from the user
   RecalculateGlMaster = models.BooleanField(default=False, null=False, blank=False)
   # Defines which installation is running on this database
-  InstallationId = models.CharField(max_length=8)
-  BudgetControl = models.BooleanField(default=False)
-  BudgetDataRetention = models.IntegerField(default=0)
-  CostOfSalesGlAccount = models.CharField(max_length=8)
-  CreditorGlAccountCode = models.CharField(max_length=8)
-  CurrentFinancialYear = models.IntegerField(default=0)
-  CurrentPeriod = models.IntegerField(default=0)
-  DateCrDrBalances = models.DateTimeField()
-  DebtorGlAccountCode = models.CharField(max_length=8)
-  FaDepreciationGlAccount = models.CharField(max_length=8)
-  FaGlAccountCode = models.CharField(max_length=8)
-  FaPlOnSaleGlAccount = models.CharField(max_length=8)
-  FaProvForDepnGlAccount = models.CharField(max_length=8)
-  IltAccount = models.BooleanField(default=False)
-  LastApDnNumber = models.IntegerField(default=0)
-  LastPoRetNumber = models.IntegerField(default=0)
-  LastSoDelNumber = models.IntegerField(default=0)
-  LastSoRetNumber = models.IntegerField(default=0)
-  LastSpecialGiftNumber = models.IntegerField(default=0)
-  NumberFwdPostingPeriods = models.IntegerField(default=0)
-  DiscountAllowedPct = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-  DiscountReceivedPct = models.DecimalField(max_digits=5, decimal_places=2, default=0)
-  PoAccrualGlAccountCode = models.CharField(max_length=8)
+  InstallationId = models.CharField(max_length=8, null=True)
+  BudgetControl = models.BooleanField(default=False, null=True)
+  BudgetDataRetention = models.IntegerField(default=0, null=True)
+  CostOfSalesGlAccount = models.CharField(max_length=8, null=True)
+  CreditorGlAccountCode = models.CharField(max_length=8, null=True)
+  CurrentFinancialYear = models.IntegerField(default=0, null=True)
+  CurrentPeriod = models.IntegerField(default=0, null=True)
+  DateCrDrBalances = models.DateTimeField(null=True)
+  DebtorGlAccountCode = models.CharField(max_length=8, null=True)
+  FaDepreciationGlAccount = models.CharField(max_length=8, null=True)
+  FaGlAccountCode = models.CharField(max_length=8, null=True)
+  FaPlOnSaleGlAccount = models.CharField(max_length=8, null=True)
+  FaProvForDepnGlAccount = models.CharField(max_length=8, null=True)
+  IltAccount = models.BooleanField(default=False, null=True)
+  LastApDnNumber = models.IntegerField(default=0, null=True)
+  LastPoRetNumber = models.IntegerField(default=0, null=True)
+  LastSoDelNumber = models.IntegerField(default=0, null=True)
+  LastSoRetNumber = models.IntegerField(default=0, null=True)
+  LastSpecialGiftNumber = models.IntegerField(default=0, null=True)
+  NumberFwdPostingPeriods = models.IntegerField(default=0, null=True)
+  DiscountAllowedPct = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True)
+  DiscountReceivedPct = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True)
+  PoAccrualGlAccountCode = models.CharField(max_length=8, null=True)
   # This flag is set between the completion of the last month of the year and the year itself. In this state some activities are disabled and some others are enabled.
-  ProvisionalYearEnd = models.BooleanField(default=False)
-  PurchaseGlAccountCode = models.CharField(max_length=8)
-  RetEarningsGlAccount = models.CharField(max_length=8)
-  SalesGlAccountCode = models.CharField(max_length=8)
-  SoAccrualGlAccountCode = models.CharField(max_length=8)
-  StockAccrualGlAccount = models.CharField(max_length=8)
-  StockAdjGlAccountCode = models.CharField(max_length=8)
-  StockGlAccountCode = models.CharField(max_length=8)
-  TaxExclIncl = models.BooleanField()
-  TaxExclInclIndicator = models.BooleanField(default=False)
-  TaxInputGlAccountCode = models.CharField(max_length=8)
-  TaxInputGlCcCode = models.CharField(max_length=8)
-  TaxOutputGlAccountCode = models.CharField(max_length=8)
-  TermsOfPaymentCode = models.CharField(max_length=8)
-  LastPoRecNumber = models.IntegerField(default=0)
-  TaxGlAccountNumber = models.IntegerField(default=0)
-  ActualsDataRetention = models.IntegerField(default=11)
+  ProvisionalYearEnd = models.BooleanField(default=False, null=True)
+  PurchaseGlAccountCode = models.CharField(max_length=8, null=True)
+  RetEarningsGlAccount = models.CharField(max_length=8, null=True)
+  SalesGlAccountCode = models.CharField(max_length=8, null=True)
+  SoAccrualGlAccountCode = models.CharField(max_length=8, null=True)
+  StockAccrualGlAccount = models.CharField(max_length=8, null=True)
+  StockAdjGlAccountCode = models.CharField(max_length=8, null=True)
+  StockGlAccountCode = models.CharField(max_length=8, null=True)
+  TaxExclIncl = models.BooleanField(null=True)
+  TaxExclInclIndicator = models.BooleanField(default=False, null=True)
+  TaxInputGlAccountCode = models.CharField(max_length=8, null=True)
+  TaxInputGlCcCode = models.CharField(max_length=8, null=True)
+  TaxOutputGlAccountCode = models.CharField(max_length=8, null=True)
+  TermsOfPaymentCode = models.CharField(max_length=8, null=True)
+  LastPoRecNumber = models.IntegerField(default=0, null=True)
+  TaxGlAccountNumber = models.IntegerField(default=0, null=True)
+  ActualsDataRetention = models.IntegerField(default=11, null=True)
   # Partner key which links the ledger to the partner type record where the type is a ledger.
-  PartnerKey = models.IntegerField(default=0)
-  CalendarMode = models.BooleanField()
+  PartnerKey = models.IntegerField(default=0, null=True)
+  CalendarMode = models.BooleanField(null=True)
   # How far along is the year end process.
-  YearEndProcessStatus = models.IntegerField(default=0)
+  YearEndProcessStatus = models.IntegerField(default=0, null=True)
   # last used cashbook payment header number
   LastHeaderPNumber = models.IntegerField(default=0, null=False, blank=False)
   # Is this ledger an ILT processing centre (ie, clearinghouse status)
-  IltProcessingCentre = models.BooleanField(default=False)
+  IltProcessingCentre = models.BooleanField(default=False, null=True)
   # The number of the last gift batch to be created.
-  LastGiftBatchNumber = models.IntegerField(default=0)
+  LastGiftBatchNumber = models.IntegerField(default=0, null=True)
   # This defines which currency to use as a second ('international') base currency.
-  IntlCurrency = models.ForeignKey(ACurrency, related_name="ALedger_IntlCurrency", on_delete=models.CASCADE)
+  IntlCurrency = models.ForeignKey(ACurrency, null=True, related_name="ALedger_IntlCurrency", on_delete=models.CASCADE)
   # The number of the last gift batch to be created.
-  LastRecGiftBatchNumber = models.IntegerField(default=0)
+  LastRecGiftBatchNumber = models.IntegerField(default=0, null=True)
   # How many years to retain gift data.
-  GiftDataRetention = models.IntegerField(default=2)
+  GiftDataRetention = models.IntegerField(default=2, null=True)
   # When recalculating the account report structure this indicates that all periods should be recalculated.
-  RecalculateAllPeriods = models.BooleanField(default=False)
+  RecalculateAllPeriods = models.BooleanField(default=False, null=True)
   # identifes the Last used ICH process number
   LastIchNumber = models.IntegerField(default=0, null=False, blank=False)
   # Indicates whether the ledger is just for storing consolidated accounts (rather than a 'real' ledger).
-  ConsolidationLedger = models.BooleanField(default=False)
+  ConsolidationLedger = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.LedgerNumber)
 
 class ATaxTable(models.Model):
   """
@@ -1606,16 +1812,19 @@ class ATaxTable(models.Model):
   # this describes when this particular percentage rate has become valid by law
   TaxValidFrom = models.DateTimeField(null=False, blank=False)
   # This is a short description which is 32 charcters long
-  TaxRateDescription = models.CharField(max_length=32)
+  TaxRateDescription = models.CharField(max_length=32, null=True)
   # Tax rate
-  TaxRate = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  TaxRate = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # flag that prevents this rate from being used, e.g. if it has been replaced by another rate
-  Active = models.BooleanField(default=True)
+  Active = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_tax_table_pk', fields=['Ledger', 'TaxType', 'TaxRateCode', 'TaxValidFrom']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.TaxType} - {self.TaxRateCode} - {self.TaxValidFrom}"
+
 
 class ALedgerInitFlag(models.Model):
   """
@@ -1630,6 +1839,9 @@ class ALedgerInitFlag(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_ledger_init_flag_pk', fields=['Ledger', 'InitOptionName']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.InitOptionName}"
+
 
 class ABudgetType(models.Model):
   """
@@ -1640,8 +1852,10 @@ class ABudgetType(models.Model):
   Code = models.CharField(max_length=8, null=False, blank=False, unique=True)
   BudgetTypeDescription = models.CharField(max_length=32, null=False, blank=False)
   # The Petra programme filename of the process to call
-  BudgetProcessToCall = models.CharField(max_length=20, null=False, blank=False)
+  BudgetProcessToCall = models.CharField(max_length=20, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class AAccountPropertyCode(models.Model):
   """
@@ -1651,27 +1865,32 @@ class AAccountPropertyCode(models.Model):
   # Code for the property
   PropertyCode = models.CharField(max_length=20, null=False, blank=False, unique=True)
   # Description of this property
-  Description = models.CharField(max_length=200)
+  Description = models.CharField(max_length=200, null=True)
 
+  def __str__(self):
+    return str(self.PropertyCode)
 
-class ACostCentreTypes(models.Model):
+class ACostCentreType(models.Model):
   """
   Stores standard and user-defined cost centre types.  For example: Foreign, Local.
   """
 
   # This is used as a key field in most of the accounting system files
-  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ACostCentreTypes_Ledger", on_delete=models.CASCADE)
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ACostCentreType_Ledger", on_delete=models.CASCADE)
   # Type of cost centre (Defaults: Foreign or Local)
   CostCentreType = models.CharField(max_length=8, default='Local', null=False, blank=False)
   # The description of the cost centre type
-  CcDescription = models.CharField(max_length=30)
+  CcDescription = models.CharField(max_length=30, null=True)
   # Can this cost centre type be deleted by the user?
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_cost_centre_types_pk', fields=['Ledger', 'CostCentreType']),
+      models.UniqueConstraint(name='a_cost_centre_type_pk', fields=['Ledger', 'CostCentreType']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.CostCentreType}"
+
 
 class ACostCentre(models.Model):
   """
@@ -1683,26 +1902,29 @@ class ACostCentre(models.Model):
   # This identifies which cost centre an account is applied to. A cost centre can be a partner but reflected as a character rather than a numeric
   Code = models.CharField(max_length=12, null=False, blank=False)
   # This identifies which cost centre the cost centre summarises to.
-  CostCentreToReportTo = models.CharField(max_length=12)
+  CostCentreToReportTo = models.CharField(max_length=12, null=True)
   Name = models.CharField(max_length=32, null=False, blank=False)
   PostingCostCentre = models.BooleanField(null=False, blank=False)
-  CostCentreActive = models.BooleanField(default=True)
-  ProjectStatus = models.BooleanField(default=False)
-  ProjectConstraintDate = models.DateTimeField()
-  ProjectConstraintAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
-  SystemCostCentre = models.BooleanField(default=False)
+  CostCentreActive = models.BooleanField(default=True, null=True)
+  ProjectStatus = models.BooleanField(default=False, null=True)
+  ProjectConstraintDate = models.DateTimeField(null=True)
+  ProjectConstraintAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+  SystemCostCentre = models.BooleanField(default=False, null=True)
   # ICH or non-ICH clearing
-  ClearingAccount = models.CharField(max_length=12, default='8500')
+  ClearingAccount = models.CharField(max_length=12, default='8500', null=True)
   # At Year End, Balance in this Cost Centre will roll up to this account
-  RetEarningsAccountCode = models.CharField(max_length=12, default='9700')
+  RetEarningsAccountCode = models.CharField(max_length=12, default='9700', null=True)
   # Determine how to roll up the balance in this Cost Centre
-  RollupStyle = models.CharField(max_length=12, default='Always')
-  CostCentreTypes = models.ForeignKey(ACostCentreTypes, null=False, blank=False, related_name="ACostCentre_CostCentreTypes", on_delete=models.CASCADE)
+  RollupStyle = models.CharField(max_length=12, default='Always', null=True)
+  CostCentreType = models.ForeignKey(ACostCentreType, null=False, blank=False, related_name="ACostCentre_CostCentreType", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_cost_centre_pk', fields=['Code']),
+      models.UniqueConstraint(name='a_cost_centre_pk', fields=['Ledger', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.Code}"
+
 
 class ABudgetRevision(models.Model):
   """
@@ -1716,12 +1938,15 @@ class ABudgetRevision(models.Model):
   # A budget can have several revisions per year
   Revision = models.IntegerField(default=0, null=False, blank=False)
   # A description of this revision of the budget
-  Description = models.CharField(max_length=100)
+  Description = models.CharField(max_length=100, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_budget_revision_pk', fields=['Ledger', 'Year', 'Revision']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.Year} - {self.Revision}"
+
 
 class AAccountingPeriod(models.Model):
   """
@@ -1741,46 +1966,51 @@ class AAccountingPeriod(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_accounting_period_pk', fields=['Ledger', 'AccountingPeriodNumber']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.AccountingPeriodNumber}"
+
 
 class AAccountingSystemParameter(models.Model):
   """
   One record describing the limitations imposed on the accounting system.
   """
 
-  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AAccountingSystemParameter_Ledger", on_delete=models.CASCADE)
-  NumberOfAccountingPeriods = models.IntegerField(default=0)
-  ActualsDataRetention = models.IntegerField(default=0)
-  BudgetDataRetention = models.IntegerField(default=0)
-  NumberFwdPostingPeriods = models.IntegerField(default=0)
+  Ledger = models.OneToOneField(ALedger, null=False, blank=False, related_name="AAccountingSystemParameter_Ledger", on_delete=models.CASCADE)
+  NumberOfAccountingPeriods = models.IntegerField(default=0, null=True)
+  ActualsDataRetention = models.IntegerField(default=0, null=True)
+  BudgetDataRetention = models.IntegerField(default=0, null=True)
+  NumberFwdPostingPeriods = models.IntegerField(default=0, null=True)
   # Recipient gift statement text
-  RecipientGiftStatementTxt = models.CharField(max_length=132)
+  RecipientGiftStatementTxt = models.CharField(max_length=132, null=True)
   # Recipient gift statement text 2
-  RecipientGiftStatementTx2 = models.CharField(max_length=132)
+  RecipientGiftStatementTx2 = models.CharField(max_length=132, null=True)
   # Donor gift statement text
-  DonorGiftStatementTxt = models.CharField(max_length=132)
+  DonorGiftStatementTxt = models.CharField(max_length=132, null=True)
   # Donor gift statement text 2
-  DonorGiftStatementTx2 = models.CharField(max_length=132)
+  DonorGiftStatementTx2 = models.CharField(max_length=132, null=True)
   # Hosa statement text
-  HosaStatementTxt = models.CharField(max_length=132)
+  HosaStatementTxt = models.CharField(max_length=132, null=True)
   # Hosa (Home Office Statement of Accounts) statement text 2
-  HosaStatementTx2 = models.CharField(max_length=132)
+  HosaStatementTx2 = models.CharField(max_length=132, null=True)
   # Hosa statement text 3
-  HosaStatementTx3 = models.CharField(max_length=132)
+  HosaStatementTx3 = models.CharField(max_length=132, null=True)
   # Hosa statement text 4
-  HosaStatementTx4 = models.CharField(max_length=132)
+  HosaStatementTx4 = models.CharField(max_length=132, null=True)
   # Text for the donor receipt heading.
-  DonorReceiptTxt = models.CharField(max_length=32)
+  DonorReceiptTxt = models.CharField(max_length=32, null=True)
   # Stewardship Report  text
-  StewardshipReportTxt = models.CharField(max_length=132)
+  StewardshipReportTxt = models.CharField(max_length=132, null=True)
   # Stewardship Report  text
-  StewardshipReportTx2 = models.CharField(max_length=132)
+  StewardshipReportTx2 = models.CharField(max_length=132, null=True)
   # Text for the yearly donor receipt heading.
-  DonorYearlyReceiptTxt = models.CharField(max_length=32)
+  DonorYearlyReceiptTxt = models.CharField(max_length=32, null=True)
   # How many years to retain gift data.
-  GiftDataRetention = models.IntegerField(default=2)
+  GiftDataRetention = models.IntegerField(default=2, null=True)
   # Text to put on receipt when addressing a deceased donor
-  DeceasedAddressText = models.CharField(max_length=200)
+  DeceasedAddressText = models.CharField(max_length=200, null=True)
 
+  def __str__(self):
+    return str(self.Ledger)
 
 class AAnalysisStoreTable(models.Model):
   """
@@ -1789,6 +2019,8 @@ class AAnalysisStoreTable(models.Model):
 
   StoreName = models.CharField(max_length=32, null=False, blank=False, unique=True)
 
+  def __str__(self):
+    return str(self.StoreName)
 
 class AAnalysisType(models.Model):
   """
@@ -1802,16 +2034,19 @@ class AAnalysisType(models.Model):
   AnalysisTypeDescription = models.CharField(max_length=32, null=False, blank=False)
   # Shows what type of analysis attribute it is
   AnalysisMode = models.BooleanField(null=False, blank=False)
-  AnalysisStore = models.CharField(max_length=32)
+  AnalysisStore = models.CharField(max_length=32, null=True)
   # The name of the field within a table which will be used as the analysis attribute
-  AnalysisElement = models.CharField(max_length=32)
+  AnalysisElement = models.CharField(max_length=32, null=True)
   # To indicate whether the user or system has set up the analysis type.
-  SystemAnalysisType = models.BooleanField(default=False)
+  SystemAnalysisType = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_analysis_type_pk', fields=['Ledger', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.Code}"
+
 
 class ACorporateExchangeRate(models.Model):
   """
@@ -1833,6 +2068,9 @@ class ACorporateExchangeRate(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_corporate_exchange_rate_pk', fields=['FromCurrency', 'ToCurrency', 'DateEffectiveFrom']),
     ]
+  def __str__(self):
+    return f"{self.FromCurrency} - {self.ToCurrency} - {self.DateEffectiveFrom}"
+
 
 class ADailyExchangeRate(models.Model):
   """
@@ -1854,6 +2092,9 @@ class ADailyExchangeRate(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_daily_exchange_rate_pk', fields=['FromCurrency', 'ToCurrency', 'DateEffectiveFrom', 'TimeEffectiveFrom']),
     ]
+  def __str__(self):
+    return f"{self.FromCurrency} - {self.ToCurrency} - {self.DateEffectiveFrom} - {self.TimeEffectiveFrom}"
+
 
 class PEmail(models.Model):
   """
@@ -1861,11 +2102,13 @@ class PEmail(models.Model):
   """
 
   EmailAddress = models.CharField(max_length=40, default='first.last@field.om.org', null=False, blank=False, unique=True)
-  Description = models.CharField(max_length=80)
-  Valid = models.BooleanField(default=True)
+  Description = models.CharField(max_length=80, null=True)
+  Valid = models.BooleanField(default=True, null=True)
   # This defines if the email code can be deleted. <br/>This can only be updated by the system manager. <br/>At the risk of serious operational integrity. <br/>Default to Yes
   Deletable = models.BooleanField(default=True, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.EmailAddress)
 
 class AForm(models.Model):
   """
@@ -1877,26 +2120,29 @@ class AForm(models.Model):
   # The name of the form being created for the form code.
   Name = models.CharField(max_length=10, null=False, blank=False)
   # Description of the form
-  FormDescription = models.CharField(max_length=50)
+  FormDescription = models.CharField(max_length=50, null=True)
   # File name used for the form. Includes path information.
-  FileName = models.CharField(max_length=1000)
+  FileName = models.CharField(max_length=1000, null=True)
   # If there are several types of form then it can be specified here.  Eg an annual receipt and an individual receipt.
   TypeCode = models.CharField(max_length=12, null=False, blank=False)
   # The number of repeating lines that will be displayed on each page of a form.
-  NumberOfDetails = models.IntegerField(default=0)
+  NumberOfDetails = models.IntegerField(default=0, null=True)
   # Is the report to be formatted to print in bold or not.
   PrintInBold = models.BooleanField(default=False, null=False, blank=False)
   # The total number of lines that can be displayed on the page
   LinesOnPage = models.IntegerField(default=66, null=False, blank=False)
   # The minimum amount that is acceptable on a receipt
-  MinimumAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  MinimumAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Allows the exclusion of certain records from a report
-  Options = models.CharField(max_length=32)
+  Options = models.CharField(max_length=32, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_form_pk', fields=['Code', 'Name']),
     ]
+  def __str__(self):
+    return f"{self.Code} - {self.Name}"
+
 
 class AFormElementType(models.Model):
   """
@@ -1908,13 +2154,16 @@ class AFormElementType(models.Model):
   # The code of an element type that can be positioned for use on a form.
   Code = models.CharField(max_length=20, null=False, blank=False)
   # Description of Element Type
-  Desc = models.CharField(max_length=80)
-  DefaultLength = models.IntegerField(default=1)
+  Desc = models.CharField(max_length=80, null=True)
+  DefaultLength = models.IntegerField(default=1, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_form_element_type_pk', fields=['FormCode', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.FormCode} - {self.Code}"
+
 
 class AFormElement(models.Model):
   """
@@ -1931,17 +2180,20 @@ class AFormElement(models.Model):
   # The display length for the element.  e.g. it may be necessary to truncate fields.
   Length = models.IntegerField(default=1, null=False, blank=False)
   # This stores the number of characters to skip prior to printing.  It can be used to spread a description over two lines.
-  Skip = models.IntegerField(default=0)
+  Skip = models.IntegerField(default=0, null=True)
   # Indicates when the element is printed.  This would indicate detail lines, first, last page etc.
   WhenPrint = models.CharField(max_length=20, null=False, blank=False)
   # Text to be displayed if the element is defined as a literal.
-  LiteralText = models.CharField(max_length=132)
+  LiteralText = models.CharField(max_length=132, null=True)
   FormElementType = models.ForeignKey(AFormElementType, null=False, blank=False, related_name="AFormElement_FormElementType", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_form_element_pk', fields=['Form', 'FormSequence']),
     ]
+  def __str__(self):
+    return f"{self.Form} - {self.FormSequence}"
+
 
 class AFreeformAnalysis(models.Model):
   """
@@ -1952,12 +2204,15 @@ class AFreeformAnalysis(models.Model):
   # Value of analysis code
   AnalysisValue = models.CharField(max_length=80, null=False, blank=False)
   # Analysis attribute values cannot be deleted, because they are needed for existing transaction analysis attributes. But they can be deactivated.
-  Active = models.BooleanField(default=True)
+  Active = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_freeform_analysis_pk', fields=['AnalysisType', 'AnalysisValue']),
     ]
+  def __str__(self):
+    return f"{self.AnalysisType} - {self.AnalysisValue}"
+
 
 class AIchStewardship(models.Model):
   """
@@ -1974,23 +2229,26 @@ class AIchStewardship(models.Model):
   # This is the date the stewardship was processed.
   DateProcessed = models.DateTimeField(null=False, blank=False)
   # Income amount for foreign cost centre's stewardship
-  IncomeAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  IncomeAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Expense amount for foreign cost centre's stewardship
-  ExpenseAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ExpenseAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Direct Transfer amount for foreign cost centre's stewardship
-  DirectXferAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  DirectXferAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Income amount for foreign cost centre's stewardship in International Currency
-  IncomeAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  IncomeAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Expense amount for foreign cost centre's stewardship in international currency
-  ExpenseAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ExpenseAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Direct Transfer amount for foreign cost centre's stewardship in international currency.
-  DirectXferAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  DirectXferAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AIchStewardship_CostCentre", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_ich_stewardship_pk', fields=['AccountingPeriod', 'IchNumber']),
     ]
+  def __str__(self):
+    return f"{self.AccountingPeriod} - {self.IchNumber}"
+
 
 class AMethodOfGiving(models.Model):
   """
@@ -2008,8 +2266,10 @@ class AMethodOfGiving(models.Model):
   # Shows if this method of giving is used by recurring gifts
   RecurringMethod = models.BooleanField(default=False, null=False, blank=False)
   # Shows whether this code is active
-  Active = models.BooleanField(default=True)
+  Active = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class AMethodOfPayment(models.Model):
   """
@@ -2020,13 +2280,15 @@ class AMethodOfPayment(models.Model):
   Code = models.CharField(max_length=8, null=False, blank=False, unique=True)
   # This is a short description which is 32 charcters long
   Desc = models.CharField(max_length=32, null=False, blank=False)
-  MethodOfPaymentType = models.CharField(max_length=8)
+  MethodOfPaymentType = models.CharField(max_length=8, null=True)
   # The filename of the process to call
-  ProcessToCall = models.CharField(max_length=12)
+  ProcessToCall = models.CharField(max_length=12, null=True)
   SpecialMethodOfPmt = models.BooleanField(default=False, null=False, blank=False)
   # Shows whether this code is active
-  Active = models.BooleanField(default=True)
+  Active = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class AMotivationGroup(models.Model):
   """
@@ -2042,14 +2304,17 @@ class AMotivationGroup(models.Model):
   # Defines whether the motivation group is still in use
   GroupStatus = models.BooleanField(null=False, blank=False)
   # This is a long description and is 80 characters long in the local language.
-  MotivationGroupDescLocal = models.CharField(max_length=50)
+  MotivationGroupDescLocal = models.CharField(max_length=50, null=True)
   # Indicates whether or not the motivation has restricted access. If it does then the access will be controlled by s_group_motivation
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_motivation_group_pk', fields=['Ledger', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.Code}"
+
 
 class ARecurringBatch(models.Model):
   """
@@ -2061,9 +2326,9 @@ class ARecurringBatch(models.Model):
   # identifes which batch a transaction belongs to
   BatchNumber = models.IntegerField(default=0, null=False, blank=False)
   # This is a long description and is 80 characters long.
-  BatchDescription = models.CharField(max_length=80)
+  BatchDescription = models.CharField(max_length=80, null=True)
   # This is a number of currency units
-  BatchControlTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  BatchControlTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # identifies the status of a batch
   BatchStatus = models.CharField(max_length=12, default='Unposted', null=False, blank=False)
   # This is a number of currency units
@@ -2073,14 +2338,14 @@ class ARecurringBatch(models.Model):
   # This is a number of currency units
   BatchCreditTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # This defines which accounting period is being used
-  BatchPeriod = models.IntegerField(default=0)
+  BatchPeriod = models.IntegerField(default=0, null=True)
   # Date the  batch comes into effect
   DateEffective = models.DateTimeField(null=False, blank=False)
   # This identifies who the current user is
-  User = models.ForeignKey(SUser, related_name="ARecurringBatch_User", on_delete=models.CASCADE)
-  DateOfEntry = models.DateTimeField()
-  Frequency = models.ForeignKey(AFrequency, related_name="ARecurringBatch_Frequency", on_delete=models.CASCADE)
-  DateBatchLastRun = models.DateTimeField()
+  User = models.ForeignKey(SUser, null=True, related_name="ARecurringBatch_User", on_delete=models.CASCADE)
+  DateOfEntry = models.DateTimeField(null=True)
+  Frequency = models.ForeignKey(AFrequency, null=True, related_name="ARecurringBatch_Frequency", on_delete=models.CASCADE)
+  DateBatchLastRun = models.DateTimeField(null=True)
   # Identifies a journal within a batch
   LastJournal = models.IntegerField(default=0, null=False, blank=False)
 
@@ -2088,6 +2353,9 @@ class ARecurringBatch(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_recurring_batch_pk', fields=['Ledger', 'BatchNumber']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.BatchNumber}"
+
 
 class ABatch(models.Model):
   """
@@ -2099,9 +2367,9 @@ class ABatch(models.Model):
   # Identifies the batch.
   BatchNumber = models.IntegerField(default=0, null=False, blank=False)
   # This is a long description and is 80 characters long.
-  BatchDescription = models.CharField(max_length=80)
+  BatchDescription = models.CharField(max_length=80, null=True)
   # Raw total amount of the batch.  If the journals within the batch have different currencies, this is just a raw numeric sum of all the journal amounts.  It does not reflect a monetary value in a specific currency.  Entered by the user.
-  BatchControlTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  BatchControlTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Running total amount of the batch calculated as transactions are enterd.  If the journals within the batch have different currencies, this is just a raw numeric sum of all the journal amounts.  It does not reflect a monetary value in a specific currency.
   BatchRunningTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # Raw debit total amount of the batch.  If the journals within the batch have different currencies, this is just a raw numeric sum of all the journal amounts.  It does not reflect a monetary value in a specific currency.
@@ -2111,22 +2379,25 @@ class ABatch(models.Model):
   # This identifies which accounting period that the batch belongs to.
   BatchPeriod = models.IntegerField(default=0, null=False, blank=False)
   # The number of the accounting year
-  BatchYear = models.IntegerField(default=0)
+  BatchYear = models.IntegerField(default=0, null=True)
   # Date the  batch comes into effect
   DateEffective = models.DateTimeField(null=False, blank=False)
   # Date the  batch was created.
   DateOfEntry = models.DateTimeField(null=False, blank=False)
   # Has this batch been posted yet?
-  BatchStatus = models.CharField(max_length=12, default='Unposted')
+  BatchStatus = models.CharField(max_length=12, default='Unposted', null=True)
   # Identifies a journal within a batch
   LastJournal = models.IntegerField(default=0, null=False, blank=False)
   # Number of the originating gift batch that generated this GL batch.
-  GiftBatchNumber = models.IntegerField()
+  GiftBatchNumber = models.IntegerField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_batch_pk', fields=['Ledger', 'BatchNumber']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.BatchNumber}"
+
 
 class ARevaluation(models.Model):
   """
@@ -2145,6 +2416,9 @@ class ARevaluation(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_revaluation_pk', fields=['Batch', 'JournalNumber']),
     ]
+  def __str__(self):
+    return f"{self.Batch} - {self.JournalNumber}"
+
 
 class ASpecialTransType(models.Model):
   """
@@ -2159,12 +2433,15 @@ class ASpecialTransType(models.Model):
   # The filename of the process to call
   SpecTransProcessToCall = models.CharField(max_length=12, null=False, blank=False)
   # Process to call to undo the work of the special transaction process, if needed
-  SpecTransUndoProcess = models.CharField(max_length=8)
+  SpecTransUndoProcess = models.CharField(max_length=8, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_special_trans_type_pk', fields=['SubSystem', 'TransactionTypeCode']),
     ]
+  def __str__(self):
+    return f"{self.SubSystem} - {self.TransactionTypeCode}"
+
 
 class ASystemInterface(models.Model):
   """
@@ -2175,12 +2452,15 @@ class ASystemInterface(models.Model):
   Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ASystemInterface_Ledger", on_delete=models.CASCADE)
   # Defines a sub system of accounts
   SubSystem = models.ForeignKey(ASubSystem, null=False, blank=False, related_name="ASystemInterface_SubSystem", on_delete=models.CASCADE)
-  SetUpComplete = models.BooleanField(default=False)
+  SetUpComplete = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_system_interface_pk', fields=['Ledger', 'SubSystem']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.SubSystem}"
+
 
 class ACurrencyLanguage(models.Model):
   """
@@ -2192,22 +2472,25 @@ class ACurrencyLanguage(models.Model):
   # This is the code used to identify a language.
   Language = models.ForeignKey(PLanguage, null=False, blank=False, related_name="ACurrencyLanguage_Language", on_delete=models.CASCADE)
   # The currency unit label when the amount is 1
-  UnitLabelSingular = models.CharField(max_length=16)
+  UnitLabelSingular = models.CharField(max_length=16, null=True)
   # The currency unit label when the amount is > 1
-  UnitLabelPlural = models.CharField(max_length=16)
+  UnitLabelPlural = models.CharField(max_length=16, null=True)
   # This is needed to determine the gender in some languages.
-  SpecialCode = models.CharField(max_length=16)
+  SpecialCode = models.CharField(max_length=16, null=True)
   # Describes what to do with the decimal when representing it as text.  Not to display, display as text or as a numeric
-  DecimalOptions = models.CharField(max_length=12)
+  DecimalOptions = models.CharField(max_length=12, null=True)
   # The currency decimal label when the amount is 1
-  DecimalLabelSingular = models.CharField(max_length=16)
+  DecimalLabelSingular = models.CharField(max_length=16, null=True)
   # The currency decimal label when the amount is > 1
-  DecimalLabelPlural = models.CharField(max_length=16)
+  DecimalLabelPlural = models.CharField(max_length=16, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_currency_language_pk', fields=['Currency', 'Language']),
     ]
+  def __str__(self):
+    return f"{self.Currency} - {self.Language}"
+
 
 class AArCategory(models.Model):
   """
@@ -2217,10 +2500,12 @@ class AArCategory(models.Model):
   # categories help to specify certain discounts and group articles etc
   Code = models.CharField(max_length=50, null=False, blank=False, unique=True)
   # description of this category
-  ArDescription = models.CharField(max_length=150)
+  ArDescription = models.CharField(max_length=150, null=True)
   # description of this category in the local language
-  ArLocalDescription = models.CharField(max_length=150)
+  ArLocalDescription = models.CharField(max_length=150, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class AArArticle(models.Model):
   """
@@ -2234,12 +2519,14 @@ class AArArticle(models.Model):
   # this article falls into a special tax/VAT category
   TaxType = models.ForeignKey(ATaxType, null=False, blank=False, related_name="AArArticle_TaxType", on_delete=models.CASCADE)
   # describes whether this describes a specific item, e.g. book, or a group of equally priced items
-  ArSpecificArticle = models.BooleanField()
+  ArSpecificArticle = models.BooleanField(null=True)
   # description of this article
-  ArDescription = models.CharField(max_length=150)
+  ArDescription = models.CharField(max_length=150, null=True)
   # description of this article in the local language
-  ArLocalDescription = models.CharField(max_length=150)
+  ArLocalDescription = models.CharField(max_length=150, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class AArArticlePrice(models.Model):
   """
@@ -2259,6 +2546,9 @@ class AArArticlePrice(models.Model):
     constraints = [
       models.UniqueConstraint(name='ar_article_price_pk', fields=['ArArticle', 'ArDateValidFrom']),
     ]
+  def __str__(self):
+    return f"{self.ArArticle} - {self.ArDateValidFrom}"
+
 
 class AArDiscount(models.Model):
   """
@@ -2270,42 +2560,45 @@ class AArDiscount(models.Model):
   # date from which this discount is valid
   ArDateValidFrom = models.DateTimeField(null=False, blank=False)
   # this discount has only be created on the fly and should not be reusable elsewhere
-  ArAdhoc = models.BooleanField(default=False)
+  ArAdhoc = models.BooleanField(default=False, null=True)
   # flag that prevents this discount from being used, to avoid too long lists in comboboxes etc
-  Active = models.BooleanField(default=True)
+  Active = models.BooleanField(default=True, null=True)
   # discount percentage; can be negative for expensive rooms etc
-  ArDiscountPercentage = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+  ArDiscountPercentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True)
   # the absolute discount that is substracted from the article price; can be negative as well
-  ArDiscountAbsolute = models.DecimalField(max_digits=24, decimal_places=10)
+  ArDiscountAbsolute = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # the absolute amount that is charged if this discount applies; e.g. 3 books for 5 Pound
-  ArAbsoluteAmount = models.DecimalField(max_digits=24, decimal_places=10)
+  ArAbsoluteAmount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # the currency in which the absolute discount or amount is given
   Currency = models.ForeignKey(ACurrency, null=False, blank=False, related_name="AArDiscount_Currency", on_delete=models.CASCADE)
   # this discount applies for this number of items that are bought at the same time
-  ArNumberOfItems = models.IntegerField()
+  ArNumberOfItems = models.IntegerField(null=True)
   # this discount applies for all of the items if at least this number of items is bought at the same time
-  ArMinimumNumberOfItems = models.IntegerField()
+  ArMinimumNumberOfItems = models.IntegerField(null=True)
   # this discount applies for this number of nights that the individual or group stays; this is needed because 100 people staying for one night do cost more than 50 people staying for 2 nights
-  ArNumberOfNights = models.IntegerField()
+  ArNumberOfNights = models.IntegerField(null=True)
   # this discount applies for all of the nights if the individual or group stays at least for the given amount of nights; this is needed because 100 people staying for one night do cost more than 50 people staying for 2 nights
-  ArMinimumNumberOfNights = models.IntegerField()
+  ArMinimumNumberOfNights = models.IntegerField(null=True)
   # this discount applies when a whole room is booked rather than just a bed
-  ArWholeRoom = models.BooleanField()
+  ArWholeRoom = models.BooleanField(null=True)
   # this discount applies for a children (e.g. meals)
-  ArChildren = models.BooleanField()
+  ArChildren = models.BooleanField(null=True)
   # this discount applies when the booking has been done so many days before the stay (using ph_booking.ph_confirmed_d and ph_in_d)
-  ArEarlyBookingDays = models.IntegerField()
+  ArEarlyBookingDays = models.IntegerField(null=True)
   # this discount applies when the payment has been received within the given number of days after the invoice has been charged
-  ArEarlyPaymentDays = models.IntegerField()
+  ArEarlyPaymentDays = models.IntegerField(null=True)
   # this discount applies if the article code matches
-  ArArticle = models.ForeignKey(AArArticle, related_name="AArDiscount_ArArticle", on_delete=models.CASCADE)
+  ArArticle = models.ForeignKey(AArArticle, null=True, related_name="AArDiscount_ArArticle", on_delete=models.CASCADE)
   # this discounts applies to partners of this type
-  PartnerType = models.ForeignKey(PType, related_name="AArDiscount_PartnerType", on_delete=models.CASCADE)
+  PartnerType = models.ForeignKey(PType, null=True, related_name="AArDiscount_PartnerType", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='ar_discount_pk', fields=['Code', 'ArDateValidFrom']),
     ]
+  def __str__(self):
+    return f"{self.Code} - {self.ArDateValidFrom}"
+
 
 class AArDiscountPerCategory(models.Model):
   """
@@ -2322,6 +2615,9 @@ class AArDiscountPerCategory(models.Model):
     constraints = [
       models.UniqueConstraint(name='ar_discount_per_category_pk', fields=['ArCategory']),
     ]
+  def __str__(self):
+    return f"{self.ArCategory}"
+
 
 class AArDefaultDiscount(models.Model):
   """
@@ -2334,12 +2630,15 @@ class AArDefaultDiscount(models.Model):
   # this clearly specifies which version of the discount is meant
   ArDiscountDateValidFrom = models.DateTimeField(null=False, blank=False)
   # this default discount is only applied during this time period; can be null for ongoing default discounts
-  ArDateValidTo = models.DateTimeField()
+  ArDateValidTo = models.DateTimeField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='ar_default_discount_pk', fields=['ArCategory', 'ArDiscount']),
     ]
+  def __str__(self):
+    return f"{self.ArCategory} - {self.ArDiscount}"
+
 
 class PtApplicantStatus(models.Model):
   """
@@ -2349,14 +2648,16 @@ class PtApplicantStatus(models.Model):
   # This code indicates the status of an applicant.
   Code = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # This describes the applicant status code.
-  Description = models.CharField(max_length=40)
+  Description = models.CharField(max_length=40, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtApplicationType(models.Model):
   """
@@ -2366,16 +2667,18 @@ class PtApplicationType(models.Model):
   # Name of the application type, e.g. Short-Term, Long-Term.
   AppTypeName = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # Describes the application type.
-  AppTypeDescr = models.CharField(max_length=40)
+  AppTypeDescr = models.CharField(max_length=40, null=True)
   # Can this application type be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # This field lists the different forms that are used for the various application types.
-  AppFormType = models.CharField(max_length=16)
+  AppFormType = models.CharField(max_length=16, null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.AppTypeName)
 
 class PtContact(models.Model):
   """
@@ -2385,14 +2688,16 @@ class PtContact(models.Model):
   # Name of the contact, e.g.  Friend, Program, Church.
   Name = models.CharField(max_length=20, null=False, blank=False, unique=True)
   # Describes the contact.
-  Descr = models.CharField(max_length=40)
+  Descr = models.CharField(max_length=40, null=True)
   # Can this position be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Name)
 
 class PtSpecialApplicant(models.Model):
   """
@@ -2402,14 +2707,16 @@ class PtSpecialApplicant(models.Model):
   # This code indicates a special status an applicant could have.
   Code = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # This describes the special applicant status code.
-  Description = models.CharField(max_length=40)
+  Description = models.CharField(max_length=40, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtLeadershipRating(models.Model):
   """
@@ -2419,14 +2726,16 @@ class PtLeadershipRating(models.Model):
   # This code indicates the leadership rating of an applicant.
   Code = models.CharField(max_length=20, null=False, blank=False, unique=True)
   # This describes the Leadership Rating code.
-  Description = models.CharField(max_length=40)
+  Description = models.CharField(max_length=40, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtArrivalPoint(models.Model):
   """
@@ -2436,14 +2745,16 @@ class PtArrivalPoint(models.Model):
   # This code indicates the arrival point of the congress attendee.
   Code = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # This describes the arrival point.
-  Description = models.CharField(max_length=40)
+  Description = models.CharField(max_length=40, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtOutreachPreferenceLevel(models.Model):
   """
@@ -2453,14 +2764,16 @@ class PtOutreachPreferenceLevel(models.Model):
   # This code indicates the level of importance of the country and activity choice on outreachs.
   Code = models.CharField(max_length=20, null=False, blank=False, unique=True)
   # This describes the preference level code.
-  Description = models.CharField(max_length=40)
+  Description = models.CharField(max_length=40, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtCongressCode(models.Model):
   """
@@ -2470,23 +2783,25 @@ class PtCongressCode(models.Model):
   # This code indicates the role of the event attendee.
   Code = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # This describes the Event Role.
-  Description = models.CharField(max_length=40)
+  Description = models.CharField(max_length=40, null=True)
   # Indicates if this is valid pre-Conference Role.
-  PreCongress = models.BooleanField(default=False)
+  PreCongress = models.BooleanField(default=False, null=True)
   # Indicates if this role can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this role was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
-  Discounted = models.BooleanField(default=False)
+  Deletable = models.BooleanField(default=True, null=True)
+  Discounted = models.BooleanField(default=False, null=True)
   # Indicates if this is a valid role during a outreach.
-  Outreach = models.BooleanField(default=False)
+  Outreach = models.BooleanField(default=False, null=True)
   # Indicates if this is valid Conference Role.
-  Conference = models.BooleanField(default=False)
+  Conference = models.BooleanField(default=False, null=True)
   # Indicates if this role is considered as a normal participant (e.g. in reports)
-  Participant = models.BooleanField(default=False)
+  Participant = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtTravelType(models.Model):
   """
@@ -2496,14 +2811,16 @@ class PtTravelType(models.Model):
   # This code indicates the different types of travel.
   Code = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # This describes the types of travel .
-  Description = models.CharField(max_length=40)
+  Description = models.CharField(max_length=40, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PmDocumentCategory(models.Model):
   """
@@ -2513,16 +2830,18 @@ class PmDocumentCategory(models.Model):
   # This code indicates the category of a document type.
   Code = models.CharField(max_length=32, null=False, blank=False, unique=True)
   # This describes the document type category.
-  Description = models.CharField(max_length=50)
+  Description = models.CharField(max_length=50, null=True)
   # Indicates if document types for this category can be added on the fly
-  Extendable = models.BooleanField(default=False)
+  Extendable = models.BooleanField(default=False, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PmDocumentType(models.Model):
   """
@@ -2534,14 +2853,16 @@ class PmDocumentType(models.Model):
   # This code indicates the category of a document type.
   DocCategory = models.ForeignKey(PmDocumentCategory, null=False, blank=False, related_name="PmDocumentType_DocCategory", on_delete=models.CASCADE)
   # This describes the document type.
-  Description = models.CharField(max_length=40)
+  Description = models.CharField(max_length=40, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.DocCode)
 
 class PtPassportType(models.Model):
   """
@@ -2551,14 +2872,16 @@ class PtPassportType(models.Model):
   # This code indicates the type of passport a person holds.
   Code = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # This describes the passport type.
-  Description = models.CharField(max_length=40)
+  Description = models.CharField(max_length=40, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtLanguageLevel(models.Model):
   """
@@ -2570,14 +2893,16 @@ class PtLanguageLevel(models.Model):
   # Describes the level of fluency in a language.
   Descr = models.CharField(max_length=35, null=False, blank=False)
   # Can this contact still be listed?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # This is the date from which this contact can no longer be assigned.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
   # Exhaustive explanation of the Language Level.
-  LanguageComment = models.CharField(max_length=400)
+  LanguageComment = models.CharField(max_length=400, null=True)
 
+  def __str__(self):
+    return str(self.LanguageLevel)
 
 class PtAbilityArea(models.Model):
   """
@@ -2593,10 +2918,12 @@ class PtAbilityArea(models.Model):
   # Can this ability be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Name)
 
 class PtAbilityLevel(models.Model):
   """
@@ -2610,10 +2937,12 @@ class PtAbilityLevel(models.Model):
   # Can this ability level be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.AbilityLevel)
 
 class PtQualificationArea(models.Model):
   """
@@ -2627,10 +2956,12 @@ class PtQualificationArea(models.Model):
   # Can this qualification be assigned?
   Qualification = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  QualificationDate = models.DateTimeField()
+  QualificationDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Name)
 
 class PtQualificationLevel(models.Model):
   """
@@ -2644,10 +2975,12 @@ class PtQualificationLevel(models.Model):
   # Can this qualification level be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.QualificationLevel)
 
 class PtSkillCategory(models.Model):
   """
@@ -2657,14 +2990,16 @@ class PtSkillCategory(models.Model):
   # Code for the Skill Category
   Code = models.CharField(max_length=30, null=False, blank=False, unique=True)
   # Describes the Category used for skills
-  Description = models.CharField(max_length=80)
+  Description = models.CharField(max_length=80, null=True)
   # Can this category be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtSkillLevel(models.Model):
   """
@@ -2678,10 +3013,12 @@ class PtSkillLevel(models.Model):
   # Can this skill level be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Level)
 
 class PDataLabelLookupCategory(models.Model):
   """
@@ -2691,10 +3028,12 @@ class PDataLabelLookupCategory(models.Model):
   # Code for Lookup Category
   CategoryCode = models.CharField(max_length=30, null=False, blank=False, unique=True)
   # Description for Lookup Category
-  CategoryDesc = models.CharField(max_length=60)
+  CategoryDesc = models.CharField(max_length=60, null=True)
   # Indicates if values for this category can be added on the fly
-  Extendable = models.BooleanField(default=False)
+  Extendable = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.CategoryCode)
 
 class PDataLabel(models.Model):
   """
@@ -2704,34 +3043,36 @@ class PDataLabel(models.Model):
   # A sequence key for data labels.
   Key = models.IntegerField(null=False, blank=False, unique=True)
   # Label Text
-  Text = models.CharField(max_length=50)
+  Text = models.CharField(max_length=50, null=True)
   # Data Label Group
-  Group = models.CharField(max_length=50)
+  Group = models.CharField(max_length=50, null=True)
   # Description (Help Text) for the label that the user will see
-  Description = models.CharField(max_length=200)
+  Description = models.CharField(max_length=200, null=True)
   # Data Type (char | integer | float | currency | boolean | date | time | partnerkey | lookup)
   DataType = models.CharField(max_length=20, null=False, blank=False)
   # Maximum length of data string if data type is set to character.
-  CharLength = models.IntegerField()
+  CharLength = models.IntegerField(null=True)
   # Number of decimal places if data type is set to numeric.
-  NumDecimalPlaces = models.IntegerField()
+  NumDecimalPlaces = models.IntegerField(null=True)
   # This defines which currency is being used (if data type is currency)
-  Currency = models.ForeignKey(ACurrency, related_name="PDataLabel_Currency", on_delete=models.CASCADE)
+  Currency = models.ForeignKey(ACurrency, null=True, related_name="PDataLabel_Currency", on_delete=models.CASCADE)
   # If a lookup category is selected then the values can be chosen from a drop down box
-  LookupCategory = models.ForeignKey(PDataLabelLookupCategory, related_name="PDataLabel_LookupCategory", on_delete=models.CASCADE)
+  LookupCategory = models.ForeignKey(PDataLabelLookupCategory, null=True, related_name="PDataLabel_LookupCategory", on_delete=models.CASCADE)
   # If TRUE then a value for this label has to be set
-  EntryMandatory = models.BooleanField(default=False)
+  EntryMandatory = models.BooleanField(default=False, null=True)
   # If TRUE then this data label will be displayed. Gives a chance to hide but keep labels for historical reasons.
-  Displayed = models.BooleanField(default=True)
+  Displayed = models.BooleanField(default=True, null=True)
   # Data label will not be displayed any longer from this date on.
-  NotDisplayedFrom = models.DateTimeField()
+  NotDisplayedFrom = models.DateTimeField(null=True)
   # if FALSE then the values will be displayed but are not editable.
-  Editable = models.BooleanField(default=True)
+  Editable = models.BooleanField(default=True, null=True)
   # Data label values will not be editable any longer from this date on.
-  NotEditableFrom = models.DateTimeField()
+  NotEditableFrom = models.DateTimeField(null=True)
   # Indicates whether or not the data label has restricted access. If it does then the access will be controlled by s_group_data_label
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.Key)
 
 class PDataLabelUse(models.Model):
   """
@@ -2749,6 +3090,9 @@ class PDataLabelUse(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_data_label_use_pk', fields=['DataLabel', 'Use']),
     ]
+  def __str__(self):
+    return f"{self.DataLabel} - {self.Use}"
+
 
 class PDataLabelLookup(models.Model):
   """
@@ -2760,14 +3104,17 @@ class PDataLabelLookup(models.Model):
   # Code for Lookup Value
   ValueCode = models.CharField(max_length=40, null=False, blank=False)
   # Description for Lookup Value
-  ValueDesc = models.CharField(max_length=60)
+  ValueDesc = models.CharField(max_length=60, null=True)
   # Indicates if this value is active (i.e. can be used)
-  Active = models.BooleanField(default=True)
+  Active = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_data_label_lookup_pk', fields=['Category', 'ValueCode']),
     ]
+  def __str__(self):
+    return f"{self.Category} - {self.ValueCode}"
+
 
 class PmCommitmentStatus(models.Model):
   """
@@ -2777,20 +3124,22 @@ class PmCommitmentStatus(models.Model):
   # Code for Status
   Code = models.CharField(max_length=20, null=False, blank=False, unique=True)
   # Description for Status
-  Desc = models.CharField(max_length=50)
+  Desc = models.CharField(max_length=50, null=True)
   # Detailed Explanation for the Status
-  Explanation = models.CharField(max_length=500)
+  Explanation = models.CharField(max_length=500, null=True)
   # Indicates if the person with this status is generally supposed to have access to the worldwide intranet of the organisation
-  IntranetAccess = models.BooleanField(default=True)
+  IntranetAccess = models.BooleanField(default=True, null=True)
   # Display Index (for sorting other than alphabetically).
-  DisplayIdx1 = models.IntegerField()
+  DisplayIdx1 = models.IntegerField(null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PtPosition(models.Model):
   """
@@ -2802,18 +3151,21 @@ class PtPosition(models.Model):
   # Scope of this position.
   PositionScope = models.ForeignKey(UUnitType, null=False, blank=False, related_name="PtPosition_PositionScope", on_delete=models.CASCADE)
   # Describes the position.
-  Descr = models.CharField(max_length=80)
+  Descr = models.CharField(max_length=80, null=True)
   # Can this position be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pt_position_pk', fields=['Name', 'PositionScope']),
     ]
+  def __str__(self):
+    return f"{self.Name} - {self.PositionScope}"
+
 
 class PtAssignmentType(models.Model):
   """
@@ -2827,10 +3179,12 @@ class PtAssignmentType(models.Model):
   # Can this qualification level be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PcCostType(models.Model):
   """
@@ -2840,14 +3194,16 @@ class PcCostType(models.Model):
   # Unique name of the cost type
   Code = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # Description of the cost type
-  CostTypeDescription = models.CharField(max_length=40)
+  CostTypeDescription = models.CharField(max_length=40, null=True)
   # Can this cost type be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PcConferenceOptionType(models.Model):
   """
@@ -2857,15 +3213,17 @@ class PcConferenceOptionType(models.Model):
   # Unique name of the cost type
   OptionTypeCode = models.CharField(max_length=16, null=False, blank=False, unique=True)
   # Description of the option type
-  OptionTypeDescription = models.CharField(max_length=40)
-  OptionTypeComment = models.CharField(max_length=256)
+  OptionTypeDescription = models.CharField(max_length=40, null=True)
+  OptionTypeComment = models.CharField(max_length=256, null=True)
   # Can this option type be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.OptionTypeCode)
 
 class PcDiscountCriteria(models.Model):
   """
@@ -2875,14 +3233,16 @@ class PcDiscountCriteria(models.Model):
   # Unique name of the discount criteria
   Code = models.CharField(max_length=8, null=False, blank=False, unique=True)
   # Description of the discount criteria
-  Desc = models.CharField(max_length=40)
+  Desc = models.CharField(max_length=40, null=True)
   # Can this discount criteria be assigned?
   Unassignable = models.BooleanField(default=False, null=False, blank=False)
   # This is the date the record was last updated.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PcRoomAttributeType(models.Model):
   """
@@ -2890,10 +3250,12 @@ class PcRoomAttributeType(models.Model):
   """
 
   Code = models.CharField(max_length=20, null=False, blank=False, unique=True)
-  Desc = models.CharField(max_length=50)
-  Valid = models.BooleanField(default=True)
-  Deletable = models.BooleanField(default=True)
+  Desc = models.CharField(max_length=50, null=True)
+  Valid = models.BooleanField(default=True, null=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PInterestCategory(models.Model):
   """
@@ -2902,12 +3264,14 @@ class PInterestCategory(models.Model):
 
   # Unique key for the table
   Category = models.CharField(max_length=10, null=False, blank=False, unique=True)
-  Description = models.CharField(max_length=50)
+  Description = models.CharField(max_length=50, null=True)
   # Description of all the interest intensity levels.  Leave empty if levels not needed.
-  LevelDescriptions = models.CharField(max_length=256)
-  LevelRangeLow = models.IntegerField()
-  LevelRangeHigh = models.IntegerField()
+  LevelDescriptions = models.CharField(max_length=256, null=True)
+  LevelRangeLow = models.IntegerField(null=True)
+  LevelRangeHigh = models.IntegerField(null=True)
 
+  def __str__(self):
+    return str(self.Category)
 
 class PInterest(models.Model):
   """
@@ -2917,9 +3281,11 @@ class PInterest(models.Model):
   # Unique key for the table
   Interest = models.CharField(max_length=10, null=False, blank=False, unique=True)
   # Interest category
-  Category = models.ForeignKey(PInterestCategory, related_name="PInterest_Category", on_delete=models.CASCADE)
-  Description = models.CharField(max_length=50)
+  Category = models.ForeignKey(PInterestCategory, null=True, related_name="PInterest_Category", on_delete=models.CASCADE)
+  Description = models.CharField(max_length=50, null=True)
 
+  def __str__(self):
+    return str(self.Interest)
 
 class PReminderCategory(models.Model):
   """
@@ -2929,14 +3295,16 @@ class PReminderCategory(models.Model):
   # This code indicates the category of a reminder
   Code = models.CharField(max_length=20, null=False, blank=False, unique=True)
   # This describes the reminder category.
-  Description = models.CharField(max_length=50)
+  Description = models.CharField(max_length=50, null=True)
   # Indicates if this code can still be assigned?
-  Unassignable = models.BooleanField(default=False)
+  Unassignable = models.BooleanField(default=False, null=True)
   # Date from which this code was made unassignable.
-  UnassignableDate = models.DateTimeField()
+  UnassignableDate = models.DateTimeField(null=True)
   # Indicates if a record can be deleted.
-  Deletable = models.BooleanField(default=True)
+  Deletable = models.BooleanField(default=True, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PProcess(models.Model):
   """
@@ -2946,10 +3314,12 @@ class PProcess(models.Model):
   # Code for the process
   Code = models.CharField(max_length=30, null=False, blank=False, unique=True)
   # Description of the process
-  Descr = models.CharField(max_length=200)
+  Descr = models.CharField(max_length=200, null=True)
   # Comma separated list of Partner Classes for which this process is valid. Null implies all Classes
-  ProcessPartnerClasses = models.CharField(max_length=200)
+  ProcessPartnerClasses = models.CharField(max_length=200, null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PState(models.Model):
   """
@@ -2961,16 +3331,19 @@ class PState(models.Model):
   # Code for the state
   Code = models.CharField(max_length=30, null=False, blank=False)
   # Description of the state
-  Descr = models.CharField(max_length=200)
+  Descr = models.CharField(max_length=200, null=True)
   # Is this a currently active state?
-  Active = models.BooleanField()
+  Active = models.BooleanField(null=True)
   # Is this a system defined state (as opposed to a user defined one)?
-  SystemState = models.BooleanField()
+  SystemState = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_state_pk', fields=['Process', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.Process} - {self.Code}"
+
 
 class PAction(models.Model):
   """
@@ -2982,16 +3355,19 @@ class PAction(models.Model):
   # Code for the action
   Code = models.CharField(max_length=30, null=False, blank=False)
   # Description of the action
-  Descr = models.CharField(max_length=200)
+  Descr = models.CharField(max_length=200, null=True)
   # Is this action currently in progress?
-  Active = models.BooleanField()
+  Active = models.BooleanField(null=True)
   # Is this a system defined action (as opposed to a user defined one)?
-  SystemAction = models.BooleanField()
+  SystemAction = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_action_pk', fields=['Process', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.Process} - {self.Code}"
+
 
 class PFirstContact(models.Model):
   """
@@ -2999,10 +3375,12 @@ class PFirstContact(models.Model):
   """
 
   Code = models.CharField(max_length=30, null=False, blank=False, unique=True)
-  Descr = models.CharField(max_length=200)
+  Descr = models.CharField(max_length=200, null=True)
   # Is this contact code still active (ie. should it be shown on picklists)?
-  Active = models.BooleanField()
+  Active = models.BooleanField(null=True)
 
+  def __str__(self):
+    return str(self.Code)
 
 class PPartner(models.Model):
   """
@@ -3010,63 +3388,65 @@ class PPartner(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  PartnerKey = models.IntegerField(default=0, null=False, blank=False, unique=True)
+  Key = models.IntegerField(default=0, null=False, blank=False, unique=True)
   # This defines what type of partner this is. The classes that may be assigned are PERSON, FAMILY, CHURCH, ORGANISATION, UNIT, VENUE and BANK.
-  PartnerClass = models.ForeignKey(PPartnerClasses, related_name="PPartner_PartnerClass", on_delete=models.CASCADE)
+  PartnerClass = models.ForeignKey(PPartnerClasses, null=True, related_name="PPartner_PartnerClass", on_delete=models.CASCADE)
   # This is a sub-class of the partner class.
-  AddresseeType = models.ForeignKey(PAddresseeType, related_name="PPartner_AddresseeType", on_delete=models.CASCADE)
+  AddresseeType = models.ForeignKey(PAddresseeType, null=True, related_name="PPartner_AddresseeType", on_delete=models.CASCADE)
   # Name of the person or organisation.  If a person, more name info is stored in p_person.
-  ShortName = models.CharField(max_length=80)
+  ShortName = models.CharField(max_length=80, null=True)
   # An alternative name for a partner - mainly for entering the local language equivalent.
-  PartnerShortNameLoc = models.CharField(max_length=80)
+  PartnerShortNameLoc = models.CharField(max_length=80, null=True)
   # Partner name how it should appear as printed version (to be used if mechanism <br/>to build short name from first and last name does not work e.g. in case of different surnames for husband and wife)
-  PrintedName = models.CharField(max_length=80)
+  PrintedName = models.CharField(max_length=80, null=True)
   # Identifies the preferred language of the partner.
-  Language = models.ForeignKey(PLanguage, related_name="PPartner_Language", on_delete=models.CASCADE)
+  Language = models.ForeignKey(PLanguage, null=True, related_name="PPartner_Language", on_delete=models.CASCADE)
   # Important information about this partner that users need to be aware of.
-  KeyInformation = models.CharField(max_length=250)
+  KeyInformation = models.CharField(max_length=250, null=True)
   # Additional information about the partner that is important to store in the database.
-  Comment = models.CharField(max_length=5000)
+  Comment = models.CharField(max_length=5000, null=True)
   # This code identifies the method of aquisition.
-  Acquisition = models.ForeignKey(PAcquisition, related_name="PPartner_Acquisition", on_delete=models.CASCADE)
+  Acquisition = models.ForeignKey(PAcquisition, null=True, related_name="PPartner_Acquisition", on_delete=models.CASCADE)
   # This code describes the status of a partner. <br/>Eg,  Active, Deceased etc
-  Status = models.ForeignKey(PPartnerStatus, related_name="PPartner_Status", on_delete=models.CASCADE)
+  Status = models.ForeignKey(PPartnerStatus, null=True, related_name="PPartner_Status", on_delete=models.CASCADE)
   # This is the date the status of the partner was last updated.
-  StatusChange = models.DateTimeField()
+  StatusChange = models.DateTimeField(null=True)
   # Why was the status changed?
-  StatusChangeReason = models.CharField(max_length=200)
+  StatusChangeReason = models.CharField(max_length=200, null=True)
   # Yes if this partner has been ""deleted.""
-  DeletedPartner = models.BooleanField(default=False)
+  DeletedPartner = models.BooleanField(default=False, null=True)
   # This is the finance details comment.
-  FinanceComment = models.CharField(max_length=255)
+  FinanceComment = models.CharField(max_length=255, null=True)
   # How often the partner receives a receipt letter.
-  ReceiptLetterFrequency = models.CharField(max_length=12)
+  ReceiptLetterFrequency = models.CharField(max_length=12, null=True)
   # Flags whether each gift given by a user is receipted
-  ReceiptEachGift = models.BooleanField(default=True)
+  ReceiptEachGift = models.BooleanField(default=True, null=True)
   # Flag whether to include this partner when running the Recipient Gift Email report
-  EmailGiftStatement = models.BooleanField(default=False)
+  EmailGiftStatement = models.BooleanField(default=False, null=True)
   # Yes if the donor wants to remain anonymous.  Names of anonymous donors will not appear on recipient gift statements.
-  AnonymousDonor = models.BooleanField(default=False)
+  AnonymousDonor = models.BooleanField(default=False, null=True)
   # Yes if not ok to solicit the partner for funds.
-  NoSolicitations = models.BooleanField(default=False)
+  NoSolicitations = models.BooleanField(default=False, null=True)
   # Inicates if this partner has been assigned as a child unit to another unit.
-  ChildIndicator = models.BooleanField(default=False)
+  ChildIndicator = models.BooleanField(default=False, null=True)
   # Restricts use of the partner record to the user in p_user_id_c if 2 or the group in p_group_id_c if 1.
-  Restricted = models.IntegerField(default=0)
+  Restricted = models.IntegerField(default=0, null=True)
   # The Petra user that the partner record is restricted to if p_restricted_i is 2.
-  UserId = models.CharField(max_length=20)
+  UserId = models.CharField(max_length=20, null=True)
   # The group of Petra users that the partner record is restricted to if p_restricted_i is 1.
-  GroupId = models.CharField(max_length=20)
-  PreviousName = models.CharField(max_length=256)
+  GroupId = models.CharField(max_length=20, null=True)
+  PreviousName = models.CharField(max_length=256, null=True)
   # How did this Partner first hear about us?
-  FirstContact = models.ForeignKey(PFirstContact, related_name="PPartner_FirstContact", on_delete=models.CASCADE)
+  FirstContact = models.ForeignKey(PFirstContact, null=True, related_name="PPartner_FirstContact", on_delete=models.CASCADE)
   # How did this Partner first hear about us (freetext)?
-  FirstContactFreeform = models.CharField(max_length=200)
+  FirstContactFreeform = models.CharField(max_length=200, null=True)
   # Intranet ID. Needed for making the link to the International Website, e.g. for using the Online Address Book.
-  IntranetId = models.CharField(max_length=100)
+  IntranetId = models.CharField(max_length=100, null=True)
   # Timezone that applies to the partner (address does not necessarily determine that). <br/>This refers to data in the International Address Book.
-  Timezone = models.CharField(max_length=50)
+  Timezone = models.CharField(max_length=50, null=True)
 
+  def __str__(self):
+    return str(self.Key)
 
 class PRecentPartners(models.Model):
   """
@@ -3078,13 +3458,16 @@ class PRecentPartners(models.Model):
   # What partner is it about?
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PRecentPartners_Partner", on_delete=models.CASCADE)
   # When was this partner edited by this user?
-  When = models.DateTimeField()
-  When = models.IntegerField()
+  When = models.DateTimeField(null=True)
+  When = models.IntegerField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_recent_partners_pk', fields=['User', 'Partner']),
     ]
+  def __str__(self):
+    return f"{self.User} - {self.Partner}"
+
 
 class PPartnerLocation(models.Model):
   """
@@ -3094,18 +3477,21 @@ class PPartnerLocation(models.Model):
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerLocation_Partner", on_delete=models.CASCADE)
   Location = models.ForeignKey(PLocation, null=False, blank=False, related_name="PPartnerLocation_Location", on_delete=models.CASCADE)
-  DateEffective = models.DateTimeField()
-  DateGoodUntil = models.DateTimeField()
-  LocationType = models.ForeignKey(PLocationType, related_name="PPartnerLocation_LocationType", on_delete=models.CASCADE)
-  SendMail = models.BooleanField(default=False)
-  LocationDetailComment = models.CharField(max_length=256)
+  DateEffective = models.DateTimeField(null=True)
+  DateGoodUntil = models.DateTimeField(null=True)
+  LocationType = models.ForeignKey(PLocationType, null=True, related_name="PPartnerLocation_LocationType", on_delete=models.CASCADE)
+  SendMail = models.BooleanField(default=False, null=True)
+  LocationDetailComment = models.CharField(max_length=256, null=True)
   # Indicates whether or not the partner location has restricted access. If it does then the access will be controlled by s_group_partner_location.
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_location_pk', fields=['Partner', 'Location']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.Location}"
+
 
 class PPartnerAttribute(models.Model):
   """
@@ -3123,9 +3509,9 @@ class PPartnerAttribute(models.Model):
   # The value of the attribute.
   Value = models.CharField(max_length=200, null=False, blank=False)
   # The country of the value of the attribute (only relevant for Telephone and Fax Numbers).
-  ValueCountry = models.ForeignKey(PCountry, related_name="PPartnerAttribute_ValueCountry", on_delete=models.CASCADE)
+  ValueCountry = models.ForeignKey(PCountry, null=True, related_name="PPartnerAttribute_ValueCountry", on_delete=models.CASCADE)
   # Any comment to explain this attribute value, or some additional info that may be required.
-  Comment = models.CharField(max_length=200)
+  Comment = models.CharField(max_length=200, null=True)
   # Flag to indicate whether this Partner Attribute is the primary one among several that have the same Partner Attribute Type.
   Primary = models.BooleanField(default=False, null=False, blank=False)
   # Flag to indicate whether this Partner Attribute is for use within The Organisation.
@@ -3137,12 +3523,15 @@ class PPartnerAttribute(models.Model):
   # Flag to indicate whether this Partner Attribute is current.
   Current = models.BooleanField(default=True, null=False, blank=False)
   # When this Partner Attribute value is no longer current from.
-  NoLongerCurrentFrom = models.DateTimeField()
+  NoLongerCurrentFrom = models.DateTimeField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_attribute_pk', fields=['Partner', 'AttributeType', 'Sequence']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.AttributeType} - {self.Sequence}"
+
 
 class PUnit(models.Model):
   """
@@ -3150,29 +3539,31 @@ class PUnit(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PUnit_Partner", on_delete=models.CASCADE)
-  Name = models.CharField(max_length=80)
-  Description = models.CharField(max_length=500)
-  UnitType = models.ForeignKey(UUnitType, related_name="PUnit_UnitType", on_delete=models.CASCADE)
+  Partner = models.OneToOneField(PPartner, null=False, blank=False, related_name="PUnit_Partner", on_delete=models.CASCADE)
+  Name = models.CharField(max_length=80, null=True)
+  Description = models.CharField(max_length=500, null=True)
+  UnitType = models.ForeignKey(UUnitType, null=True, related_name="PUnit_UnitType", on_delete=models.CASCADE)
   # Indicates the minimum number of staff required. <br/>(Computed from um_jobs.)
-  Minimum = models.IntegerField(default=0)
+  Minimum = models.IntegerField(default=0, null=True)
   # Indicates the maximum number of staff required. <br/>(Computed from um_jobs.)
-  Maximum = models.IntegerField(default=0)
+  Maximum = models.IntegerField(default=0, null=True)
   # Indicates the present number on staff. <br/>(Computed from um_jobs.)
-  Present = models.IntegerField(default=0)
+  Present = models.IntegerField(default=0, null=True)
   # Number of part-timers acceptable. <br/>(Computed from um_jobs.)
-  PartTimers = models.IntegerField(default=0)
+  PartTimers = models.IntegerField(default=0, null=True)
   # todo
-  OutreachCode = models.CharField(max_length=13)
+  OutreachCode = models.CharField(max_length=13, null=True)
   # This is the cost of the outreach/Event
   OutreachCost = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # This is the currency that is used for the outreach cost.
-  OutreachCostCurrency = models.ForeignKey(ACurrency, related_name="PUnit_OutreachCostCurrency", on_delete=models.CASCADE)
+  OutreachCostCurrency = models.ForeignKey(ACurrency, null=True, related_name="PUnit_OutreachCostCurrency", on_delete=models.CASCADE)
   # This is a code which identifies a country. <br/>It is the ISO code
-  Country = models.ForeignKey(PCountry, related_name="PUnit_Country", on_delete=models.CASCADE)
+  Country = models.ForeignKey(PCountry, null=True, related_name="PUnit_Country", on_delete=models.CASCADE)
   # The partner key of the office that will be this field's primary office..
   PrimaryOffice = models.ForeignKey(PPartner, null=False, blank=False, related_name="PUnit_PrimaryOffice", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.Partner)
 
 class UmUnitStructure(models.Model):
   """
@@ -3188,6 +3579,9 @@ class UmUnitStructure(models.Model):
     constraints = [
       models.UniqueConstraint(name='um_unit_structure_pk', fields=['ParentUnit', 'ChildUnit']),
     ]
+  def __str__(self):
+    return f"{self.ParentUnit} - {self.ChildUnit}"
+
 
 class PFamily(models.Model):
   """
@@ -3195,23 +3589,25 @@ class PFamily(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PFamily_Partner", on_delete=models.CASCADE)
+  Partner = models.OneToOneField(PPartner, null=False, blank=False, related_name="PFamily_Partner", on_delete=models.CASCADE)
   # Flag is set if there are family members with their own records in the p_person table. IMPORTANT: Don't rely on this flag anymore but determine this state on-the-fly! Reason: The value of this field isn't maintained reliably any more and the field will be removed in a future version of the DB!
-  FamilyMembers = models.BooleanField(default=False)
+  FamilyMembers = models.BooleanField(default=False, null=True)
   # How the family is to be addressed
-  Title = models.CharField(max_length=32)
-  FirstName = models.CharField(max_length=48)
-  Name = models.CharField(max_length=60)
+  Title = models.CharField(max_length=32, null=True)
+  FirstName = models.CharField(max_length=48, null=True)
+  Name = models.CharField(max_length=60, null=True)
   # Flag is set if there are different surnames entered for husband and wife
-  DifferentSurnames = models.BooleanField(default=False)
-  MaritalStatus = models.ForeignKey(PtMaritalStatus, related_name="PFamily_MaritalStatus", on_delete=models.CASCADE)
-  MaritalStatusSince = models.DateTimeField()
-  MaritalStatusComment = models.CharField(max_length=256)
+  DifferentSurnames = models.BooleanField(default=False, null=True)
+  MaritalStatus = models.ForeignKey(PtMaritalStatus, null=True, related_name="PFamily_MaritalStatus", on_delete=models.CASCADE)
+  MaritalStatusSince = models.DateTimeField(null=True)
+  MaritalStatusComment = models.CharField(max_length=256, null=True)
   # This is the date the person was born
-  DateOfBirth = models.DateTimeField()
-  Gender = models.CharField(max_length=8, default='Unknown')
+  DateOfBirth = models.DateTimeField(null=True)
+  Gender = models.CharField(max_length=8, default='Unknown', null=True)
   # A photo of the person, encoded with Base64, and prefixed with the file type
 
+  def __str__(self):
+    return str(self.Partner)
 
 class PPerson(models.Model):
   """
@@ -3219,33 +3615,35 @@ class PPerson(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPerson_Partner", on_delete=models.CASCADE)
-  Title = models.CharField(max_length=32)
-  FirstName = models.CharField(max_length=32)
-  PreferedName = models.CharField(max_length=32)
-  MiddleName1 = models.CharField(max_length=32)
-  MiddleName2 = models.CharField(max_length=32)
-  MiddleName3 = models.CharField(max_length=32)
-  FamilyName = models.CharField(max_length=32)
-  Decorations = models.CharField(max_length=32)
+  Partner = models.OneToOneField(PPartner, null=False, blank=False, related_name="PPerson_Partner", on_delete=models.CASCADE)
+  Title = models.CharField(max_length=32, null=True)
+  FirstName = models.CharField(max_length=32, null=True)
+  PreferedName = models.CharField(max_length=32, null=True)
+  MiddleName1 = models.CharField(max_length=32, null=True)
+  MiddleName2 = models.CharField(max_length=32, null=True)
+  MiddleName3 = models.CharField(max_length=32, null=True)
+  FamilyName = models.CharField(max_length=32, null=True)
+  Decorations = models.CharField(max_length=32, null=True)
   # This is the date the person was born
-  DateOfBirth = models.DateTimeField()
-  Gender = models.CharField(max_length=8, default='Unknown')
-  MaritalStatus = models.ForeignKey(PtMaritalStatus, related_name="PPerson_MaritalStatus", on_delete=models.CASCADE)
-  Occupation = models.ForeignKey(POccupation, related_name="PPerson_Occupation", on_delete=models.CASCADE)
+  DateOfBirth = models.DateTimeField(null=True)
+  Gender = models.CharField(max_length=8, default='Unknown', null=True)
+  MaritalStatus = models.ForeignKey(PtMaritalStatus, null=True, related_name="PPerson_MaritalStatus", on_delete=models.CASCADE)
+  Occupation = models.ForeignKey(POccupation, null=True, related_name="PPerson_Occupation", on_delete=models.CASCADE)
   # A cross reference to the family record of this person. <br/>It should be set to ? (not 0 because such a record does not exist!) when there is no family record.
-  Family = models.ForeignKey(PFamily, related_name="PPerson_Family", on_delete=models.CASCADE)
+  Family = models.ForeignKey(PFamily, null=True, related_name="PPerson_Family", on_delete=models.CASCADE)
   # This field indicates the family id of the individual. <br/>ID's 0 and 1 are used for parents; 2, 3, 4 ... 9 are used for children.
   FamilyId = models.IntegerField(default=0, null=False, blank=False)
   # A person's academic title such as BSc(Hons) or Prof. (eg. Herr Prof. Klaus Shmitt)
-  AcademicTitle = models.CharField(max_length=24)
-  MaritalStatusSince = models.DateTimeField()
-  MaritalStatusComment = models.CharField(max_length=256)
+  AcademicTitle = models.CharField(max_length=24, null=True)
+  MaritalStatusSince = models.DateTimeField(null=True)
+  MaritalStatusComment = models.CharField(max_length=256, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_person_uq', fields=['Family', 'FamilyId']),
     ]
+  def __str__(self):
+    return str(self.Partner)
 
 class PChurch(models.Model):
   """
@@ -3253,20 +3651,22 @@ class PChurch(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PChurch_Partner", on_delete=models.CASCADE)
-  Name = models.CharField(max_length=80)
+  Partner = models.OneToOneField(PPartner, null=False, blank=False, related_name="PChurch_Partner", on_delete=models.CASCADE)
+  Name = models.CharField(max_length=80, null=True)
   # Number of people in regular attendance.
-  ApproximateSize = models.IntegerField(default=0)
-  Denomination = models.ForeignKey(PDenomination, related_name="PChurch_Denomination", on_delete=models.CASCADE)
-  Accomodation = models.BooleanField(default=False)
-  PrayerGroup = models.BooleanField(default=False)
+  ApproximateSize = models.IntegerField(default=0, null=True)
+  Denomination = models.ForeignKey(PDenomination, null=True, related_name="PChurch_Denomination", on_delete=models.CASCADE)
+  Accomodation = models.BooleanField(default=False, null=True)
+  PrayerGroup = models.BooleanField(default=False, null=True)
   # Paper (Digital?) Map of church is on file at Site
-  MapOnFile = models.BooleanField(default=False)
-  AccomodationType = models.CharField(max_length=8, default='OTHER')
-  AccomodationSize = models.IntegerField(default=0)
+  MapOnFile = models.BooleanField(default=False, null=True)
+  AccomodationType = models.CharField(max_length=8, default='OTHER', null=True)
+  AccomodationSize = models.IntegerField(default=0, null=True)
   # Generally the contact person for the unit who will be addressed in any correspondence
-  ContactPartner = models.ForeignKey(PPartner, related_name="PChurch_ContactPartner", on_delete=models.CASCADE)
+  ContactPartner = models.ForeignKey(PPartner, null=True, related_name="PChurch_ContactPartner", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.Partner)
 
 class POrganisation(models.Model):
   """
@@ -3274,14 +3674,16 @@ class POrganisation(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="POrganisation_Partner", on_delete=models.CASCADE)
-  Name = models.CharField(max_length=80)
-  Business = models.ForeignKey(PBusiness, related_name="POrganisation_Business", on_delete=models.CASCADE)
-  Religious = models.BooleanField(default=False)
+  Partner = models.OneToOneField(PPartner, null=False, blank=False, related_name="POrganisation_Partner", on_delete=models.CASCADE)
+  Name = models.CharField(max_length=80, null=True)
+  Business = models.ForeignKey(PBusiness, null=True, related_name="POrganisation_Business", on_delete=models.CASCADE)
+  Religious = models.BooleanField(default=False, null=True)
   # Generally the contact person for the unit who will be addressed in any correspondence
-  ContactPartner = models.ForeignKey(PPartner, related_name="POrganisation_ContactPartner", on_delete=models.CASCADE)
-  Foundation = models.BooleanField(default=False)
+  ContactPartner = models.ForeignKey(PPartner, null=True, related_name="POrganisation_ContactPartner", on_delete=models.CASCADE)
+  Foundation = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.Partner)
 
 class PBank(models.Model):
   """
@@ -3289,19 +3691,21 @@ class PBank(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PBank_Partner", on_delete=models.CASCADE)
-  BranchName = models.CharField(max_length=80)
+  Partner = models.OneToOneField(PPartner, null=False, blank=False, related_name="PBank_Partner", on_delete=models.CASCADE)
+  BranchName = models.CharField(max_length=80, null=True)
   # Generally the contact person for the unit who will be addressed in any correspondence
-  ContactPartner = models.ForeignKey(PPartner, related_name="PBank_ContactPartner", on_delete=models.CASCADE)
+  ContactPartner = models.ForeignKey(PPartner, null=True, related_name="PBank_ContactPartner", on_delete=models.CASCADE)
   # The bank code/branch code/sort code (synonymous country-specific terms) for identifying a bank branch with a number/code.
-  BranchCode = models.CharField(max_length=10)
+  BranchCode = models.CharField(max_length=10, null=True)
   # BIC (Bank Identifier Code)/SWIFT code. The Bank Identifier Code is a unique address which, in telecommunication messages, identifies precisely the financial institutions involved in financial transactions. BICs either have 8 or 11 characters.
-  Bic = models.CharField(max_length=11)
+  Bic = models.CharField(max_length=11, null=True)
   # The format file to be used for electronic payment
-  EpFormatFile = models.CharField(max_length=48)
+  EpFormatFile = models.CharField(max_length=48, null=True)
   # Is this a credit card type (eg. VISA)?
-  CreditCard = models.BooleanField(default=False)
+  CreditCard = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.Partner)
 
 class PVenue(models.Model):
   """
@@ -3309,18 +3713,20 @@ class PVenue(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PVenue_Partner", on_delete=models.CASCADE)
-  Name = models.CharField(max_length=80)
+  Partner = models.OneToOneField(PPartner, null=False, blank=False, related_name="PVenue_Partner", on_delete=models.CASCADE)
+  Name = models.CharField(max_length=80, null=True)
   Code = models.CharField(max_length=8, null=False, blank=False)
   # This is the currency that is used for the venue.
-  Currency = models.ForeignKey(ACurrency, related_name="PVenue_Currency", on_delete=models.CASCADE)
+  Currency = models.ForeignKey(ACurrency, null=True, related_name="PVenue_Currency", on_delete=models.CASCADE)
   # Generally the contact person for the unit who will be addressed in any correspondence
-  ContactPartner = models.ForeignKey(PPartner, related_name="PVenue_ContactPartner", on_delete=models.CASCADE)
+  ContactPartner = models.ForeignKey(PPartner, null=True, related_name="PVenue_ContactPartner", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_venue_uk', fields=['Code']),
     ]
+  def __str__(self):
+    return str(self.Partner)
 
 class PBankingDetails(models.Model):
   """
@@ -3332,26 +3738,28 @@ class PBankingDetails(models.Model):
   # The type of banking: BANK ACCOUNT, CREDIT CARD, etc.
   BankingType = models.ForeignKey(PBankingType, null=False, blank=False, related_name="PBankingDetails_BankingType", on_delete=models.CASCADE)
   # The full name used for authorizing a transaction with this banking entity.
-  AccountName = models.CharField(max_length=80)
-  Title = models.CharField(max_length=32)
-  FirstName = models.CharField(max_length=32)
-  MiddleName = models.CharField(max_length=32)
-  LastName = models.CharField(max_length=32)
+  AccountName = models.CharField(max_length=80, null=True)
+  Title = models.CharField(max_length=32, null=True)
+  FirstName = models.CharField(max_length=32, null=True)
+  MiddleName = models.CharField(max_length=32, null=True)
+  LastName = models.CharField(max_length=32, null=True)
   # Link to p_bank to see what details the bank has.
   Bank = models.ForeignKey(PBank, null=False, blank=False, related_name="PBankingDetails_Bank", on_delete=models.CASCADE)
   # The account number in the bank
-  BankAccountNumber = models.CharField(max_length=20)
+  BankAccountNumber = models.CharField(max_length=20, null=True)
   # The IBAN (International Bank Account Number). IBAN is a standardised international format for entering account details which consists of the country code, the local bank code, the (payee) account number and a control number.
-  Iban = models.CharField(max_length=64)
+  Iban = models.CharField(max_length=64, null=True)
   # Credit Card Security Code
-  SecurityCode = models.CharField(max_length=12)
+  SecurityCode = models.CharField(max_length=12, null=True)
   # When the credit card is valid from
-  ValidFromDate = models.DateTimeField()
+  ValidFromDate = models.DateTimeField(null=True)
   # When this expires
-  ExpiryDate = models.DateTimeField()
+  ExpiryDate = models.DateTimeField(null=True)
   # This is the finance details comment.
-  Comment = models.CharField(max_length=255)
+  Comment = models.CharField(max_length=255, null=True)
 
+  def __str__(self):
+    return str(self.BankingDetailsKey)
 
 class PPartnerBankingDetails(models.Model):
   """
@@ -3367,6 +3775,9 @@ class PPartnerBankingDetails(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_partner_banking_link_pk', fields=['Partner', 'BankingDetails']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.BankingDetails}"
+
 
 class PBankingDetailsUsage(models.Model):
   """
@@ -3381,6 +3792,9 @@ class PBankingDetailsUsage(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_banking_details_usage_pk', fields=['PartnerBankingDetails', 'Type']),
     ]
+  def __str__(self):
+    return f"{self.PartnerBankingDetails} - {self.Type}"
+
 
 class PPartnerTaxDeductiblePct(models.Model):
   """
@@ -3398,6 +3812,9 @@ class PPartnerTaxDeductiblePct(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_partner_tax_deductible_pct_pk', fields=['Partner', 'DateValidFrom']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.DateValidFrom}"
+
 
 class PPartnerType(models.Model):
   """
@@ -3409,14 +3826,17 @@ class PPartnerType(models.Model):
   # This code identifies the type
   Type = models.ForeignKey(PType, null=False, blank=False, related_name="PPartnerType_Type", on_delete=models.CASCADE)
   # The date the special type is valid from. Can be NULL if there is no relevant start date.
-  ValidFrom = models.DateTimeField()
+  ValidFrom = models.DateTimeField(null=True)
   # The date the special type is valid to. Can be NULL if there is no end date.
-  ValidUntil = models.DateTimeField()
+  ValidUntil = models.DateTimeField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_type_pk', fields=['Partner', 'Type']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.Type}"
+
 
 class PPartnerRelationship(models.Model):
   """
@@ -3429,12 +3849,15 @@ class PPartnerRelationship(models.Model):
   Relation = models.ForeignKey(PRelation, null=False, blank=False, related_name="PPartnerRelationship_Relation", on_delete=models.CASCADE)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Relation = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerRelationship_Relation", on_delete=models.CASCADE)
-  Comment = models.CharField(max_length=1000)
+  Comment = models.CharField(max_length=1000, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_relationship_pk', fields=['Partner', 'Relation', 'Relation']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.Relation} - {self.Relation}"
+
 
 class PPartnerLedger(models.Model):
   """
@@ -3442,9 +3865,11 @@ class PPartnerLedger(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PUnit, null=False, blank=False, related_name="PPartnerLedger_Partner", on_delete=models.CASCADE)
+  Partner = models.OneToOneField(PUnit, null=False, blank=False, related_name="PPartnerLedger_Partner", on_delete=models.CASCADE)
   LastPartnerId = models.IntegerField(default=0, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.Partner)
 
 class MExtract(models.Model):
   """
@@ -3463,6 +3888,9 @@ class MExtract(models.Model):
     constraints = [
       models.UniqueConstraint(name='m_extract_pk', fields=['Extract', 'Partner']),
     ]
+  def __str__(self):
+    return f"{self.Extract} - {self.Partner}"
+
 
 class PCustomisedGreeting(models.Model):
   """
@@ -3473,13 +3901,16 @@ class PCustomisedGreeting(models.Model):
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PCustomisedGreeting_Partner", on_delete=models.CASCADE)
   # This is the system user id. Each user of the system is allocated one
   User = models.ForeignKey(SUser, null=False, blank=False, related_name="PCustomisedGreeting_User", on_delete=models.CASCADE)
-  CustomisedGreetingText = models.CharField(max_length=32)
-  CustomisedClosingText = models.CharField(max_length=32)
+  CustomisedGreetingText = models.CharField(max_length=32, null=True)
+  CustomisedClosingText = models.CharField(max_length=32, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_customised_greeting_pk', fields=['Partner', 'User']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.User}"
+
 
 class PSubscription(models.Model):
   """
@@ -3490,30 +3921,83 @@ class PSubscription(models.Model):
   Publication = models.ForeignKey(PPublication, null=False, blank=False, related_name="PSubscription_Publication", on_delete=models.CASCADE)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PSubscription_Partner", on_delete=models.CASCADE)
-  PublicationCopies = models.IntegerField(default=1)
+  PublicationCopies = models.IntegerField(default=1, null=True)
   ReasonSubsGiven = models.ForeignKey(PReasonSubscriptionGiven, null=False, blank=False, related_name="PSubscription_ReasonSubsGiven", on_delete=models.CASCADE)
-  ReasonSubsCancelled = models.ForeignKey(PReasonSubscriptionCancelled, related_name="PSubscription_ReasonSubsCancelled", on_delete=models.CASCADE)
+  ReasonSubsCancelled = models.ForeignKey(PReasonSubscriptionCancelled, null=True, related_name="PSubscription_ReasonSubsCancelled", on_delete=models.CASCADE)
   # Date the subscription expires
-  ExpiryDate = models.DateTimeField()
+  ExpiryDate = models.DateTimeField(null=True)
   # Provisional date on which the subscription may expire
-  ProvisionalExpiryDate = models.DateTimeField()
+  ProvisionalExpiryDate = models.DateTimeField(null=True)
   GratisSubscription = models.BooleanField(default=True, null=False, blank=False)
-  DateNoticeSent = models.DateTimeField()
-  DateCancelled = models.DateTimeField()
+  DateNoticeSent = models.DateTimeField(null=True)
+  DateCancelled = models.DateTimeField(null=True)
   StartDate = models.DateTimeField(null=False, blank=False)
   NumberIssuesReceived = models.IntegerField(default=0, null=False, blank=False)
   # The number of issues sent after a subscription has ceased
   NumberComplimentary = models.IntegerField(default=1, null=False, blank=False)
-  SubscriptionRenewalDate = models.DateTimeField()
-  SubscriptionStatus = models.CharField(max_length=12, default='PERMANENT')
-  FirstIssue = models.DateTimeField()
-  LastIssue = models.DateTimeField()
-  GiftFrom = models.ForeignKey(PPartner, related_name="PSubscription_GiftFrom", on_delete=models.CASCADE)
+  SubscriptionRenewalDate = models.DateTimeField(null=True)
+  SubscriptionStatus = models.CharField(max_length=12, default='PERMANENT', null=True)
+  FirstIssue = models.DateTimeField(null=True)
+  LastIssue = models.DateTimeField(null=True)
+  GiftFrom = models.ForeignKey(PPartner, null=True, related_name="PSubscription_GiftFrom", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_subscription_pk', fields=['Publication', 'Partner']),
     ]
+  def __str__(self):
+    return f"{self.Publication} - {self.Partner}"
+
+
+class PPartnerMembership(models.Model):
+  """
+  membership of a partner
+  """
+
+  # A sequence key for the memberships.
+  PartnerMembershipKey = models.IntegerField(null=False, blank=False, unique=True)
+  # The is the key to the membership table
+  Membership = models.ForeignKey(PMembership, null=False, blank=False, related_name="PPartnerMembership_Membership", on_delete=models.CASCADE)
+  # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
+  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerMembership_Partner", on_delete=models.CASCADE)
+  # Date the membership expires
+  ExpiryDate = models.DateTimeField(null=True)
+  DateCancelled = models.DateTimeField(null=True)
+  StartDate = models.DateTimeField(null=False, blank=False)
+  MembershipStatus = models.CharField(max_length=12, default='ACTIVE', null=True)
+
+  class Meta:
+    constraints = [
+      models.UniqueConstraint(name='p_partner_membership_uk', fields=['Membership', 'Partner', 'StartDate']),
+    ]
+  def __str__(self):
+    return str(self.PartnerMembershipKey)
+
+class PPartnerMembershipPaid(models.Model):
+  """
+  There is a record for each payment of a membership, or hours served
+  """
+
+  # The is the key to the membership table
+  Membership = models.ForeignKey(PMembership, null=False, blank=False, related_name="PPartnerMembershipPaid_Membership", on_delete=models.CASCADE)
+  # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
+  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerMembershipPaid_Partner", on_delete=models.CASCADE)
+  # Date when this payment was made or the hours were served
+  DatePayment = models.DateTimeField(null=False, blank=False)
+  # Date of the period that this payment was for
+  PeriodDate = models.DateTimeField(null=True)
+  # This is the amount that was paid.
+  AmountPaid = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+  # This is the number of hours that were served.
+  HoursServed = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+
+  class Meta:
+    constraints = [
+      models.UniqueConstraint(name='p_partner_membership_paid_pk', fields=['Membership', 'Partner', 'DatePayment']),
+    ]
+  def __str__(self):
+    return f"{self.Membership} - {self.Partner} - {self.DatePayment}"
+
 
 class PPartnerContact(models.Model):
   """
@@ -3529,6 +4013,9 @@ class PPartnerContact(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_partner_contact_pk', fields=['Partner', 'ContactLog']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.ContactLog}"
+
 
 class AAccount(models.Model):
   """
@@ -3540,41 +4027,44 @@ class AAccount(models.Model):
   # This identifies the account the financial transaction must be stored against
   Code = models.CharField(max_length=8, null=False, blank=False)
   # Income, Expense, Asset, Liability, Equity.  Suspense accounts are in a_suspense_account.
-  AccountType = models.CharField(max_length=10)
+  AccountType = models.CharField(max_length=10, null=True)
   # This is a long description and is 80 characters long.
-  CodeLongDesc = models.CharField(max_length=80)
+  CodeLongDesc = models.CharField(max_length=80, null=True)
   # This is a short description which is 32 charcters long
-  CodeShortDesc = models.CharField(max_length=32)
+  CodeShortDesc = models.CharField(max_length=32, null=True)
   # This is a short description which is 32 charcters long
-  EngAccountCodeShortDesc = models.CharField(max_length=32)
+  EngAccountCodeShortDesc = models.CharField(max_length=32, null=True)
   # This is a long description and is 80 characters long.
-  EngAccountCodeLongDesc = models.CharField(max_length=80)
+  EngAccountCodeLongDesc = models.CharField(max_length=80, null=True)
   # Defines if the the transcation is a debit or credit transaction
-  DebitCreditIndicator = models.BooleanField()
+  DebitCreditIndicator = models.BooleanField(null=True)
   # Defines whether the acount is active or not
-  AccountActive = models.BooleanField()
+  AccountActive = models.BooleanField(null=True)
   # Yes if the account has any analysis attributes.
-  AnalysisAttribute = models.BooleanField(default=False)
-  StandardAccount = models.BooleanField(default=False)
-  ConsolidationAccount = models.BooleanField(default=False)
-  IntercompanyAccount = models.BooleanField(default=False)
+  AnalysisAttribute = models.BooleanField(default=False, null=True)
+  StandardAccount = models.BooleanField(default=False, null=True)
+  ConsolidationAccount = models.BooleanField(default=False, null=True)
+  IntercompanyAccount = models.BooleanField(default=False, null=True)
   # The type of budget.  See the a_budget_type table.
-  BudgetType = models.ForeignKey(ABudgetType, related_name="AAccount_BudgetType", on_delete=models.CASCADE)
-  PostingStatus = models.BooleanField()
-  SystemAccount = models.BooleanField(default=False)
-  BudgetControl = models.BooleanField(default=False)
+  BudgetType = models.ForeignKey(ABudgetType, null=True, related_name="AAccount_BudgetType", on_delete=models.CASCADE)
+  PostingStatus = models.BooleanField(null=True)
+  SystemAccount = models.BooleanField(default=False, null=True)
+  BudgetControl = models.BooleanField(default=False, null=True)
   # Which type of cost centres may be combined with this account.
-  ValidCcCombo = models.CharField(max_length=8, default='All')
-  UseForeignCurrency = models.BooleanField(default=False)
+  ValidCcCombo = models.CharField(max_length=8, default='All', null=True)
+  UseForeignCurrency = models.BooleanField(default=False, null=True)
   # This defines which currency is being used
-  ForeignCurrency = models.ForeignKey(ACurrency, related_name="AAccount_ForeignCurrency", on_delete=models.CASCADE)
+  ForeignCurrency = models.ForeignKey(ACurrency, null=True, related_name="AAccount_ForeignCurrency", on_delete=models.CASCADE)
   # Link to banking details to use for this account - only really used if this account is a bank account
-  BankingDetails = models.ForeignKey(PBankingDetails, related_name="AAccount_BankingDetails", on_delete=models.CASCADE)
+  BankingDetails = models.ForeignKey(PBankingDetails, null=True, related_name="AAccount_BankingDetails", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_account_pk', fields=['Ledger', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.Code}"
+
 
 class AEpStatement(models.Model):
   """
@@ -3584,21 +4074,23 @@ class AEpStatement(models.Model):
   # auto generated unique identifier for bank statements
   StatementKey = models.IntegerField(null=False, blank=False, unique=True)
   # this is the bank account that this statement is for; this is necessary because you can have several accounts at the same bank
-  BankAccount = models.ForeignKey(PBankingDetails, related_name="AEpStatement_BankAccount", on_delete=models.CASCADE)
+  BankAccount = models.ForeignKey(PBankingDetails, null=True, related_name="AEpStatement_BankAccount", on_delete=models.CASCADE)
   # The date of this statement
   Date = models.DateTimeField(null=False, blank=False)
   # This is the ID that the bank uses for this statement; it can be used to find the paper version of the bank statement
-  IdFromBank = models.CharField(max_length=20)
+  IdFromBank = models.CharField(max_length=20, null=True)
   # This is the name of the file that this statement was read from; this can be used to prevent duplicate import of bank statements
-  Filename = models.CharField(max_length=20)
+  Filename = models.CharField(max_length=20, null=True)
   # The start balance of the bank account at the beginning of the statement
-  StartBalance = models.DecimalField(max_digits=24, decimal_places=10)
+  StartBalance = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # The end balance of the bank account after the statement
-  EndBalance = models.DecimalField(max_digits=24, decimal_places=10)
+  EndBalance = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # This defines the currency of the transactions on this statement
   Currency = models.ForeignKey(ACurrency, null=False, blank=False, related_name="AEpStatement_Currency", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AEpStatement_Account", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.StatementKey)
 
 class AAccountProperty(models.Model):
   """
@@ -3615,21 +4107,27 @@ class AAccountProperty(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_account_property_pk', fields=['Account', 'Property', 'PropertyValue']),
     ]
+  def __str__(self):
+    return f"{self.Account} - {self.Property} - {self.PropertyValue}"
+
 
 class AAccountHierarchy(models.Model):
   """
   hierarchy of accounts; what is the root account of the hierarchy
   """
 
-  LedgerNumber = models.IntegerField(null=False, blank=False)
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AAccountHierarchy_Ledger", on_delete=models.CASCADE)
   # The code for the hierarchy
   Code = models.CharField(max_length=8, null=False, blank=False)
-  Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AAccountHierarchy_Account", on_delete=models.CASCADE)
+  RootAccount = models.ForeignKey(AAccount, null=False, blank=False, related_name="AAccountHierarchy_RootAccount", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_account_hierarchy_pk', fields=['Code']),
+      models.UniqueConstraint(name='a_account_hierarchy_pk', fields=['Ledger', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.Ledger} - {self.Code}"
+
 
 class AAccountHierarchyDetail(models.Model):
   """
@@ -3641,12 +4139,16 @@ class AAccountHierarchyDetail(models.Model):
   ReportingAccountCode = models.CharField(max_length=8, null=False, blank=False)
   # Order to display the account or heading on the Balance Sheet & Income Statement report.
   ReportOrder = models.IntegerField(default=0, null=False, blank=False)
-  Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AAccountHierarchyDetail_Account", on_delete=models.CASCADE)
+  ReportingAccountCode = models.ForeignKey(AAccount, null=False, blank=False, related_name="AAccountHierarchyDetail_ReportingAccountCode", on_delete=models.CASCADE)
+  AccountCodeToReportTo = models.ForeignKey(AAccount, null=False, blank=False, related_name="AAccountHierarchyDetail_AccountCodeToReportTo", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_account_hierarchy_detail_pk', fields=['AccountHierarchy']),
+      models.UniqueConstraint(name='a_account_hierarchy_detail_pk', fields=['AccountHierarchy', 'ReportingAccountCode']),
     ]
+  def __str__(self):
+    return f"{self.AccountHierarchy}"
+
 
 class AValidLedgerNumber(models.Model):
   """
@@ -3658,13 +4160,16 @@ class AValidLedgerNumber(models.Model):
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="AValidLedgerNumber_Partner", on_delete=models.CASCADE)
   # The ledger through which inter ledger transactions are routed for processing.
-  IltProcessingCentre = models.ForeignKey(PPartner, related_name="AValidLedgerNumber_IltProcessingCentre", on_delete=models.CASCADE)
+  IltProcessingCentre = models.ForeignKey(PPartner, null=True, related_name="AValidLedgerNumber_IltProcessingCentre", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AValidLedgerNumber_CostCentre", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_valid_ledger_number_pk', fields=['Partner']),
     ]
+  def __str__(self):
+    return f"{self.Partner}"
+
 
 class ABudget(models.Model):
   """
@@ -3675,9 +4180,9 @@ class ABudget(models.Model):
   # See a_budget_type table.  Indicates the method used for creating the budget.
   BudgetType = models.ForeignKey(ABudgetType, null=False, blank=False, related_name="ABudget_BudgetType", on_delete=models.CASCADE)
   # Has the budget been ""posted"" to the general ledger master <br/>and account files.
-  BudgetStatus = models.BooleanField()
+  BudgetStatus = models.BooleanField(null=True)
   # A comment for this specific budget item and revision
-  Comment = models.CharField(max_length=100)
+  Comment = models.CharField(max_length=100, null=True)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="ABudget_CostCentre", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ABudget_Account", on_delete=models.CASCADE)
   BudgetRevision = models.ForeignKey(ABudgetRevision, null=False, blank=False, related_name="ABudget_BudgetRevision", on_delete=models.CASCADE)
@@ -3686,6 +4191,8 @@ class ABudget(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_budget_uc1', fields=['BudgetRevision']),
     ]
+  def __str__(self):
+    return str(self.BudgetSequence)
 
 class ABudgetPeriod(models.Model):
   """
@@ -3695,12 +4202,15 @@ class ABudgetPeriod(models.Model):
   BudgetSequence = models.ForeignKey(ABudget, null=False, blank=False, related_name="ABudgetPeriod_BudgetSequence", on_delete=models.CASCADE)
   PeriodNumber = models.IntegerField(default=0, null=False, blank=False)
   # Budget amount in base currency
-  BudgetBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  BudgetBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_budget_period_pk', fields=['BudgetSequence', 'PeriodNumber']),
     ]
+  def __str__(self):
+    return f"{self.BudgetSequence} - {self.PeriodNumber}"
+
 
 class AAnalysisAttribute(models.Model):
   """
@@ -3711,7 +4221,7 @@ class AAnalysisAttribute(models.Model):
   # This identifies the account the financial transaction analysis information must be stored against.
   AccountCode = models.CharField(max_length=8, null=False, blank=False)
   # Analysis attributes cannot be deleted, because they are needed for existing transaction analysis attributes. But they can be deactivated.
-  Active = models.BooleanField(default=True)
+  Active = models.BooleanField(default=True, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AAnalysisAttribute_Account", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AAnalysisAttribute_CostCentre", on_delete=models.CASCADE)
 
@@ -3719,6 +4229,9 @@ class AAnalysisAttribute(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_analysis_attribute_pk', fields=['AnalysisType']),
     ]
+  def __str__(self):
+    return f"{self.AnalysisType}"
+
 
 class AEmailDestination(models.Model):
   """
@@ -3731,12 +4244,15 @@ class AEmailDestination(models.Model):
   ConditionalValue = models.CharField(max_length=20, null=False, blank=False)
   # HOSA partner.
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="AEmailDestination_Partner", on_delete=models.CASCADE)
-  EmailAddress = models.CharField(max_length=318)
+  EmailAddress = models.CharField(max_length=318, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_email_destination_pk', fields=['FileCode', 'ConditionalValue', 'Partner']),
     ]
+  def __str__(self):
+    return f"{self.FileCode} - {self.ConditionalValue} - {self.Partner}"
+
 
 class AFeesPayable(models.Model):
   """
@@ -3744,15 +4260,15 @@ class AFeesPayable(models.Model):
   """
 
   # This is used as a key field in most of the accounting system files
-  LedgerNumber = models.IntegerField(default=0, null=False, blank=False)
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AFeesPayable_Ledger", on_delete=models.CASCADE)
   # Identifies a specific fee.
   FeeCode = models.CharField(max_length=8, null=False, blank=False)
   ChargeOption = models.CharField(max_length=20, null=False, blank=False)
-  ChargePercentage = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+  ChargePercentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True)
   # This is a the max or min amount charged dependent on the charge option.  The value is the number of currency units.
-  ChargeAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ChargeAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # explain what this fee is for.
-  FeeDescription = models.CharField(max_length=24)
+  FeeDescription = models.CharField(max_length=24, null=True)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AFeesPayable_CostCentre", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AFeesPayable_Account", on_delete=models.CASCADE)
 
@@ -3760,6 +4276,9 @@ class AFeesPayable(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_fees_payable_pk', fields=['FeeCode']),
     ]
+  def __str__(self):
+    return f"{self.FeeCode}"
+
 
 class AFeesReceivable(models.Model):
   """
@@ -3767,15 +4286,15 @@ class AFeesReceivable(models.Model):
   """
 
   # This is used as a key field in most of the accounting system files
-  LedgerNumber = models.IntegerField(default=0, null=False, blank=False)
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AFeesReceivable_Ledger", on_delete=models.CASCADE)
   # Identifies a specific fee.
   FeeCode = models.CharField(max_length=8, null=False, blank=False)
   ChargeOption = models.CharField(max_length=20, null=False, blank=False)
-  ChargePercentage = models.DecimalField(max_digits=5, decimal_places=2, default=0)
+  ChargePercentage = models.DecimalField(max_digits=5, decimal_places=2, default=0, null=True)
   # This is a the max or min amount charged dependent on the charge option in number of currency units
-  ChargeAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ChargeAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Description of what this admin charge is for.
-  FeeDescription = models.CharField(max_length=24)
+  FeeDescription = models.CharField(max_length=24, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AFeesReceivable_Account", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AFeesReceivable_CostCentre", on_delete=models.CASCADE)
 
@@ -3783,6 +4302,9 @@ class AFeesReceivable(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_fees_receivable_pk', fields=['FeeCode']),
     ]
+  def __str__(self):
+    return f"{self.FeeCode}"
+
 
 class AGeneralLedgerMaster(models.Model):
   """
@@ -3792,19 +4314,19 @@ class AGeneralLedgerMaster(models.Model):
   GlmSequence = models.IntegerField(null=False, blank=False, unique=True)
   # The year is a number starting from 0 (the year of the installation and first accountings).
   Year = models.IntegerField(null=False, blank=False)
-  YtdActualBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  YtdActualBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Special period for the year end close journal.
-  ClosingPeriodActualBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ClosingPeriodActualBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Starting Balance in the ledger currency
-  StartBalanceBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  StartBalanceBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Total for the current year, 2nd (int'l) base currency.
-  YtdActualIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  YtdActualIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Special period for the year end close journal.
-  ClosingPeriodActualIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ClosingPeriodActualIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Starting Balance (Int'l)
-  StartBalanceIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
-  YtdActualForeign = models.DecimalField(max_digits=24, decimal_places=10)
-  StartBalanceForeign = models.DecimalField(max_digits=24, decimal_places=10)
+  StartBalanceIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+  YtdActualForeign = models.DecimalField(max_digits=24, decimal_places=10, null=True)
+  StartBalanceForeign = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AGeneralLedgerMaster_Account", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AGeneralLedgerMaster_CostCentre", on_delete=models.CASCADE)
 
@@ -3812,6 +4334,8 @@ class AGeneralLedgerMaster(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_general_ledger_master_uc1', fields=['Year']),
     ]
+  def __str__(self):
+    return str(self.GlmSequence)
 
 class AGeneralLedgerMasterPeriod(models.Model):
   """
@@ -3821,19 +4345,22 @@ class AGeneralLedgerMasterPeriod(models.Model):
   GlmSequence = models.ForeignKey(AGeneralLedgerMaster, null=False, blank=False, related_name="AGeneralLedgerMasterPeriod_GlmSequence", on_delete=models.CASCADE)
   PeriodNumber = models.IntegerField(null=False, blank=False)
   # This is a number of ledger currency units
-  ActualBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ActualBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # This is a number of ledger currency units
-  BudgetBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  BudgetBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Not supported in Openpetra anymore ...
-  ActualIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ActualIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Not supported in Openpetra anymore ...
-  BudgetIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
-  ActualForeign = models.DecimalField(max_digits=24, decimal_places=10)
+  BudgetIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+  ActualForeign = models.DecimalField(max_digits=24, decimal_places=10, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_glm_period_pk', fields=['GlmSequence', 'PeriodNumber']),
     ]
+  def __str__(self):
+    return f"{self.GlmSequence} - {self.PeriodNumber}"
+
 
 class AMotivationDetail(models.Model):
   """
@@ -3844,49 +4371,55 @@ class AMotivationDetail(models.Model):
   # This defines the motivation detail within a motivation group.
   Code = models.CharField(max_length=8, null=False, blank=False)
   # This is a long description and is 80 characters long.
-  MotivationDetailAudience = models.CharField(max_length=80)
+  MotivationDetailAudience = models.CharField(max_length=80, null=True)
   # This is a long description and is 80 characters long.
   Desc = models.CharField(max_length=80, null=False, blank=False)
   # Defines whether the motivation code is still in use
   MotivationStatus = models.BooleanField(null=False, blank=False)
   # This is a number of currency units
-  MailingCost = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  MailingCost = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Used to get a yes no response from the user
   BulkRate = models.BooleanField(default=False, null=False, blank=False)
   # This defines what should happen next
-  NextResponseStatus = models.CharField(max_length=12)
+  NextResponseStatus = models.CharField(max_length=12, null=True)
   # Used to get a yes no response from the user
   ActivatePartner = models.BooleanField(default=False, null=False, blank=False)
   # The number of items sent out in a mailing
-  NumberSent = models.IntegerField(default=0)
+  NumberSent = models.IntegerField(default=0, null=True)
   # The number of items returned from a mailing
-  NumberOfResponses = models.IntegerField(default=0)
+  NumberOfResponses = models.IntegerField(default=0, null=True)
   # The target number of items returned from a mailing
-  TargetNumberOfResponses = models.IntegerField(default=0)
+  TargetNumberOfResponses = models.IntegerField(default=0, null=True)
   # This is a number of currency units
-  TargetAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  TargetAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # This is a number of currency units
-  AmountReceived = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  AmountReceived = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # This is the partner key assigned to each partner. It consists of the ledger id followed by a computer generated six digit number.
   Recipient = models.ForeignKey(PPartner, null=False, blank=False, related_name="AMotivationDetail_Recipient", on_delete=models.CASCADE)
   # A flag to automatically populate the description in the gift comment
-  Autopopdesc = models.BooleanField(default=False)
+  Autopopdesc = models.BooleanField(default=False, null=True)
   # Whether receipts should be printed
-  Receipt = models.BooleanField(default=True)
+  Receipt = models.BooleanField(default=True, null=True)
   # Don't include these gifts in reporting
-  DontReport = models.BooleanField(default=False)
+  DontReport = models.BooleanField(default=False, null=True)
   # Whether this gift is tax deductible
-  TaxDeductible = models.BooleanField(default=True)
+  TaxDeductible = models.BooleanField(default=True, null=True)
   # This is a long description and is 80 characters long in the local language.
-  MotivationDetailDescLocal = models.CharField(max_length=80)
+  MotivationDetailDescLocal = models.CharField(max_length=80, null=True)
   # A short code for the motivation which can then be used on receipts
-  ShortCode = models.CharField(max_length=4)
+  ShortCode = models.CharField(max_length=4, null=True)
   # Indicates whether or not the motivation has restricted access. If it does then the access will be controlled by s_group_motivation
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
   # Whether or not gifts with this motivation should be exported to the worldwide Intranet (to help distinguish non-gifts like sales)
-  ExportToIntranet = models.BooleanField(default=True)
+  ExportToIntranet = models.BooleanField(default=True, null=True)
   # Which column should these gifts be reported in?
-  ReportColumn = models.CharField(max_length=20)
+  ReportColumn = models.CharField(max_length=20, null=True)
+  # Indicates whether or not the motivation is for a paying a sponsorship. The recipient key might be used.
+  Sponsorship = models.BooleanField(default=False, null=False, blank=False)
+  # Indicates whether or not the motivation is for paying a membership. The recipient key should be used.
+  Membership = models.BooleanField(default=False, null=False, blank=False)
+  # Indicates whether or not the motivation is for supporting a worker. The recipient key must be used.
+  WorkerSupport = models.BooleanField(default=False, null=False, blank=False)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AMotivationDetail_Account", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AMotivationDetail_CostCentre", on_delete=models.CASCADE)
 
@@ -3894,6 +4427,9 @@ class AMotivationDetail(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_motivation_detail_pk', fields=['MotivationGroup', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.MotivationGroup} - {self.Code}"
+
 
 class AEpAccount(models.Model):
   """
@@ -3901,22 +4437,24 @@ class AEpAccount(models.Model):
   """
 
   # The bank account whose settings are defined here
-  BankingDetails = models.ForeignKey(PBankingDetails, null=False, blank=False, related_name="AEpAccount_BankingDetails", on_delete=models.CASCADE)
+  BankingDetails = models.OneToOneField(PBankingDetails, null=False, blank=False, related_name="AEpAccount_BankingDetails", on_delete=models.CASCADE)
   # This tells the plugin where to find the statement files for this bank account
-  ImportfilePath = models.CharField(max_length=100)
+  ImportfilePath = models.CharField(max_length=100, null=True)
   # This tells the plugin where to write any generated files for this bank account
-  ExportfilePath = models.CharField(max_length=100)
+  ExportfilePath = models.CharField(max_length=100, null=True)
   # This can be either the name of an executable or a DLL that is able to process the country (or bank) specific bank statements
-  PluginFilename = models.CharField(max_length=100)
+  PluginFilename = models.CharField(max_length=100, null=True)
   # Other parameters for the plugin can be stored here
-  PluginParameters = models.CharField(max_length=250)
+  PluginParameters = models.CharField(max_length=250, null=True)
   # if this is true, all gifts to this bank account get this flag set
-  ConfidentialGift = models.BooleanField()
+  ConfidentialGift = models.BooleanField(null=True)
   # Whether the gifts to this bank account are tax deductible
-  TaxDeductible = models.BooleanField(default=True)
+  TaxDeductible = models.BooleanField(default=True, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AEpAccount_Account", on_delete=models.CASCADE)
   MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="AEpAccount_MotivationDetail", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.BankingDetails)
 
 class AEpMatch(models.Model):
   """
@@ -3934,55 +4472,55 @@ class AEpMatch(models.Model):
   # The date when this match was recently applied; useful for purging old entries
   RecentMatch = models.DateTimeField(null=False, blank=False)
   # The partner key of the commitment field (the unit) of the recipient of the gift.  This is not the ledger number but rather the partner key of the unit associated with the ledger.
-  RecipientLedgerNumber = models.ForeignKey(PPartner, related_name="AEpMatch_RecipientLedgerNumber", on_delete=models.CASCADE)
+  RecipientLedgerNumber = models.ForeignKey(PPartner, null=True, related_name="AEpMatch_RecipientLedgerNumber", on_delete=models.CASCADE)
   # Used to decide whose reports will see this comment
-  CommentOneType = models.CharField(max_length=12)
+  CommentOneType = models.CharField(max_length=12, null=True)
   # This is a long description and is 80 characters long.
-  GiftCommentOne = models.CharField(max_length=80)
+  GiftCommentOne = models.CharField(max_length=80, null=True)
   # Defines whether the donor wishes the recipient to know who gave the gift
   ConfidentialGift = models.BooleanField(null=False, blank=False)
   # Whether this gift is tax deductaible
-  TaxDeductible = models.BooleanField(default=True)
+  TaxDeductible = models.BooleanField(default=True, null=True)
   # The partner key of the recipient of the gift.
   Recipient = models.ForeignKey(PPartner, null=False, blank=False, related_name="AEpMatch_Recipient", on_delete=models.CASCADE)
   # To determine whether an admin fee on the transaction should be overwritten if it normally has a charge associated with it. Used for both local and ilt transaction.
-  Charge = models.BooleanField(default=True)
+  Charge = models.BooleanField(default=True, null=True)
   # Mailing Code of the mailing that the gift was a response to.
-  Mailing = models.ForeignKey(PMailing, related_name="AEpMatch_Mailing", on_delete=models.CASCADE)
+  Mailing = models.ForeignKey(PMailing, null=True, related_name="AEpMatch_Mailing", on_delete=models.CASCADE)
   # Used to decide whose reports will see this comment
-  CommentTwoType = models.CharField(max_length=12)
+  CommentTwoType = models.CharField(max_length=12, null=True)
   # This is a long description and is 80 characters long.
-  GiftCommentTwo = models.CharField(max_length=80)
+  GiftCommentTwo = models.CharField(max_length=80, null=True)
   # Used to decide whose reports will see this comment
-  CommentThreeType = models.CharField(max_length=12)
+  CommentThreeType = models.CharField(max_length=12, null=True)
   # This is a long description and is 80 characters long.
-  GiftCommentThree = models.CharField(max_length=80)
+  GiftCommentThree = models.CharField(max_length=80, null=True)
   # This is a number of currency units in the entered Currency
   GiftTransactionAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # Used to get a yes no response from the user
   HomeAdminCharges = models.BooleanField(null=False, blank=False)
   # Used to get a yes no response from the user
   IltAdminCharges = models.BooleanField(null=False, blank=False)
-  ReceiptLetterCode = models.CharField(max_length=10)
+  ReceiptLetterCode = models.CharField(max_length=10, null=True)
   # Defines how a gift is given.
-  MethodOfGiving = models.ForeignKey(AMethodOfGiving, related_name="AEpMatch_MethodOfGiving", on_delete=models.CASCADE)
+  MethodOfGiving = models.ForeignKey(AMethodOfGiving, null=True, related_name="AEpMatch_MethodOfGiving", on_delete=models.CASCADE)
   # This is how the partner paid. Eg cash, Cheque etc
-  MethodOfPayment = models.ForeignKey(AMethodOfPayment, related_name="AEpMatch_MethodOfPayment", on_delete=models.CASCADE)
+  MethodOfPayment = models.ForeignKey(AMethodOfPayment, null=True, related_name="AEpMatch_MethodOfPayment", on_delete=models.CASCADE)
   # This is the partner key of the donor.
   Donor = models.ForeignKey(PPartner, null=False, blank=False, related_name="AEpMatch_Donor", on_delete=models.CASCADE)
   # NOT USED AT ALL
-  AdminCharge = models.BooleanField(default=False)
-  Narrative = models.CharField(max_length=120)
+  AdminCharge = models.BooleanField(default=False, null=True)
+  Narrative = models.CharField(max_length=120, null=True)
   # Reference number/code for the transaction
-  Reference = models.CharField(max_length=10)
+  Reference = models.CharField(max_length=10, null=True)
   # short name of the donor; will be used for generating export files
-  DonorShortName = models.CharField(max_length=250)
+  DonorShortName = models.CharField(max_length=250, null=True)
   # short name of recipient
-  RecipientShortName = models.CharField(max_length=250)
+  RecipientShortName = models.CharField(max_length=250, null=True)
   # Indicates whether or not the gift has restricted access. If it does then the access will be controlled by s_group_gift
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
   # Key ministry to which this transaction applies (just for fund transfers)
-  KeyMinistry = models.ForeignKey(PUnit, related_name="AEpMatch_KeyMinistry", on_delete=models.CASCADE)
+  KeyMinistry = models.ForeignKey(PUnit, null=True, related_name="AEpMatch_KeyMinistry", on_delete=models.CASCADE)
   MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="AEpMatch_MotivationDetail", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AEpMatch_CostCentre", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AEpMatch_Account", on_delete=models.CASCADE)
@@ -3991,6 +4529,8 @@ class AEpMatch(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_ep_match_uk', fields=['MatchText', 'Detail']),
     ]
+  def __str__(self):
+    return str(self.EpMatchKey)
 
 class AEpTransaction(models.Model):
   """
@@ -4004,39 +4544,42 @@ class AEpTransaction(models.Model):
   # a transaction can be split in order to support mixed GL and Gift records
   DetailKey = models.IntegerField(default=-1, null=False, blank=False)
   # can be different from order, since the paper statements can have different order than the electronic statement
-  NumberOnPaperStatement = models.IntegerField(default=-1)
+  NumberOnPaperStatement = models.IntegerField(default=-1, null=True)
   # this is a calculated text that uniquely identifies this transaction so that it can be recognised next month. TODO: should have a link table a_ep_match between a_ep_transaction and a_ep_match_detail
-  MatchText = models.CharField(max_length=100)
+  MatchText = models.CharField(max_length=100, null=True)
   # This can be a summary of title, first name, last name etc. of the other party
-  AccountName = models.CharField(max_length=80)
-  Title = models.CharField(max_length=32)
-  FirstName = models.CharField(max_length=32)
-  MiddleName = models.CharField(max_length=32)
+  AccountName = models.CharField(max_length=80, null=True)
+  Title = models.CharField(max_length=32, null=True)
+  FirstName = models.CharField(max_length=32, null=True)
+  MiddleName = models.CharField(max_length=32, null=True)
   # the name of the other party
-  LastName = models.CharField(max_length=32)
+  LastName = models.CharField(max_length=32, null=True)
   # The bank code/branch code/sort code of the other party.
-  BranchCode = models.CharField(max_length=10)
+  BranchCode = models.CharField(max_length=10, null=True)
   # BIC (Bank Identifier Code)/SWIFT code of the other party
-  Bic = models.CharField(max_length=11)
+  Bic = models.CharField(max_length=11, null=True)
   # The account number in the bank of the other party
-  BankAccountNumber = models.CharField(max_length=20)
+  BankAccountNumber = models.CharField(max_length=20, null=True)
   # The IBAN (International Bank Account Number) of the other party.
-  Iban = models.CharField(max_length=64)
+  Iban = models.CharField(max_length=64, null=True)
   # This can be recurring income, recurring payment, income, payment, direct debit, etc.
-  TransactionTypeCode = models.CharField(max_length=20)
+  TransactionTypeCode = models.CharField(max_length=20, null=True)
   # The amount in the currency of the bank account
   TransactionAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # This description was given when the transfer was initiated
-  Description = models.CharField(max_length=256)
+  Description = models.CharField(max_length=256, null=True)
   # The date when this transaction became valid or available
   DateEffective = models.DateTimeField(null=False, blank=False)
   # set this value to the match (either new match or set automatically)
-  EpMatch = models.ForeignKey(AEpMatch, related_name="AEpTransaction_EpMatch", on_delete=models.CASCADE)
+  EpMatch = models.ForeignKey(AEpMatch, null=True, related_name="AEpTransaction_EpMatch", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_ep_transaction_pk', fields=['Statement', 'Order', 'DetailKey']),
     ]
+  def __str__(self):
+    return f"{self.Statement} - {self.Order} - {self.DetailKey}"
+
 
 class AMotivationDetailFee(models.Model):
   """
@@ -4050,6 +4593,9 @@ class AMotivationDetailFee(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_motivation_detail_fee_pk', fields=['MotivationDetail', 'FeeCode']),
     ]
+  def __str__(self):
+    return f"{self.MotivationDetail} - {self.FeeCode}"
+
 
 class ATransactionType(models.Model):
   """
@@ -4057,7 +4603,7 @@ class ATransactionType(models.Model):
   """
 
   # This is used as a key field in most of the accounting system files
-  LedgerNumber = models.IntegerField(default=0, null=False, blank=False)
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ATransactionType_Ledger", on_delete=models.CASCADE)
   # Defines a sub system of accounts
   SubSystem = models.ForeignKey(ASubSystem, null=False, blank=False, related_name="ATransactionType_SubSystem", on_delete=models.CASCADE)
   Code = models.CharField(max_length=8, null=False, blank=False)
@@ -4067,15 +4613,19 @@ class ATransactionType(models.Model):
   LastRecurringJournal = models.IntegerField(default=0, null=False, blank=False)
   # This is a short description which is 32 charcters long
   TransactionTypeDescription = models.CharField(max_length=32, null=False, blank=False)
-  BalancingAccountCode = models.CharField(max_length=12)
+  BalancingAccountCode = models.CharField(max_length=12, null=True)
   # Is this transaction type a special transaction type or not?
-  SpecialTransactionType = models.BooleanField(default=False)
-  Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ATransactionType_Account", on_delete=models.CASCADE)
+  SpecialTransactionType = models.BooleanField(default=False, null=True)
+  DebitAccountCode = models.ForeignKey(AAccount, null=False, blank=False, related_name="ATransactionType_DebitAccountCode", on_delete=models.CASCADE)
+  CreditAccountCode = models.ForeignKey(AAccount, null=False, blank=False, related_name="ATransactionType_CreditAccountCode", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_transaction_type_pk', fields=['SubSystem', 'Code']),
+      models.UniqueConstraint(name='a_transaction_type_pk', fields=['Ledger', 'SubSystem', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.SubSystem} - {self.Code}"
+
 
 class ARecurringJournal(models.Model):
   """
@@ -4094,11 +4644,11 @@ class ARecurringJournal(models.Model):
   # This is a number of currency units
   JournalCreditTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # This defines which accounting period is being used
-  JournalPeriod = models.IntegerField(default=0)
+  JournalPeriod = models.IntegerField(default=0, null=True)
   # Date the  batch comes into effect
   DateEffective = models.DateTimeField(null=False, blank=False)
   # This is how the partner paid. Eg cash, Cheque etc
-  MethodOfPayment = models.ForeignKey(AMethodOfPayment, related_name="ARecurringJournal_MethodOfPayment", on_delete=models.CASCADE)
+  MethodOfPayment = models.ForeignKey(AMethodOfPayment, null=True, related_name="ARecurringJournal_MethodOfPayment", on_delete=models.CASCADE)
   LastTransactionNumber = models.IntegerField(default=0, null=False, blank=False)
   # The rate of exchange
   ExchangeRateToBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
@@ -4110,6 +4660,9 @@ class ARecurringJournal(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_recurring_journal_pk', fields=['RecurringBatch', 'JournalNumber']),
     ]
+  def __str__(self):
+    return f"{self.RecurringBatch} - {self.JournalNumber}"
+
 
 class ARecurringTransaction(models.Model):
   """
@@ -4122,36 +4675,36 @@ class ARecurringTransaction(models.Model):
   # Date the transaction took place
   TransactionDate = models.DateTimeField(null=False, blank=False)
   # This defines which currency is being used
-  TransactionCurrency = models.ForeignKey(ACurrency, related_name="ARecurringTransaction_TransactionCurrency", on_delete=models.CASCADE)
+  TransactionCurrency = models.ForeignKey(ACurrency, null=True, related_name="ARecurringTransaction_TransactionCurrency", on_delete=models.CASCADE)
   # This is a number of currency units
   TransactionAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # This defines which currency is being used
-  BaseCurrency = models.ForeignKey(ACurrency, related_name="ARecurringTransaction_BaseCurrency", on_delete=models.CASCADE)
+  BaseCurrency = models.ForeignKey(ACurrency, null=True, related_name="ARecurringTransaction_BaseCurrency", on_delete=models.CASCADE)
   # The rate of exchange
-  ExchangeRateToBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ExchangeRateToBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # This is a number of currency units
   AmountInBaseCurrency = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   AnalysisIndicator = models.BooleanField(default=False, null=False, blank=False)
-  MethodOfPayment = models.ForeignKey(AMethodOfPayment, related_name="ARecurringTransaction_MethodOfPayment", on_delete=models.CASCADE)
+  MethodOfPayment = models.ForeignKey(AMethodOfPayment, null=True, related_name="ARecurringTransaction_MethodOfPayment", on_delete=models.CASCADE)
   # This defines which accounting period is being used
-  PeriodNumber = models.IntegerField(default=0)
+  PeriodNumber = models.IntegerField(default=0, null=True)
   # Shows if the transaction has been reconciled or not
   Reconciled = models.BooleanField(default=False, null=False, blank=False)
   # Defines a sub system of accounts
-  SubSystemCode = models.CharField(max_length=12)
-  TransactionTypeCode = models.CharField(max_length=8)
-  Narrative = models.CharField(max_length=120)
+  SubSystemCode = models.CharField(max_length=12, null=True)
+  TransactionTypeCode = models.CharField(max_length=8, null=True)
+  Narrative = models.CharField(max_length=120, null=True)
   Reference = models.CharField(max_length=8, null=False, blank=False)
-  DateOfEntry = models.DateTimeField()
-  User = models.ForeignKey(SUser, related_name="ARecurringTransaction_User", on_delete=models.CASCADE)
+  DateOfEntry = models.DateTimeField(null=True)
+  User = models.ForeignKey(SUser, null=True, related_name="ARecurringTransaction_User", on_delete=models.CASCADE)
   DebitCreditIndicator = models.BooleanField(null=False, blank=False)
   # Has a transaction been posted yet
-  TransactionStatus = models.BooleanField(default=False)
+  TransactionStatus = models.BooleanField(default=False, null=True)
   # The header (eg, cashbook #) that the transaction is associated with.
-  HeaderNumber = models.IntegerField(default=0)
+  HeaderNumber = models.IntegerField(default=0, null=True)
   # The detail (within the header) that the transaction is associated with.
-  DetailNumber = models.IntegerField(default=0)
-  SubType = models.CharField(max_length=8)
+  DetailNumber = models.IntegerField(default=0, null=True)
+  SubType = models.CharField(max_length=8, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ARecurringTransaction_Account", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="ARecurringTransaction_CostCentre", on_delete=models.CASCADE)
   RecurringBatch = models.ForeignKey(ARecurringBatch, null=False, blank=False, related_name="ARecurringTransaction_RecurringBatch", on_delete=models.CASCADE)
@@ -4160,6 +4713,9 @@ class ARecurringTransaction(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_recurring_transaction_pk', fields=['RecurringJournal', 'TransactionNumber']),
     ]
+  def __str__(self):
+    return f"{self.RecurringJournal} - {self.TransactionNumber}"
+
 
 class ARecurringTransAnalAttrib(models.Model):
   """
@@ -4179,6 +4735,9 @@ class ARecurringTransAnalAttrib(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_recurring_trans_anal_attr_pk', fields=['RecurringTransaction']),
     ]
+  def __str__(self):
+    return f"{self.RecurringTransaction}"
+
 
 class ARecurringGiftBatch(models.Model):
   """
@@ -4190,19 +4749,19 @@ class ARecurringGiftBatch(models.Model):
   # Gift batch number
   BatchNumber = models.IntegerField(default=0, null=False, blank=False)
   # gift batch description
-  BatchDescription = models.CharField(max_length=40)
+  BatchDescription = models.CharField(max_length=40, null=True)
   # hash total for the gift batch
-  HashTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  HashTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # total for the gift batch
-  BatchTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  BatchTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # last gift number of the batch
-  LastGiftNumber = models.IntegerField(default=0)
+  LastGiftNumber = models.IntegerField(default=0, null=True)
   # This defines which currency is being used
   Currency = models.ForeignKey(ACurrency, null=False, blank=False, related_name="ARecurringGiftBatch_Currency", on_delete=models.CASCADE)
   # What type of gift is this? a gift or a gift in kind generally
   GiftType = models.CharField(max_length=8, default='Gift', null=False, blank=False)
   # This is how the partner paid. EgCash, Cheque etc
-  MethodOfPaymentCode = models.CharField(max_length=8)
+  MethodOfPaymentCode = models.CharField(max_length=8, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ARecurringGiftBatch_Account", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="ARecurringGiftBatch_CostCentre", on_delete=models.CASCADE)
 
@@ -4210,6 +4769,9 @@ class ARecurringGiftBatch(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_recurring_gift_batch_pk', fields=['BatchNumber']),
     ]
+  def __str__(self):
+    return f"{self.BatchNumber}"
+
 
 class ARecurringGift(models.Model):
   """
@@ -4219,29 +4781,29 @@ class ARecurringGift(models.Model):
   RecurringGiftBatch = models.ForeignKey(ARecurringGiftBatch, null=False, blank=False, related_name="ARecurringGift_RecurringGiftBatch", on_delete=models.CASCADE)
   # Identifies a transaction within a journal within a batch within a ledger
   GiftTransactionNumber = models.IntegerField(default=0, null=False, blank=False)
-  ReceiptLetterCode = models.CharField(max_length=8)
+  ReceiptLetterCode = models.CharField(max_length=8, null=True)
   # Defines how a gift is given
-  MethodOfGiving = models.ForeignKey(AMethodOfGiving, related_name="ARecurringGift_MethodOfGiving", on_delete=models.CASCADE)
+  MethodOfGiving = models.ForeignKey(AMethodOfGiving, null=True, related_name="ARecurringGift_MethodOfGiving", on_delete=models.CASCADE)
   # This is how the partner paid. Eg cash, Cheque etc
-  MethodOfPayment = models.ForeignKey(AMethodOfPayment, related_name="ARecurringGift_MethodOfPayment", on_delete=models.CASCADE)
+  MethodOfPayment = models.ForeignKey(AMethodOfPayment, null=True, related_name="ARecurringGift_MethodOfPayment", on_delete=models.CASCADE)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Donor = models.ForeignKey(PPartner, null=False, blank=False, related_name="ARecurringGift_Donor", on_delete=models.CASCADE)
   # Identifies the last gift detail entered
   LastDetailNumber = models.IntegerField(default=0, null=False, blank=False)
   # Reference number/code for the transaction
-  Reference = models.CharField(max_length=8)
+  Reference = models.CharField(max_length=8, null=True)
   # Bank or credit card account to use for making this gift transaction.
   BankingDetailsKey = models.IntegerField(default=0, null=False, blank=False)
   # This reference is a unique string that reflects the customer or contract and the date of the SEPA mandate
-  SepaMandateReference = models.CharField(max_length=35)
+  SepaMandateReference = models.CharField(max_length=35, null=True)
   # The date the SEPA Mandate was given
-  SepaMandateGiven = models.DateTimeField()
+  SepaMandateGiven = models.DateTimeField(null=True)
   # Status of the credit card transaction
-  ChargeStatus = models.CharField(max_length=10)
+  ChargeStatus = models.CharField(max_length=10, null=True)
   # The last date that a successfull direct debit or credit card charge occurred for this gift
-  LastDebit = models.DateTimeField()
+  LastDebit = models.DateTimeField(null=True)
   # The day of the month to make the recurring gift
-  DebitDay = models.IntegerField(default=0)
+  DebitDay = models.IntegerField(default=0, null=True)
   # Whether the recurring gift should be made
   Active = models.BooleanField(default=True, null=False, blank=False)
 
@@ -4249,6 +4811,9 @@ class ARecurringGift(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_recurring_gift_pk', fields=['RecurringGiftBatch', 'GiftTransactionNumber']),
     ]
+  def __str__(self):
+    return f"{self.RecurringGiftBatch} - {self.GiftTransactionNumber}"
+
 
 class ARecurringGiftDetail(models.Model):
   """
@@ -4259,35 +4824,35 @@ class ARecurringGiftDetail(models.Model):
   # Identifies a gift
   DetailNumber = models.IntegerField(default=0, null=False, blank=False)
   # This is used as a key field in most of the accounting system files
-  RecipientLedgerNumber = models.ForeignKey(PPartner, related_name="ARecurringGiftDetail_RecipientLedgerNumber", on_delete=models.CASCADE)
+  RecipientLedgerNumber = models.ForeignKey(PPartner, null=True, related_name="ARecurringGiftDetail_RecipientLedgerNumber", on_delete=models.CASCADE)
   # This is the amount in transaction currency. This field should be renamed to a_gift_transaction_amount_n, to be in analogy to a_gift_detail.a_gift_transaction_amount_n
-  GiftAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  GiftAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Used to decide whose reports will see this comment
-  CommentOneType = models.CharField(max_length=12)
+  CommentOneType = models.CharField(max_length=12, null=True)
   # This is a long description and is 80 characters long.
-  GiftCommentOne = models.CharField(max_length=80)
+  GiftCommentOne = models.CharField(max_length=80, null=True)
   # Defines whether the donor wishes the recipient to know who gave the gift
   ConfidentialGift = models.BooleanField(null=False, blank=False)
   # Whether this gift is tax deductible
-  TaxDeductible = models.BooleanField(default=True)
+  TaxDeductible = models.BooleanField(default=True, null=True)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Recipient = models.ForeignKey(PPartner, null=False, blank=False, related_name="ARecurringGiftDetail_Recipient", on_delete=models.CASCADE)
   # To determine whether an admin fee on the transaction should be overwritten if it normally has a charge associated with it. Used for both local and ilt transaction.
-  Charge = models.BooleanField(default=True)
+  Charge = models.BooleanField(default=True, null=True)
   # Mailing Code
-  Mailing = models.ForeignKey(PMailing, related_name="ARecurringGiftDetail_Mailing", on_delete=models.CASCADE)
+  Mailing = models.ForeignKey(PMailing, null=True, related_name="ARecurringGiftDetail_Mailing", on_delete=models.CASCADE)
   # Used to decide whose reports will see this comment
-  CommentTwoType = models.CharField(max_length=12)
+  CommentTwoType = models.CharField(max_length=12, null=True)
   # This is a long description and is 80 characters long.
-  GiftCommentTwo = models.CharField(max_length=80)
+  GiftCommentTwo = models.CharField(max_length=80, null=True)
   # Used to decide whose reports will see this comment
-  CommentThreeType = models.CharField(max_length=12)
+  CommentThreeType = models.CharField(max_length=12, null=True)
   # This is a long description and is 80 characters long.
-  GiftCommentThree = models.CharField(max_length=80)
+  GiftCommentThree = models.CharField(max_length=80, null=True)
   # Date that donor wants to begin giving this recurring donation
-  StartDonations = models.DateTimeField()
+  StartDonations = models.DateTimeField(null=True)
   # Date that donor wants to stop giving this recurring donation
-  EndDonations = models.DateTimeField()
+  EndDonations = models.DateTimeField(null=True)
   MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="ARecurringGiftDetail_MotivationDetail", on_delete=models.CASCADE)
   RecurringGiftBatch = models.ForeignKey(ARecurringGiftBatch, null=False, blank=False, related_name="ARecurringGiftDetail_RecurringGiftBatch", on_delete=models.CASCADE)
 
@@ -4295,6 +4860,9 @@ class ARecurringGiftDetail(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_recurring_gift_detail_pk', fields=['RecurringGift', 'DetailNumber']),
     ]
+  def __str__(self):
+    return f"{self.RecurringGift} - {self.DetailNumber}"
+
 
 class AGiftBatch(models.Model):
   """
@@ -4308,15 +4876,15 @@ class AGiftBatch(models.Model):
   # gift batch description
   BatchDescription = models.CharField(max_length=40, null=False, blank=False)
   # date of user entry or last modification.
-  ModificationDate = models.DateTimeField()
+  ModificationDate = models.DateTimeField(null=True)
   # hash total for the gift batch
-  HashTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  HashTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # total for the gift batch
-  BatchTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  BatchTotal = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # last gift number of the batch
-  LastGiftNumber = models.IntegerField(default=0)
+  LastGiftNumber = models.IntegerField(default=0, null=True)
   # Status of a gift batch: Unposted, Posted, Cancelled.
-  BatchStatus = models.CharField(max_length=8, default='Unposted')
+  BatchStatus = models.CharField(max_length=8, default='Unposted', null=True)
   # The accounting period that the batch belongs to.  Must be <= 20.
   BatchPeriod = models.IntegerField(default=0, null=False, blank=False)
   # The financial year that the batch belongs to.
@@ -4330,7 +4898,7 @@ class AGiftBatch(models.Model):
   # What type of gift is this? a gift or a gift in kind generally
   GiftType = models.CharField(max_length=8, default='Gift', null=False, blank=False)
   # This is how the partner paid. EgCash, Cheque etc
-  MethodOfPaymentCode = models.CharField(max_length=8)
+  MethodOfPaymentCode = models.CharField(max_length=8, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AGiftBatch_Account", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AGiftBatch_CostCentre", on_delete=models.CASCADE)
 
@@ -4338,6 +4906,9 @@ class AGiftBatch(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_gift_batch_pk', fields=['BatchNumber']),
     ]
+  def __str__(self):
+    return f"{self.BatchNumber}"
+
 
 class AGift(models.Model):
   """
@@ -4347,7 +4918,7 @@ class AGift(models.Model):
   GiftBatch = models.ForeignKey(AGiftBatch, null=False, blank=False, related_name="AGift_GiftBatch", on_delete=models.CASCADE)
   # Identifies a transaction within a journal within a batch within a ledger
   GiftTransactionNumber = models.IntegerField(default=0, null=False, blank=False)
-  GiftStatus = models.CharField(max_length=12)
+  GiftStatus = models.CharField(max_length=12, null=True)
   DateEntered = models.DateTimeField(null=False, blank=False)
   # Used to get a yes no response from the user
   HomeAdminCharges = models.BooleanField(null=False, blank=False)
@@ -4357,27 +4928,27 @@ class AGift(models.Model):
   LinkToPreviousGift = models.BooleanField(default=False, null=False, blank=False)
   # Indicates whether this gift should be included on receipts. For adjustments this field can be set to No to suppress printing.
   PrintReceipt = models.BooleanField(default=True, null=False, blank=False)
-  ReceiptLetterCode = models.CharField(max_length=8)
+  ReceiptLetterCode = models.CharField(max_length=8, null=True)
   # Defines how a gift is given.
-  MethodOfGiving = models.ForeignKey(AMethodOfGiving, related_name="AGift_MethodOfGiving", on_delete=models.CASCADE)
+  MethodOfGiving = models.ForeignKey(AMethodOfGiving, null=True, related_name="AGift_MethodOfGiving", on_delete=models.CASCADE)
   # This is how the partner paid. Eg cash, Cheque etc
-  MethodOfPayment = models.ForeignKey(AMethodOfPayment, related_name="AGift_MethodOfPayment", on_delete=models.CASCADE)
+  MethodOfPayment = models.ForeignKey(AMethodOfPayment, null=True, related_name="AGift_MethodOfPayment", on_delete=models.CASCADE)
   # This is the partner key of the donor.
   Donor = models.ForeignKey(PPartner, null=False, blank=False, related_name="AGift_Donor", on_delete=models.CASCADE)
   # NOT USED AT ALL
-  AdminCharge = models.BooleanField(default=False)
+  AdminCharge = models.BooleanField(default=False, null=True)
   # Gift Receipt Number
-  ReceiptNumber = models.IntegerField(default=0)
+  ReceiptNumber = models.IntegerField(default=0, null=True)
   # Identifies the last gift detail entered
   LastDetailNumber = models.IntegerField(default=0, null=False, blank=False)
   # Reference number/code for the transaction
-  Reference = models.CharField(max_length=10)
+  Reference = models.CharField(max_length=10, null=True)
   # Flag to indicate Donors first gift
-  FirstTimeGift = models.BooleanField(default=False)
+  FirstTimeGift = models.BooleanField(default=False, null=True)
   # Indicates whether or not the receipt has been printed for this gift
   ReceiptPrinted = models.BooleanField(default=False, null=False, blank=False)
   # Indicates whether or not the gift has restricted access. If it does then the access will be controlled by s_group_gift
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
   # Bank or credit card account used for making this gift transaction.
   BankingDetailsKey = models.IntegerField(default=0, null=False, blank=False)
 
@@ -4385,6 +4956,9 @@ class AGift(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_gift_pk', fields=['GiftBatch', 'GiftTransactionNumber']),
     ]
+  def __str__(self):
+    return f"{self.GiftBatch} - {self.GiftTransactionNumber}"
+
 
 class AGiftDetail(models.Model):
   """
@@ -4397,55 +4971,55 @@ class AGiftDetail(models.Model):
   # The partner key of the commitment field (the unit) of the recipient of the gift.  This is not the ledger number but rather the partner key of the unit associated with the ledger.
   RecipientLedgerNumber = models.ForeignKey(PPartner, null=False, blank=False, related_name="AGiftDetail_RecipientLedgerNumber", on_delete=models.CASCADE)
   # This is a number of currency units of the ledger base currency.
-  GiftAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  GiftAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Used to decide whose reports will see this comment
-  CommentOneType = models.CharField(max_length=12)
+  CommentOneType = models.CharField(max_length=12, null=True)
   # This is a long description and is 80 characters long.
-  GiftCommentOne = models.CharField(max_length=80)
+  GiftCommentOne = models.CharField(max_length=80, null=True)
   # Defines whether the donor wishes the recipient to know who gave the gift
   ConfidentialGift = models.BooleanField(null=False, blank=False)
   # Whether this gift is tax deductible
-  TaxDeductible = models.BooleanField(default=True)
+  TaxDeductible = models.BooleanField(default=True, null=True)
   # The partner key of the recipient of the gift.
   Recipient = models.ForeignKey(PPartner, null=False, blank=False, related_name="AGiftDetail_Recipient", on_delete=models.CASCADE)
   # To determine whether an admin fee on the transaction should be overwritten if it normally has a charge associated with it. Used for both local and ilt transaction.
-  Charge = models.BooleanField(default=True)
+  Charge = models.BooleanField(default=True, null=True)
   # This is a number of currency units in the International Currency
-  GiftAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  GiftAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates whether this gift detail has a matching inverse detail record because a modification was made
-  ModifiedDetail = models.BooleanField(default=False)
+  ModifiedDetail = models.BooleanField(default=False, null=True)
   # Stores the concatenated primary key fields of the originating gift detail, of which this gift detail is the inverse.
-  ModifiedDetailKey = models.CharField(max_length=24)
+  ModifiedDetailKey = models.CharField(max_length=24, null=True)
   # Indicates whether this gift detail's gift destination can be changed. Used for gift adjustments with family recipients.
-  FixedGiftDestination = models.BooleanField(default=False)
+  FixedGiftDestination = models.BooleanField(default=False, null=True)
   # This is a number of currency units in the entered Currency
   GiftTransactionAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # identifes the ICH process number
   IchNumber = models.IntegerField(default=0, null=False, blank=False)
   # Mailing Code of the mailing that the gift was a response to.
-  Mailing = models.ForeignKey(PMailing, related_name="AGiftDetail_Mailing", on_delete=models.CASCADE)
+  Mailing = models.ForeignKey(PMailing, null=True, related_name="AGiftDetail_Mailing", on_delete=models.CASCADE)
   # Used to decide whose reports will see this comment
-  CommentTwoType = models.CharField(max_length=12)
+  CommentTwoType = models.CharField(max_length=12, null=True)
   # This is a long description and is 80 characters long.
-  GiftCommentTwo = models.CharField(max_length=80)
+  GiftCommentTwo = models.CharField(max_length=80, null=True)
   # Used to decide whose reports will see this comment
-  CommentThreeType = models.CharField(max_length=12)
+  CommentThreeType = models.CharField(max_length=12, null=True)
   # This is a long description and is 80 characters long.
-  GiftCommentThree = models.CharField(max_length=80)
+  GiftCommentThree = models.CharField(max_length=80, null=True)
   # Percentage of gift amount that is tax-deductible
-  TaxDeductiblePct = models.DecimalField(max_digits=5, decimal_places=2)
+  TaxDeductiblePct = models.DecimalField(max_digits=5, decimal_places=2, null=True)
   # Tax deductible portion of gift
-  TaxDeductibleAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  TaxDeductibleAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Tax deductible portion of gift (Base Currency)
-  TaxDeductibleAmountBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  TaxDeductibleAmountBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Tax deductible portion of gift (Intl Currency)
-  TaxDeductibleAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  TaxDeductibleAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Non tax-deductible portion of gift
-  NonDeductibleAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  NonDeductibleAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Non tax-deductible portion of gift (Base Currency)
-  NonDeductibleAmountBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  NonDeductibleAmountBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Non tax-deductible portion of gift (Intl Currency)
-  NonDeductibleAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  NonDeductibleAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="AGiftDetail_MotivationDetail", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AGiftDetail_CostCentre", on_delete=models.CASCADE)
   GiftBatch = models.ForeignKey(AGiftBatch, null=False, blank=False, related_name="AGiftDetail_GiftBatch", on_delete=models.CASCADE)
@@ -4455,6 +5029,9 @@ class AGiftDetail(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_gift_detail_pk', fields=['Gift', 'DetailNumber']),
     ]
+  def __str__(self):
+    return f"{self.Gift} - {self.DetailNumber}"
+
 
 class AProcessedFee(models.Model):
   """
@@ -4467,9 +5044,9 @@ class AProcessedFee(models.Model):
   # Total Amount of the fee for the given period.
   PeriodicAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # Date ""admin fee calculations"" have been run to fee total has been created as a transaction in the general ledger.
-  ProcessedDate = models.DateTimeField()
+  ProcessedDate = models.DateTimeField(null=True)
   # System generated time stamp.
-  Timestamp = models.IntegerField()
+  Timestamp = models.IntegerField(null=True)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AProcessedFee_CostCentre", on_delete=models.CASCADE)
   AccountingPeriod = models.ForeignKey(AAccountingPeriod, null=False, blank=False, related_name="AProcessedFee_AccountingPeriod", on_delete=models.CASCADE)
   GiftBatch = models.ForeignKey(AGiftBatch, null=False, blank=False, related_name="AProcessedFee_GiftBatch", on_delete=models.CASCADE)
@@ -4478,6 +5055,9 @@ class AProcessedFee(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_processed_fee_pk', fields=['GiftDetail', 'FeeCode']),
     ]
+  def __str__(self):
+    return f"{self.GiftDetail} - {self.FeeCode}"
+
 
 class AJournal(models.Model):
   """
@@ -4500,10 +5080,10 @@ class AJournal(models.Model):
   # The number of the last transaction within the journal.
   LastTransactionNumber = models.IntegerField(default=0, null=False, blank=False)
   # Has a journal been posted yet
-  JournalStatus = models.CharField(max_length=12, default='Unposted')
+  JournalStatus = models.CharField(max_length=12, default='Unposted', null=True)
   # This defines which currency is being used
   TransactionCurrency = models.ForeignKey(ACurrency, null=False, blank=False, related_name="AJournal_TransactionCurrency", on_delete=models.CASCADE)
-  BaseCurrency = models.ForeignKey(ACurrency, related_name="AJournal_BaseCurrency", on_delete=models.CASCADE)
+  BaseCurrency = models.ForeignKey(ACurrency, null=True, related_name="AJournal_BaseCurrency", on_delete=models.CASCADE)
   # The rate of exchange from the transaction currency (in a_transaction_currency_c) to the ledger base currency.
   ExchangeRateToBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # The time component of the exchange rate.
@@ -4511,13 +5091,16 @@ class AJournal(models.Model):
   # Date the journal was created.
   DateOfEntry = models.DateTimeField(null=False, blank=False)
   # Indicates whether or not a journal has been reversed.
-  Reversed = models.BooleanField(default=False)
+  Reversed = models.BooleanField(default=False, null=True)
   TransactionType = models.ForeignKey(ATransactionType, null=False, blank=False, related_name="AJournal_TransactionType", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_journal_pk', fields=['Batch', 'JournalNumber']),
     ]
+  def __str__(self):
+    return f"{self.Batch} - {self.JournalNumber}"
+
 
 class ATransaction(models.Model):
   """
@@ -4528,9 +5111,9 @@ class ATransaction(models.Model):
   # Identifies a transaction within a journal within a batch within a ledger
   TransactionNumber = models.IntegerField(default=0, null=False, blank=False)
   # This identifies the account the financial transaction must be stored against [NOT USED]
-  PrimaryAccountCode = models.CharField(max_length=8)
+  PrimaryAccountCode = models.CharField(max_length=8, null=True)
   # This identifies which cost centre an account is applied to [NOT USED]
-  PrimaryCostCentreCode = models.CharField(max_length=12)
+  PrimaryCostCentreCode = models.CharField(max_length=12, null=True)
   # Date the transaction took place
   TransactionDate = models.DateTimeField(null=False, blank=False)
   # This is a number of currency units
@@ -4541,31 +5124,31 @@ class ATransaction(models.Model):
   AnalysisIndicator = models.BooleanField(default=False, null=False, blank=False)
   # shows if the transaction has been reconciled or not
   ReconciledStatus = models.BooleanField(default=False, null=False, blank=False)
-  Narrative = models.CharField(max_length=250)
+  Narrative = models.CharField(max_length=250, null=True)
   DebitCreditIndicator = models.BooleanField(null=False, blank=False)
   # Has a transaction been posted yet
-  TransactionStatus = models.BooleanField()
+  TransactionStatus = models.BooleanField(null=True)
   # The header (eg, cashbook #) that the transaction is associated with. [NOT USED]
-  HeaderNumber = models.IntegerField(default=0)
+  HeaderNumber = models.IntegerField(default=0, null=True)
   # The detail (within the header) that the transaction is associated with. [NOT USED]
-  DetailNumber = models.IntegerField(default=0)
-  SubType = models.CharField(max_length=8)
+  DetailNumber = models.IntegerField(default=0, null=True)
+  SubType = models.CharField(max_length=8, null=True)
   # Indicates whether the ILT transaction has been transferred to transaction for ILT file.
-  ToIlt = models.BooleanField(default=False)
+  ToIlt = models.BooleanField(default=False, null=True)
   # To flag a transaction as having come from a source ledger and been processed in an ilt processing centre
-  Source = models.BooleanField(default=False)
+  Source = models.BooleanField(default=False, null=True)
   # Reference number/code for the transaction
   Reference = models.CharField(max_length=50, null=False, blank=False)
   # Transaction key which initiated an ILT transaction
-  SourceReference = models.CharField(max_length=50)
+  SourceReference = models.CharField(max_length=50, null=True)
   # Was this transaction generated automatically by the system?
-  SystemGenerated = models.BooleanField(default=False)
+  SystemGenerated = models.BooleanField(default=False, null=True)
   # The transaction amount in the second base currency.
-  AmountInIntlCurrency = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  AmountInIntlCurrency = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # identifes the ICH process number
   IchNumber = models.IntegerField(default=0, null=False, blank=False)
   # Key ministry to which this transaction applies (just for fund transfers)
-  KeyMinistry = models.ForeignKey(PUnit, related_name="ATransaction_KeyMinistry", on_delete=models.CASCADE)
+  KeyMinistry = models.ForeignKey(PUnit, null=True, related_name="ATransaction_KeyMinistry", on_delete=models.CASCADE)
   Batch = models.ForeignKey(ABatch, null=False, blank=False, related_name="ATransaction_Batch", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ATransaction_Account", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="ATransaction_CostCentre", on_delete=models.CASCADE)
@@ -4574,6 +5157,9 @@ class ATransaction(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_transaction_pk', fields=['Journal', 'TransactionNumber']),
     ]
+  def __str__(self):
+    return f"{self.Journal} - {self.TransactionNumber}"
+
 
 class ATransAnalAttrib(models.Model):
   """
@@ -4593,18 +5179,23 @@ class ATransAnalAttrib(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_trans_anal_attrib_pk', fields=['Transaction']),
     ]
+  def __str__(self):
+    return f"{self.Transaction}"
+
 
 class ASuspenseAccount(models.Model):
   """
   Lists the suspense accounts of each ledger.
   """
 
-  Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ASuspenseAccount_Account", on_delete=models.CASCADE)
+  Account = models.OneToOneField(AAccount, null=False, blank=False, related_name="ASuspenseAccount_Account", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_suspense_account_pk', fields=['Account']),
     ]
+  def __str__(self):
+    return str(self.Account)
 
 class AApSupplier(models.Model):
   """
@@ -4612,32 +5203,34 @@ class AApSupplier(models.Model):
   """
 
   # Reference to the partner key for this supplier
-  Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="AApSupplier_Partner", on_delete=models.CASCADE)
+  Partner = models.OneToOneField(PPartner, null=False, blank=False, related_name="AApSupplier_Partner", on_delete=models.CASCADE)
   # Number of months to display invoices and credit notes
-  PreferredScreenDisplay = models.IntegerField()
+  PreferredScreenDisplay = models.IntegerField(null=True)
   # Reference to default bank account to use to pay supplier with.
-  DefaultBankAccount = models.CharField(max_length=8)
+  DefaultBankAccount = models.CharField(max_length=8, null=True)
   # The default type of payment to use when paying this supplier.
-  PaymentType = models.CharField(max_length=12)
+  PaymentType = models.CharField(max_length=12, null=True)
   # The currency code to use for this supplier.
   Currency = models.ForeignKey(ACurrency, null=False, blank=False, related_name="AApSupplier_Currency", on_delete=models.CASCADE)
   # The default AP Account to use when paying this supplier.
-  DefaultApAccount = models.CharField(max_length=8)
+  DefaultApAccount = models.CharField(max_length=8, null=True)
   # Default credit terms to use for invoices from this supplier.
-  DefaultCreditTerms = models.IntegerField()
+  DefaultCreditTerms = models.IntegerField(null=True)
   # Default percentage discount to receive for early payments.
-  DefaultDiscountPercentage = models.DecimalField(max_digits=24, decimal_places=10)
+  DefaultDiscountPercentage = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # Default number of days in which the discount percentage has effect.
-  DefaultDiscountDays = models.IntegerField()
+  DefaultDiscountDays = models.IntegerField(null=True)
   # What type of supplier this is - normal, credit card, maybe something else.
-  SupplierType = models.CharField(max_length=12)
+  SupplierType = models.CharField(max_length=12, null=True)
   # Reference to the default expense Account to use for invoice details.
-  DefaultExpAccount = models.CharField(max_length=8)
+  DefaultExpAccount = models.CharField(max_length=8, null=True)
   # Reference to the default cost centre to use for invoice details.
-  DefaultCostCentre = models.CharField(max_length=8)
+  DefaultCostCentre = models.CharField(max_length=8, null=True)
   # This reference identifies us to the supplier
-  OurReference = models.CharField(max_length=50)
+  OurReference = models.CharField(max_length=50, null=True)
 
+  def __str__(self):
+    return str(self.Partner)
 
 class AApDocument(models.Model):
   """
@@ -4653,35 +5246,37 @@ class AApDocument(models.Model):
   # A flag to indicate if this document is an invoice or a credit note.
   CreditNote = models.BooleanField(default=False, null=False, blank=False)
   # The code given on the document itself (be it invoice or credit note). This will have to be unique for each supplier.
-  DocumentCode = models.CharField(max_length=15)
+  DocumentCode = models.CharField(max_length=15, null=True)
   # Some kind of other reference needed.
-  Reference = models.CharField(max_length=50)
+  Reference = models.CharField(max_length=50, null=True)
   # The date when this document was issued.
   DateIssued = models.DateTimeField(null=False, blank=False)
   # The date when this document was entered into the system.
   DateEntered = models.DateTimeField(null=False, blank=False)
   # Credit terms allowed for this invoice.
-  CreditTerms = models.IntegerField(default=0)
+  CreditTerms = models.IntegerField(default=0, null=True)
   # The total amount of money that this document is worth.
   TotalAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # the currency of the document
   CurrencyCode = models.CharField(max_length=8, null=False, blank=False)
   # The exchange rate to the base currency at the time that the document was issued.
-  ExchangeRateToBase = models.DecimalField(max_digits=24, decimal_places=10)
+  ExchangeRateToBase = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # The percentage discount you get for early payment of this document in the case that it is an invoice.
-  DiscountPercentage = models.DecimalField(max_digits=24, decimal_places=10)
+  DiscountPercentage = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # The number of days that the discount is valid for (0 for none).
-  DiscountDays = models.IntegerField()
+  DiscountDays = models.IntegerField(null=True)
   # The number of the last item for this document. This is used simply to quickly get the next number if items are added.
   LastDetailNumber = models.IntegerField(default=0, null=False, blank=False)
   # The current status of the invoice. The value can (for now) be one of: OPEN, APPROVED, POSTED, PARTPAID, or PAID.
-  DocumentStatus = models.CharField(max_length=8)
+  DocumentStatus = models.CharField(max_length=8, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AApDocument_Account", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_ap_document_uk', fields=['ApNumber']),
     ]
+  def __str__(self):
+    return str(self.ApDocumentId)
 
 class ACrdtNoteInvoiceLink(models.Model):
   """
@@ -4693,13 +5288,16 @@ class ACrdtNoteInvoiceLink(models.Model):
   # Reference to the invoice.
   InvoiceDocument = models.ForeignKey(AApDocument, null=False, blank=False, related_name="ACrdtNoteInvoiceLink_InvoiceDocument", on_delete=models.CASCADE)
   # Reference to the ledger number.
-  LedgerNumber = models.IntegerField(null=False, blank=False)
-  AppliedDate = models.DateTimeField()
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ACrdtNoteInvoiceLink_Ledger", on_delete=models.CASCADE)
+  AppliedDate = models.DateTimeField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_crdt_note_invoice_link_pk', fields=['CreditNoteDocument', 'InvoiceDocument']),
     ]
+  def __str__(self):
+    return f"{self.CreditNoteDocument} - {self.InvoiceDocument}"
+
 
 class AApDocumentDetail(models.Model):
   """
@@ -4713,13 +5311,13 @@ class AApDocumentDetail(models.Model):
   # Indicates if this detail has been approved or not.
   DetailApproved = models.BooleanField(default=False, null=False, blank=False)
   # Some other reference to the item.
-  ItemRef = models.CharField(max_length=50)
+  ItemRef = models.CharField(max_length=50, null=True)
   # A narrative about what this is.
-  Narrative = models.CharField(max_length=100)
+  Narrative = models.CharField(max_length=100, null=True)
   # The amount of money this detail is worth.
-  Amount = models.DecimalField(max_digits=24, decimal_places=10)
+  Amount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # The date when this detail was approved.
-  ApprovalDate = models.DateTimeField()
+  ApprovalDate = models.DateTimeField(null=True)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AApDocumentDetail_CostCentre", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AApDocumentDetail_Account", on_delete=models.CASCADE)
 
@@ -4727,6 +5325,9 @@ class AApDocumentDetail(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_ap_document_detail_pk', fields=['ApDocument', 'DetailNumber']),
     ]
+  def __str__(self):
+    return f"{self.ApDocument} - {self.DetailNumber}"
+
 
 class AApPayment(models.Model):
   """
@@ -4738,25 +5339,28 @@ class AApPayment(models.Model):
   # Unique number to identify each payment batch.
   PaymentNumber = models.IntegerField(default=0, null=False, blank=False)
   # The amount of money that was paid
-  Amount = models.DecimalField(max_digits=24, decimal_places=10)
+  Amount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # the currency of the document
   CurrencyCode = models.CharField(max_length=8, null=False, blank=False)
   # The exchange rate to the base currency at the time of payment.
-  ExchangeRateToBase = models.DecimalField(max_digits=24, decimal_places=10)
+  ExchangeRateToBase = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # Date that the payment for an accounts payable was made.
-  PaymentDate = models.DateTimeField()
+  PaymentDate = models.DateTimeField(null=True)
   # This is the system user id of the person who made the payment.
-  User = models.ForeignKey(SUser, related_name="AApPayment_User", on_delete=models.CASCADE)
+  User = models.ForeignKey(SUser, null=True, related_name="AApPayment_User", on_delete=models.CASCADE)
   # Method that was used to make the payment - cheque, cash, ep, credit card, etc.
-  MethodOfPayment = models.CharField(max_length=10)
+  MethodOfPayment = models.CharField(max_length=10, null=True)
   # The source or reference for the accounts payable payment.  This could be a cheque number.
-  Reference = models.CharField(max_length=50)
+  Reference = models.CharField(max_length=50, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AApPayment_Account", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_ap_payment_pk', fields=['PaymentNumber']),
     ]
+  def __str__(self):
+    return f"{self.PaymentNumber}"
+
 
 class AApDocumentPayment(models.Model):
   """
@@ -4768,13 +5372,16 @@ class AApDocumentPayment(models.Model):
   # Unique number to identify each payment batch.
   PaymentNumber = models.IntegerField(default=0, null=False, blank=False)
   # The amount of money that was paid
-  Amount = models.DecimalField(max_digits=24, decimal_places=10)
+  Amount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   ApPayment = models.ForeignKey(AApPayment, null=False, blank=False, related_name="AApDocumentPayment_ApPayment", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_ap_document_payment_pk', fields=['ApDocument']),
     ]
+  def __str__(self):
+    return f"{self.ApDocument}"
+
 
 class AEpPayment(models.Model):
   """
@@ -4786,17 +5393,20 @@ class AEpPayment(models.Model):
   # Unique number to identify each payment batch.
   PaymentNumber = models.IntegerField(default=0, null=False, blank=False)
   # The amount of money that was paid
-  Amount = models.DecimalField(max_digits=24, decimal_places=10)
+  Amount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # This is the system user id of the person who made the payment.
-  User = models.ForeignKey(SUser, related_name="AEpPayment_User", on_delete=models.CASCADE)
+  User = models.ForeignKey(SUser, null=True, related_name="AEpPayment_User", on_delete=models.CASCADE)
   # The source or reference for the accounts payable payment.  This could be a cheque number.
-  Reference = models.CharField(max_length=50)
+  Reference = models.CharField(max_length=50, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AEpPayment_Account", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='a_ep_payment_pk', fields=['PaymentNumber']),
     ]
+  def __str__(self):
+    return f"{self.PaymentNumber}"
+
 
 class AEpDocumentPayment(models.Model):
   """
@@ -4804,11 +5414,13 @@ class AEpDocumentPayment(models.Model):
   """
 
   # AP Document ref
-  ApDocument = models.ForeignKey(AApDocument, null=False, blank=False, related_name="AEpDocumentPayment_ApDocument", on_delete=models.CASCADE)
+  ApDocument = models.OneToOneField(AApDocument, null=False, blank=False, related_name="AEpDocumentPayment_ApDocument", on_delete=models.CASCADE)
   # The amount of money that was paid
-  Amount = models.DecimalField(max_digits=24, decimal_places=10)
+  Amount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   EpPayment = models.ForeignKey(AEpPayment, null=False, blank=False, related_name="AEpDocumentPayment_EpPayment", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.ApDocument)
 
 class AApAnalAttrib(models.Model):
   """
@@ -4825,6 +5437,9 @@ class AApAnalAttrib(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_ap_anal_attrib_pk', fields=['ApDocumentDetail']),
     ]
+  def __str__(self):
+    return f"{self.ApDocumentDetail}"
+
 
 class AArInvoice(models.Model):
   """
@@ -4832,21 +5447,21 @@ class AArInvoice(models.Model):
   """
 
   # This is used as a key field in most of the accounting system files
-  LedgerNumber = models.IntegerField(default=0, null=False, blank=False)
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AArInvoice_Ledger", on_delete=models.CASCADE)
   # Key to uniquely identify invoice
   Key = models.IntegerField(null=False, blank=False)
   # an invoice can have these states: OFFER, CHARGED, PARTIALLYPAID, PAID
   Status = models.CharField(max_length=16, null=False, blank=False)
   # This is the partner who has to pay the bill; can be null for cash payments; could also be another field
-  Partner = models.ForeignKey(PPartner, related_name="AArInvoice_Partner", on_delete=models.CASCADE)
+  Partner = models.ForeignKey(PPartner, null=True, related_name="AArInvoice_Partner", on_delete=models.CASCADE)
   # this is the date when the invoice was charged
-  DateEffective = models.DateTimeField()
+  DateEffective = models.DateTimeField(null=True)
   # refers to the offer that was created for this invoice; it is basically an archived copy of the invoice, and the invoice might actually be different from the offer (e.g. hospitality: different number of people, etc.); table ph_booking always refers to the invoice, and the invoice refers to the offer; there is no requirement for an offer to exist, it can be null
-  Offer = models.IntegerField()
+  Offer = models.IntegerField(null=True)
   # this defines whether no tax is applied to this invoice (NONE), or if a SPECIAL tax is applied, or if the DEFAULT tax defined for each article; this should work around issues of selling to businesses or customers abroad
   Taxing = models.CharField(max_length=10, default='DEFAULT', null=False, blank=False)
   # The total amount of money that this invoice is worth; this includes all discounts, even the early payment discount; if the early payment discount does not apply anymore at the time of payment, this total amount needs to be updated
-  TotalAmount = models.DecimalField(max_digits=24, decimal_places=10)
+  TotalAmount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # the currency of the total amount
   Currency = models.ForeignKey(ACurrency, null=False, blank=False, related_name="AArInvoice_Currency", on_delete=models.CASCADE)
   TaxTable = models.ForeignKey(ATaxTable, null=False, blank=False, related_name="AArInvoice_TaxTable", on_delete=models.CASCADE)
@@ -4855,6 +5470,9 @@ class AArInvoice(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_ar_invoice_pk', fields=['Key']),
     ]
+  def __str__(self):
+    return f"{self.Key}"
+
 
 class AArInvoiceDetail(models.Model):
   """
@@ -4865,11 +5483,11 @@ class AArInvoiceDetail(models.Model):
   # A unique number for this detail for its invoice.
   DetailNumber = models.IntegerField(null=False, blank=False)
   # Reference for this invoice detail; for a non specific article that could give more details (e.g. which book of type small book)
-  ArReference = models.CharField(max_length=50)
+  ArReference = models.CharField(max_length=50, null=True)
   # defines the number of the article items that is bought
   ArNumberOfItem = models.IntegerField(null=False, blank=False)
   # The total amount of money that this invoice detail is worth; includes the discounts
-  CalculatedAmount = models.DecimalField(max_digits=24, decimal_places=10)
+  CalculatedAmount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # the currency of the total amount
   Currency = models.ForeignKey(ACurrency, null=False, blank=False, related_name="AArInvoiceDetail_Currency", on_delete=models.CASCADE)
   TaxTable = models.ForeignKey(ATaxTable, null=False, blank=False, related_name="AArInvoiceDetail_TaxTable", on_delete=models.CASCADE)
@@ -4879,6 +5497,9 @@ class AArInvoiceDetail(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_ar_invoice_detail_pk', fields=['ArInvoice', 'DetailNumber']),
     ]
+  def __str__(self):
+    return f"{self.ArInvoice} - {self.DetailNumber}"
+
 
 class AArInvoiceDiscount(models.Model):
   """
@@ -4892,6 +5513,9 @@ class AArInvoiceDiscount(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_ar_invoice_discount_pk', fields=['ArInvoice', 'ArDiscount']),
     ]
+  def __str__(self):
+    return f"{self.ArInvoice} - {self.ArDiscount}"
+
 
 class AArInvoiceDetailDiscount(models.Model):
   """
@@ -4905,6 +5529,9 @@ class AArInvoiceDetailDiscount(models.Model):
     constraints = [
       models.UniqueConstraint(name='a_ar_invoice_detail_discount_pk', fields=['ArInvoiceDetail', 'ArDiscount']),
     ]
+  def __str__(self):
+    return f"{self.ArInvoiceDetail} - {self.ArDiscount}"
+
 
 class PmGeneralApplication(models.Model):
   """
@@ -4924,61 +5551,64 @@ class PmGeneralApplication(models.Model):
   # TODO: this field is a combination of registration office and application number. might not be needed???
   OldLink = models.CharField(max_length=16, null=False, blank=False)
   # This is the possible field or team of service.
-  GenAppPossSrvUnit = models.ForeignKey(PUnit, related_name="PmGeneralApplication_GenAppPossSrvUnit", on_delete=models.CASCADE)
+  GenAppPossSrvUnit = models.ForeignKey(PUnit, null=True, related_name="PmGeneralApplication_GenAppPossSrvUnit", on_delete=models.CASCADE)
   # This field will not appear on the screen but will be updated when someone chooses to delete a record. Rather that an actual deletion, the record will be 'marked' for deletion after an agreed upon interval.
-  GenAppDelete = models.BooleanField(default=False)
+  GenAppDelete = models.BooleanField(default=False, null=True)
   # Describes the applicant, eg. volunteer, staff, speaker.
   GenApplicantType = models.CharField(max_length=15, null=False, blank=False)
   # Indicates the status of the application.
-  GenApplicationStatus = models.ForeignKey(PtApplicantStatus, related_name="PmGeneralApplication_GenApplicationStatus", on_delete=models.CASCADE)
+  GenApplicationStatus = models.ForeignKey(PtApplicantStatus, null=True, related_name="PmGeneralApplication_GenApplicationStatus", on_delete=models.CASCADE)
   # Indicates if the application is closed.
-  Closed = models.BooleanField(default=False)
+  Closed = models.BooleanField(default=False, null=True)
   # This identifies the user that closed the application
-  ClosedBy = models.ForeignKey(SUser, related_name="PmGeneralApplication_ClosedBy", on_delete=models.CASCADE)
+  ClosedBy = models.ForeignKey(SUser, null=True, related_name="PmGeneralApplication_ClosedBy", on_delete=models.CASCADE)
   # This is the date the application was closed.
-  DateClosed = models.DateTimeField()
+  DateClosed = models.DateTimeField(null=True)
   # Indicates if the application is on hold.
-  GenApplicationOnHold = models.BooleanField(default=False)
+  GenApplicationOnHold = models.BooleanField(default=False, null=True)
   # Comment on why the application is on hold.
-  GenApplicationHoldReason = models.CharField(max_length=50)
+  GenApplicationHoldReason = models.CharField(max_length=50, null=True)
   # Indicates if the application process has been cancelled.
-  GenCancelledApp = models.BooleanField(default=False)
+  GenCancelledApp = models.BooleanField(default=False, null=True)
   # Comment on why the application is on hold.
-  GenAppCancelReason = models.CharField(max_length=27)
+  GenAppCancelReason = models.CharField(max_length=27, null=True)
   # This is the date the application was cancelled.
-  GenAppCancelled = models.DateTimeField()
+  GenAppCancelled = models.DateTimeField(null=True)
   # Describes if the applicant has been accepted by the serving field.
-  GenAppSrvFldAccept = models.BooleanField(default=False)
+  GenAppSrvFldAccept = models.BooleanField(default=False, null=True)
   # This is the date the receiving field accepted the applicant.
-  GenAppRecvgFldAccept = models.DateTimeField()
+  GenAppRecvgFldAccept = models.DateTimeField(null=True)
   # Describes if the applicant has been accepted by the sending field.
-  GenAppSendFldAccept = models.BooleanField(default=False)
+  GenAppSendFldAccept = models.BooleanField(default=False, null=True)
   # This is the date the sending field accepted the applicant.
-  GenAppSendFldAccept = models.DateTimeField()
+  GenAppSendFldAccept = models.DateTimeField(null=True)
   # This field indicates how they were influenced to apply with us.
-  GenContact1 = models.ForeignKey(PtContact, related_name="PmGeneralApplication_GenContact1", on_delete=models.CASCADE)
+  GenContact1 = models.ForeignKey(PtContact, null=True, related_name="PmGeneralApplication_GenContact1", on_delete=models.CASCADE)
   # This field indicates how they were influenced to apply with us.
-  GenContact2 = models.ForeignKey(PtContact, related_name="PmGeneralApplication_GenContact2", on_delete=models.CASCADE)
+  GenContact2 = models.ForeignKey(PtContact, null=True, related_name="PmGeneralApplication_GenContact2", on_delete=models.CASCADE)
   # Indicates the date the record was last updated.
-  GenAppUpdate = models.DateTimeField()
+  GenAppUpdate = models.DateTimeField(null=True)
   # Sometimes there are extra comments of preferences that are related to an application.  These can be entered here.
-  Comment = models.CharField(max_length=1000)
+  Comment = models.CharField(max_length=1000, null=True)
   # This is the currency that is used for amounts listed in this application
-  GenAppCurrency = models.ForeignKey(ACurrency, related_name="PmGeneralApplication_GenAppCurrency", on_delete=models.CASCADE)
+  GenAppCurrency = models.ForeignKey(ACurrency, null=True, related_name="PmGeneralApplication_GenAppCurrency", on_delete=models.CASCADE)
   # This is the placement person handling this application.
-  PlacementPartner = models.ForeignKey(PPerson, related_name="PmGeneralApplication_PlacementPartner", on_delete=models.CASCADE)
+  PlacementPartner = models.ForeignKey(PPerson, null=True, related_name="PmGeneralApplication_PlacementPartner", on_delete=models.CASCADE)
   # stores the plain data received from the browser in JSON format
-  RawApplicationData = models.CharField(max_length=15000)
+  RawApplicationData = models.CharField(max_length=15000, null=True)
   # the person partner key of the applicant in the local database of the registration office. no foreign key since the person partner is in another database
-  LocalPartnerKey = models.IntegerField()
+  LocalPartnerKey = models.IntegerField(null=True)
   # true if the applicant has already been imported into the local database of the registration office.
-  ImportedLocalPetra = models.BooleanField(default=False)
+  ImportedLocalPetra = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_general_application_pk', fields=['Partner', 'ApplicationKey', 'RegistrationOffice']),
       models.UniqueConstraint(name='pm_general_application_nk', fields=['Partner', 'GenAppDate', 'AppType', 'OldLink']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.ApplicationKey} - {self.RegistrationOffice}{self.Partner} - {self.GenAppDate} - {self.AppType} - {self.OldLink}"
+
 
 class PmApplicationStatusHistory(models.Model):
   """
@@ -4988,140 +5618,146 @@ class PmApplicationStatusHistory(models.Model):
   # Key to make editing these records easier
   Key = models.IntegerField(null=False, blank=False, unique=True)
   # Indicates the status of the application.
-  Status = models.ForeignKey(PtApplicantStatus, related_name="PmApplicationStatusHistory_Status", on_delete=models.CASCADE)
+  Status = models.ForeignKey(PtApplicantStatus, null=True, related_name="PmApplicationStatusHistory_Status", on_delete=models.CASCADE)
   # Effective Date of the chosen Application Status
-  StatusDateEffective = models.DateTimeField()
+  StatusDateEffective = models.DateTimeField(null=True)
   # Gives further comments about application status.
-  Comment = models.CharField(max_length=250)
+  Comment = models.CharField(max_length=250, null=True)
   GeneralApplication = models.ForeignKey(PmGeneralApplication, null=False, blank=False, related_name="PmApplicationStatusHistory_GeneralApplication", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.Key)
 
 class PmShortTermApplication(models.Model):
   """
   Table for short term applications.
   """
 
-  GeneralApplication = models.ForeignKey(PmGeneralApplication, null=False, blank=False, related_name="PmShortTermApplication_GeneralApplication", on_delete=models.CASCADE)
+  GeneralApplication = models.OneToOneField(PmGeneralApplication, null=False, blank=False, related_name="PmShortTermApplication_GeneralApplication", on_delete=models.CASCADE)
   # Date of application
   StAppDate = models.DateTimeField(null=False, blank=False)
   StApplicationType = models.CharField(max_length=16, null=False, blank=False)
   # TODO: this field is a combination of registration office and application number. might not be needed???
   StBasicOutreachId = models.CharField(max_length=16, null=False, blank=False)
   # This field will not appear on the screen but will be updated when someone chooses to delete a record. Rather that an actual deletion, the record will be 'marked' for deletion after an agreed upon interval.
-  StBasicDelete = models.BooleanField(default=False)
+  StBasicDelete = models.BooleanField(default=False, null=True)
   # Indicates if the application is on hold.
-  StApplicationOnHold = models.BooleanField(default=False)
+  StApplicationOnHold = models.BooleanField(default=False, null=True)
   # Comment on why the application is on hold.
-  StApplicationHoldReason = models.CharField(max_length=20)
+  StApplicationHoldReason = models.CharField(max_length=20, null=True)
   # Indicates the outreach code of the confirmed option.
-  ConfirmedOptionCode = models.CharField(max_length=13)
+  ConfirmedOptionCode = models.CharField(max_length=13, null=True)
   # Indicates if for outreach only.
-  StOutreachOnly = models.BooleanField(default=False)
+  StOutreachOnly = models.BooleanField(default=False, null=True)
   # Indicates the confirmed outreach option.
-  StConfirmedOption = models.ForeignKey(PUnit, related_name="PmShortTermApplication_StConfirmedOption", on_delete=models.CASCADE)
+  StConfirmedOption = models.ForeignKey(PUnit, null=True, related_name="PmShortTermApplication_StConfirmedOption", on_delete=models.CASCADE)
   # Indicates the current field.
-  StCurrentField = models.ForeignKey(PUnit, related_name="PmShortTermApplication_StCurrentField", on_delete=models.CASCADE)
+  StCurrentField = models.ForeignKey(PUnit, null=True, related_name="PmShortTermApplication_StCurrentField", on_delete=models.CASCADE)
   # Indicates the status of given arrival details (not known, being planned,...).
-  ArrivalDetailsStatus = models.CharField(max_length=12, default='no')
+  ArrivalDetailsStatus = models.CharField(max_length=12, default='no', null=True)
   # This code indicates the arrival point of the congress attendee.
-  ArrivalPoint = models.ForeignKey(PtArrivalPoint, related_name="PmShortTermApplication_ArrivalPoint", on_delete=models.CASCADE)
+  ArrivalPoint = models.ForeignKey(PtArrivalPoint, null=True, related_name="PmShortTermApplication_ArrivalPoint", on_delete=models.CASCADE)
   # This code indicates the type of travel to the congress..
-  TravelTypeToCong = models.ForeignKey(PtTravelType, related_name="PmShortTermApplication_TravelTypeToCong", on_delete=models.CASCADE)
+  TravelTypeToCong = models.ForeignKey(PtTravelType, null=True, related_name="PmShortTermApplication_TravelTypeToCong", on_delete=models.CASCADE)
   # Date of arrival at the conference.
-  Arrival = models.DateTimeField()
+  Arrival = models.DateTimeField(null=True)
   # The hour of arrival.
-  ArrivalHour = models.IntegerField(default=00)
+  ArrivalHour = models.IntegerField(default=00, null=True)
   # The minutes of arrival.
-  ArrivalMinute = models.IntegerField(default=00)
+  ArrivalMinute = models.IntegerField(default=00, null=True)
   # Information concerning flight or bus numbers.
-  ToCongTravelInfo = models.CharField(max_length=16)
+  ToCongTravelInfo = models.CharField(max_length=16, null=True)
   # Indicates if transport from arrival point to congress needs to be arranged by Registrar.
-  ArrivalTransportNeeded = models.BooleanField(default=False)
+  ArrivalTransportNeeded = models.BooleanField(default=False, null=True)
   # Gives further comments on arrival information.
-  ArrivalComments = models.CharField(max_length=80)
+  ArrivalComments = models.CharField(max_length=80, null=True)
   # Indicates the status of given departure details (undetermined, being planned,...).
-  DepartureDetailsStatus = models.CharField(max_length=12, default='no')
+  DepartureDetailsStatus = models.CharField(max_length=12, default='no', null=True)
   # This code indicates the departure point of the congress attendee.
-  DeparturePoint = models.ForeignKey(PtArrivalPoint, related_name="PmShortTermApplication_DeparturePoint", on_delete=models.CASCADE)
+  DeparturePoint = models.ForeignKey(PtArrivalPoint, null=True, related_name="PmShortTermApplication_DeparturePoint", on_delete=models.CASCADE)
   # This code indicates the type of travel from the congress.
-  TravelTypeFromCong = models.ForeignKey(PtTravelType, related_name="PmShortTermApplication_TravelTypeFromCong", on_delete=models.CASCADE)
+  TravelTypeFromCong = models.ForeignKey(PtTravelType, null=True, related_name="PmShortTermApplication_TravelTypeFromCong", on_delete=models.CASCADE)
   # Date of departure from the conference.
-  Departure = models.DateTimeField()
+  Departure = models.DateTimeField(null=True)
   # The hour of departure.
-  DepartureHour = models.IntegerField(default=00)
+  DepartureHour = models.IntegerField(default=00, null=True)
   # The minutes of departure.
-  DepartureMinute = models.IntegerField(default=00)
+  DepartureMinute = models.IntegerField(default=00, null=True)
   # Information concerning flight or bus numbers.
-  FromCongTravelInfo = models.CharField(max_length=16)
+  FromCongTravelInfo = models.CharField(max_length=16, null=True)
   # Indicates if transport from congress to departure point needs to be arranged by Registrar.
-  DepartureTransportNeeded = models.BooleanField(default=False)
+  DepartureTransportNeeded = models.BooleanField(default=False, null=True)
   # Gives further comments on departure information.
-  DepartureComments = models.CharField(max_length=80)
+  DepartureComments = models.CharField(max_length=80, null=True)
   # Applicant is interested if there would be a transport possibility from/to arrival/departure point.
-  TransportInterest = models.BooleanField(default=False)
+  TransportInterest = models.BooleanField(default=False, null=True)
   # This code indicates what role they have during pre-congress.
-  StPreCongress = models.ForeignKey(PtCongressCode, related_name="PmShortTermApplication_StPreCongress", on_delete=models.CASCADE)
+  StPreCongress = models.ForeignKey(PtCongressCode, null=True, related_name="PmShortTermApplication_StPreCongress", on_delete=models.CASCADE)
   # Indicates the role for the Congress.
-  StCongress = models.ForeignKey(PtCongressCode, related_name="PmShortTermApplication_StCongress", on_delete=models.CASCADE)
+  StCongress = models.ForeignKey(PtCongressCode, null=True, related_name="PmShortTermApplication_StCongress", on_delete=models.CASCADE)
   # Indicates any special information about the applicant.
-  StSpecialApplicant = models.ForeignKey(PtSpecialApplicant, related_name="PmShortTermApplication_StSpecialApplicant", on_delete=models.CASCADE)
+  StSpecialApplicant = models.ForeignKey(PtSpecialApplicant, null=True, related_name="PmShortTermApplication_StSpecialApplicant", on_delete=models.CASCADE)
   # The role a participant has during a outreach
-  OutreachRole = models.ForeignKey(PtCongressCode, related_name="PmShortTermApplication_OutreachRole", on_delete=models.CASCADE)
+  OutreachRole = models.ForeignKey(PtCongressCode, null=True, related_name="PmShortTermApplication_OutreachRole", on_delete=models.CASCADE)
   # Indicates if the person is a leader of a fellowship group.
-  StFgLeader = models.BooleanField(default=False)
+  StFgLeader = models.BooleanField(default=False, null=True)
   # A free form field for group codes.
-  StFgCode = models.CharField(max_length=16)
+  StFgCode = models.CharField(max_length=16, null=True)
   # Special Costs related to the outreach.
-  StOutreachSpecialCost = models.IntegerField(default=0)
+  StOutreachSpecialCost = models.IntegerField(default=0, null=True)
   # Special Costs related to the congress.
-  StCngrssSpecialCost = models.IntegerField(default=0)
+  StCngrssSpecialCost = models.IntegerField(default=0, null=True)
   # This field idenifies the field to be charged for the costs.
-  StFieldCharged = models.ForeignKey(PUnit, related_name="PmShortTermApplication_StFieldCharged", on_delete=models.CASCADE)
+  StFieldCharged = models.ForeignKey(PUnit, null=True, related_name="PmShortTermApplication_StFieldCharged", on_delete=models.CASCADE)
   # This is the language spoken by the applicant at the Congress.
-  StCongressLanguage = models.ForeignKey(PLanguage, related_name="PmShortTermApplication_StCongressLanguage", on_delete=models.CASCADE)
+  StCongressLanguage = models.ForeignKey(PLanguage, null=True, related_name="PmShortTermApplication_StCongressLanguage", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_short_term_application_pk', fields=['GeneralApplication']),
       models.UniqueConstraint(name='pm_short_term_application_nk', fields=['StAppDate', 'StApplicationType', 'StBasicOutreachId']),
     ]
+  def __str__(self):
+    return str(self.GeneralApplication)
 
 class PmYearProgramApplication(models.Model):
   """
   This table contains information pertaining to the application process.
   """
 
-  GeneralApplication = models.ForeignKey(PmGeneralApplication, null=False, blank=False, related_name="PmYearProgramApplication_GeneralApplication", on_delete=models.CASCADE)
+  GeneralApplication = models.OneToOneField(PmGeneralApplication, null=False, blank=False, related_name="PmYearProgramApplication_GeneralApplication", on_delete=models.CASCADE)
   # Date of application
   YpAppDate = models.DateTimeField(null=False, blank=False)
   # Describes what the application is for, eg. conference, year program.
   YpBasicAppType = models.CharField(max_length=16, null=False, blank=False)
   # This field will not appear on the screen but will be updated when someone chooses to delete a record. Rather that an actual deletion, the record will be 'marked' for deletion after an agreed upon interval.
-  YpBasicDelete = models.BooleanField(default=False)
+  YpBasicDelete = models.BooleanField(default=False, null=True)
   # Indicates booking at an orientation session.
-  HoOrientConfBookingKey = models.CharField(max_length=8)
+  HoOrientConfBookingKey = models.CharField(max_length=8, null=True)
   # The agreed support figure.
-  YpAgreedSupportFigure = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  YpAgreedSupportFigure = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates the agreed upon joining charge for the conference <br/>and / or the summer outreach.
-  YpAgreedJoiningCharge = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  YpAgreedJoiningCharge = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Period of time the support covers..
-  YpSupportPeriod = models.CharField(max_length=12)
+  YpSupportPeriod = models.CharField(max_length=12, null=True)
   # Indicates which New Recruits Conference the applicant plans to attend.
-  YpJoiningConf = models.IntegerField(default=1)
+  YpJoiningConf = models.IntegerField(default=1, null=True)
   # This is the expected date their commitment starts.
-  StartOfCommitment = models.DateTimeField()
+  StartOfCommitment = models.DateTimeField(null=True)
   # This is the expected date their commitment ends.
-  EndOfCommitment = models.DateTimeField()
+  EndOfCommitment = models.DateTimeField(null=True)
   # Indicates how long the applicant intends to stay with us
-  IntendedComLengthMonths = models.IntegerField()
+  IntendedComLengthMonths = models.IntegerField(null=True)
   # Indicates if the assignment is in assistance to the given position.
-  AssistantTo = models.BooleanField(default=False)
-  Position = models.ForeignKey(PtPosition, related_name="PmYearProgramApplication_Position", on_delete=models.CASCADE)
+  AssistantTo = models.BooleanField(default=False, null=True)
+  Position = models.ForeignKey(PtPosition, null=True, related_name="PmYearProgramApplication_Position", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_year_program_application_pk', fields=['GeneralApplication']),
     ]
+  def __str__(self):
+    return str(self.GeneralApplication)
 
 class PmDocument(models.Model):
   """
@@ -5131,32 +5767,35 @@ class PmDocument(models.Model):
   # This is the key that tell what site created this document
   SiteKey = models.IntegerField(default=0, null=False, blank=False)
   # Key to identify the document
-  DocumentKey = models.IntegerField(default=0, null=False, blank=False)
+  Key = models.IntegerField(default=0, null=False, blank=False)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPerson, null=False, blank=False, related_name="PmDocument_Partner", on_delete=models.CASCADE)
   # This code indicates the type of document for a person.
   Doc = models.ForeignKey(PmDocumentType, null=False, blank=False, related_name="PmDocument_Doc", on_delete=models.CASCADE)
   # Document ID
-  DocumentId = models.CharField(max_length=30)
+  DocumentId = models.CharField(max_length=30, null=True)
   # Place the document was issued.
-  PlaceOfIssue = models.CharField(max_length=40)
+  PlaceOfIssue = models.CharField(max_length=40, null=True)
   # The date the document was issued.
-  DateOfIssue = models.DateTimeField()
+  DateOfIssue = models.DateTimeField(null=True)
   # Date the document takes effect.
-  DateOfStart = models.DateTimeField()
+  DateOfStart = models.DateTimeField(null=True)
   # Date the document expires
-  DateOfExpiration = models.DateTimeField()
+  DateOfExpiration = models.DateTimeField(null=True)
   # Comments and details
-  DocComment = models.CharField(max_length=500)
+  DocComment = models.CharField(max_length=500, null=True)
   # ID of associated document
-  AssocDocId = models.CharField(max_length=20)
+  AssocDocId = models.CharField(max_length=20, null=True)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  ContactPartner = models.ForeignKey(PPartner, related_name="PmDocument_ContactPartner", on_delete=models.CASCADE)
+  ContactPartner = models.ForeignKey(PPartner, null=True, related_name="PmDocument_ContactPartner", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='pm_document_pk', fields=['SiteKey', 'DocumentKey']),
+      models.UniqueConstraint(name='pm_document_pk', fields=['SiteKey', 'Key']),
     ]
+  def __str__(self):
+    return f"{self.SiteKey} - {self.Key}"
+
 
 class PmPassportDetails(models.Model):
   """
@@ -5168,32 +5807,35 @@ class PmPassportDetails(models.Model):
   # Passport Number
   PassportNumber = models.CharField(max_length=20, null=False, blank=False)
   # Is this the main passport?
-  MainPassport = models.BooleanField(default=False)
+  MainPassport = models.BooleanField(default=False, null=True)
   # Indicates whether the passport is active or not.
-  ActiveFlag = models.CharField(max_length=3)
+  ActiveFlag = models.CharField(max_length=3, null=True)
   # Full passport name.
-  FullPassportName = models.CharField(max_length=40)
+  FullPassportName = models.CharField(max_length=40, null=True)
   # Date of Birth
-  PassportDob = models.DateTimeField()
+  PassportDob = models.DateTimeField(null=True)
   # Location of birth, eg. Cleveland, Ohio, USA, or Oswestry,Shropshire, England.
-  PlaceOfBirth = models.CharField(max_length=30)
+  PlaceOfBirth = models.CharField(max_length=30, null=True)
   # Nationality of the passport holder.
-  PassportNationality = models.ForeignKey(PCountry, related_name="PmPassportDetails_PassportNationality", on_delete=models.CASCADE)
+  PassportNationality = models.ForeignKey(PCountry, null=True, related_name="PmPassportDetails_PassportNationality", on_delete=models.CASCADE)
   # Date the passport expires
-  DateOfExpiration = models.DateTimeField()
+  DateOfExpiration = models.DateTimeField(null=True)
   # Place the passport was issued.
-  PlaceOfIssue = models.CharField(max_length=20)
+  PlaceOfIssue = models.CharField(max_length=20, null=True)
   # Country the passport was issued.
-  CountryOfIssue = models.ForeignKey(PCountry, related_name="PmPassportDetails_CountryOfIssue", on_delete=models.CASCADE)
+  CountryOfIssue = models.ForeignKey(PCountry, null=True, related_name="PmPassportDetails_CountryOfIssue", on_delete=models.CASCADE)
   # The date the passport was issued.
-  DateOfIssue = models.DateTimeField()
+  DateOfIssue = models.DateTimeField(null=True)
   # Details the type of passport, e.g. Residence, Diplomatic, etc.
-  PassportDetailsType = models.ForeignKey(PtPassportType, related_name="PmPassportDetails_PassportDetailsType", on_delete=models.CASCADE)
+  PassportDetailsType = models.ForeignKey(PtPassportType, null=True, related_name="PmPassportDetails_PassportDetailsType", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_passport_details_pk', fields=['Partner', 'PassportNumber']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.PassportNumber}"
+
 
 class PmPersonLanguage(models.Model):
   """
@@ -5207,15 +5849,18 @@ class PmPersonLanguage(models.Model):
   # Years of experience this person has spoken this language.
   YearsOfExperience = models.IntegerField(default=99, null=False, blank=False)
   # The date the years of experience were up to date.
-  YearsOfExperienceAsOf = models.DateTimeField()
+  YearsOfExperienceAsOf = models.DateTimeField(null=True)
   # This field is a numeric representation of level of language.
   LanguageLevel = models.ForeignKey(PtLanguageLevel, null=False, blank=False, related_name="PmPersonLanguage_LanguageLevel", on_delete=models.CASCADE)
-  Comment = models.CharField(max_length=256)
+  Comment = models.CharField(max_length=256, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_person_language_pk', fields=['Partner', 'Language']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.Language}"
+
 
 class PmPastExperience(models.Model):
   """
@@ -5229,29 +5874,32 @@ class PmPastExperience(models.Model):
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPerson, null=False, blank=False, related_name="PmPastExperience_Partner", on_delete=models.CASCADE)
   # Start date of previous experience.
-  StartDate = models.DateTimeField()
+  StartDate = models.DateTimeField(null=True)
   # End date of previous experience.
-  EndDate = models.DateTimeField()
+  EndDate = models.DateTimeField(null=True)
   # Location of previous work .
   PrevLocation = models.CharField(max_length=30, null=False, blank=False)
   # Describes role played in previous work.
-  PrevRole = models.CharField(max_length=30)
+  PrevRole = models.CharField(max_length=30, null=True)
   # Category/area of previous work
-  Category = models.CharField(max_length=30)
+  Category = models.CharField(max_length=30, null=True)
   # Worked with which organisation before (if other than our organisation).
-  OtherOrganisation = models.CharField(max_length=25)
+  OtherOrganisation = models.CharField(max_length=25, null=True)
   # Comments on previous experience.
-  PastExpComments = models.CharField(max_length=320)
+  PastExpComments = models.CharField(max_length=320, null=True)
   # Indicates if past experience was with this organisation.
-  PrevWorkHere = models.BooleanField(default=False)
+  PrevWorkHere = models.BooleanField(default=False, null=True)
   # Indicates whether the individual has previous worked with similar organisations.
-  PrevWork = models.BooleanField(default=False)
+  PrevWork = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_past_experience_pk', fields=['SiteKey', 'Key']),
       models.UniqueConstraint(name='pm_past_experience_uk', fields=['Partner', 'EndDate', 'StartDate', 'PrevLocation']),
     ]
+  def __str__(self):
+    return f"{self.SiteKey} - {self.Key}{self.Partner} - {self.EndDate} - {self.StartDate} - {self.PrevLocation}"
+
 
 class PmPersonAbility(models.Model):
   """
@@ -5267,15 +5915,18 @@ class PmPersonAbility(models.Model):
   # Years of experience this person has had this ability.
   YearsOfExperience = models.IntegerField(default=99, null=False, blank=False)
   # The date the years of experience were up to date.
-  YearsOfExperienceAsOf = models.DateTimeField()
+  YearsOfExperienceAsOf = models.DateTimeField(null=True)
   # Indicates whether the applicant is bringing his instrument.
-  BringingInstrument = models.BooleanField(default=False)
-  Comment = models.CharField(max_length=256)
+  BringingInstrument = models.BooleanField(default=False, null=True)
+  Comment = models.CharField(max_length=256, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_person_ability_pk', fields=['Partner', 'AbilityArea']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.AbilityArea}"
+
 
 class PmPersonQualification(models.Model):
   """
@@ -5289,21 +5940,24 @@ class PmPersonQualification(models.Model):
   # Years of experience this person has had this qualification.
   YearsOfExperience = models.IntegerField(default=99, null=False, blank=False)
   # The date the years of experience were up to date.
-  YearsOfExperienceAsOf = models.DateTimeField()
+  YearsOfExperienceAsOf = models.DateTimeField(null=True)
   # This field indicate whether the qualifications are the result of <br/>informal training.
   Informal = models.BooleanField(default=False, null=False, blank=False)
   # This field is a numeric representation of level of qualification.
   QualificationLevel = models.ForeignKey(PtQualificationLevel, null=False, blank=False, related_name="PmPersonQualification_QualificationLevel", on_delete=models.CASCADE)
-  Comment = models.CharField(max_length=256)
+  Comment = models.CharField(max_length=256, null=True)
   # The date the person qualified.
-  QualificationDate = models.DateTimeField()
+  QualificationDate = models.DateTimeField(null=True)
   # The date the qualification expires.
-  QualificationExpiry = models.DateTimeField()
+  QualificationExpiry = models.DateTimeField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_person_qualification_pk', fields=['Partner', 'QualificationArea']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.QualificationArea}"
+
 
 class PmPersonSkill(models.Model):
   """
@@ -5318,25 +5972,27 @@ class PmPersonSkill(models.Model):
   # Description of skill in english language
   DescriptionEnglish = models.CharField(max_length=80, null=False, blank=False)
   # Description of skill in local language
-  DescriptionLocal = models.CharField(max_length=80)
+  DescriptionLocal = models.CharField(max_length=80, null=True)
   # Language that is used in field pm_description_local_c
-  DescriptionLanguage = models.ForeignKey(PLanguage, related_name="PmPersonSkill_DescriptionLanguage", on_delete=models.CASCADE)
+  DescriptionLanguage = models.ForeignKey(PLanguage, null=True, related_name="PmPersonSkill_DescriptionLanguage", on_delete=models.CASCADE)
   # This field is a numeric representation of level of skill.
   SkillLevel = models.ForeignKey(PtSkillLevel, null=False, blank=False, related_name="PmPersonSkill_SkillLevel", on_delete=models.CASCADE)
   # Years of experience this person has had this skill.
-  YearsOfExperience = models.IntegerField(default=99)
+  YearsOfExperience = models.IntegerField(default=99, null=True)
   # The date the years of experience were up to date.
-  YearsOfExperienceAsOf = models.DateTimeField()
+  YearsOfExperienceAsOf = models.DateTimeField(null=True)
   # Indicates if this is a professional skill
-  ProfessionalSkill = models.BooleanField(default=False)
+  ProfessionalSkill = models.BooleanField(default=False, null=True)
   # Indicates if this is the person's current occupation
-  CurrentOccupation = models.BooleanField(default=False)
+  CurrentOccupation = models.BooleanField(default=False, null=True)
   # Degree that is linked with the skill (if applicable)
-  Degree = models.CharField(max_length=80)
+  Degree = models.CharField(max_length=80, null=True)
   # Year the degree was obtained.
-  YearOfDegree = models.IntegerField()
-  Comment = models.CharField(max_length=500)
+  YearOfDegree = models.IntegerField(null=True)
+  Comment = models.CharField(max_length=500, null=True)
 
+  def __str__(self):
+    return str(self.PersonSkillKey)
 
 class PmFormalEducation(models.Model):
   """
@@ -5347,17 +6003,19 @@ class PmFormalEducation(models.Model):
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPerson, null=False, blank=False, related_name="PmFormalEducation_Partner", on_delete=models.CASCADE)
   # Education Category
-  EducationCategory = models.CharField(max_length=30)
+  EducationCategory = models.CharField(max_length=30, null=True)
   # Description of degree (incl. title and subject)
-  Degree = models.CharField(max_length=80)
+  Degree = models.CharField(max_length=80, null=True)
   # Year the degree was obtained.
-  YearOfDegree = models.IntegerField(default=99)
+  YearOfDegree = models.IntegerField(default=99, null=True)
   # Institution the degree was obtained from
-  Institution = models.CharField(max_length=80)
+  Institution = models.CharField(max_length=80, null=True)
   # Code of country in which the degree was obtained
-  Country = models.ForeignKey(PCountry, related_name="PmFormalEducation_Country", on_delete=models.CASCADE)
-  Comment = models.CharField(max_length=1000)
+  Country = models.ForeignKey(PCountry, null=True, related_name="PmFormalEducation_Country", on_delete=models.CASCADE)
+  Comment = models.CharField(max_length=1000, null=True)
 
+  def __str__(self):
+    return str(self.FormalEducationKey)
 
 class PmPersonalData(models.Model):
   """
@@ -5365,58 +6023,60 @@ class PmPersonalData(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PPerson, null=False, blank=False, related_name="PmPersonalData_Partner", on_delete=models.CASCADE)
+  Partner = models.OneToOneField(PPerson, null=False, blank=False, related_name="PmPersonalData_Partner", on_delete=models.CASCADE)
   # The person's height in cm
-  HeightCm = models.IntegerField()
+  HeightCm = models.IntegerField(null=True)
   # The person's weight in kg
-  WeightKg = models.DecimalField(max_digits=5, decimal_places=2)
+  WeightKg = models.DecimalField(max_digits=5, decimal_places=2, null=True)
   # The person's eye colour
-  EyeColour = models.CharField(max_length=20)
+  EyeColour = models.CharField(max_length=20, null=True)
   # The person's hair colour
-  HairColour = models.CharField(max_length=20)
+  HairColour = models.CharField(max_length=20, null=True)
   # Information about the person's facial hair, e.g. beard, mustache
-  FacialHair = models.CharField(max_length=30)
+  FacialHair = models.CharField(max_length=30, null=True)
   # Further physical information about the person like tatoos, piercings, scars or marks
-  PhysicalDesc = models.CharField(max_length=250)
+  PhysicalDesc = models.CharField(max_length=250, null=True)
   # The person's blood type
-  BloodType = models.CharField(max_length=10)
+  BloodType = models.CharField(max_length=10, null=True)
   # Ethnic Origin
-  EthnicOrigin = models.CharField(max_length=30)
+  EthnicOrigin = models.CharField(max_length=30, null=True)
   # Proof of life question 1
-  LifeQuestion1 = models.CharField(max_length=100)
+  LifeQuestion1 = models.CharField(max_length=100, null=True)
   # Answer to proof of life question 1
-  LifeAnswer1 = models.CharField(max_length=100)
+  LifeAnswer1 = models.CharField(max_length=100, null=True)
   # Proof of life question 2
-  LifeQuestion2 = models.CharField(max_length=100)
+  LifeQuestion2 = models.CharField(max_length=100, null=True)
   # Answer to proof of life question 2
-  LifeAnswer2 = models.CharField(max_length=100)
+  LifeAnswer2 = models.CharField(max_length=100, null=True)
   # Proof of life question 3
-  LifeQuestion3 = models.CharField(max_length=100)
+  LifeQuestion3 = models.CharField(max_length=100, null=True)
   # Answer to proof of life question 3
-  LifeAnswer3 = models.CharField(max_length=100)
+  LifeAnswer3 = models.CharField(max_length=100, null=True)
   # Proof of life question 4
-  LifeQuestion4 = models.CharField(max_length=100)
+  LifeQuestion4 = models.CharField(max_length=100, null=True)
   # Answer to proof of life question 4
-  LifeAnswer4 = models.CharField(max_length=100)
+  LifeAnswer4 = models.CharField(max_length=100, null=True)
   # User defined field-1 for personal information (not in use any longer, replaced by p_data_label_value_partner)
-  PersonalFld1 = models.CharField(max_length=25)
+  PersonalFld1 = models.CharField(max_length=25, null=True)
   # User defined field-2 for personal information (not in use any longer, replaced by p_data_label_value_partner)
-  PersonalFld2 = models.CharField(max_length=25)
+  PersonalFld2 = models.CharField(max_length=25, null=True)
   # User defined field-3 for personal information (not in use any longer, replaced by p_data_label_value_partner)
-  PersonalFld3 = models.CharField(max_length=25)
+  PersonalFld3 = models.CharField(max_length=25, null=True)
   # User defined field-4 for personal information (not in use any longer, replaced by p_data_label_value_partner)
-  PersonalFld4 = models.CharField(max_length=25)
+  PersonalFld4 = models.CharField(max_length=25, null=True)
   # User defined field-5 for personal information (not in use any longer, replaced by p_data_label_value_partner)
-  PersonalFld5 = models.CharField(max_length=25)
+  PersonalFld5 = models.CharField(max_length=25, null=True)
   # User defined field-6 for personal information (not in use any longer, replaced by p_data_label_value_partner)
-  PersonalFld6 = models.CharField(max_length=25)
+  PersonalFld6 = models.CharField(max_length=25, null=True)
   # Name of the person's first language.
-  Language = models.ForeignKey(PLanguage, related_name="PmPersonalData_Language", on_delete=models.CASCADE)
+  Language = models.ForeignKey(PLanguage, null=True, related_name="PmPersonalData_Language", on_delete=models.CASCADE)
   # This is the year the person became a Believer.
-  BelieverSinceYear = models.IntegerField()
+  BelieverSinceYear = models.IntegerField(null=True)
   # Comment about the year or how the person became a believer
-  BelieverSinceComment = models.CharField(max_length=500)
+  BelieverSinceComment = models.CharField(max_length=500, null=True)
 
+  def __str__(self):
+    return str(self.Partner)
 
 class PDataLabelValuePartner(models.Model):
   """
@@ -5428,28 +6088,31 @@ class PDataLabelValuePartner(models.Model):
   # A sequence key for data labels.
   DataLabel = models.ForeignKey(PDataLabel, null=False, blank=False, related_name="PDataLabelValuePartner_DataLabel", on_delete=models.CASCADE)
   # Label value for type Character.
-  ValueChar = models.CharField(max_length=4096)
+  ValueChar = models.CharField(max_length=4096, null=True)
   # Label value for type Numeric.
-  ValueNum = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ValueNum = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Label value for type Currency.
-  ValueCurrency = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ValueCurrency = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Label value for type Integer.
-  ValueInt = models.IntegerField(default=0)
+  ValueInt = models.IntegerField(default=0, null=True)
   # Label value for type Boolean.
-  ValueBool = models.BooleanField(default=False)
+  ValueBool = models.BooleanField(default=False, null=True)
   # Label value for type Date.
-  ValueDate = models.DateTimeField()
+  ValueDate = models.DateTimeField(null=True)
   # Label value for type Time.
-  ValueTime = models.IntegerField(default=0)
+  ValueTime = models.IntegerField(default=0, null=True)
   # Label value for type Partner Key.
-  ValuePartner = models.ForeignKey(PPartner, related_name="PDataLabelValuePartner_ValuePartner", on_delete=models.CASCADE)
+  ValuePartner = models.ForeignKey(PPartner, null=True, related_name="PDataLabelValuePartner_ValuePartner", on_delete=models.CASCADE)
   # Label value for type Lookup Value.
-  ValueLookup = models.CharField(max_length=40)
+  ValueLookup = models.CharField(max_length=40, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_data_label_value_partner_pk', fields=['Partner', 'DataLabel']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.DataLabel}"
+
 
 class PDataLabelValueApplication(models.Model):
   """
@@ -5460,28 +6123,31 @@ class PDataLabelValueApplication(models.Model):
   # A sequence key for data labels.
   DataLabel = models.ForeignKey(PDataLabel, null=False, blank=False, related_name="PDataLabelValueApplication_DataLabel", on_delete=models.CASCADE)
   # Label value for type Character.
-  ValueChar = models.CharField(max_length=4096)
+  ValueChar = models.CharField(max_length=4096, null=True)
   # Label value for type Numeric.
-  ValueNum = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ValueNum = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Label value for type Currency.
-  ValueCurrency = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ValueCurrency = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Label value for type Integer.
-  ValueInt = models.IntegerField(default=0)
+  ValueInt = models.IntegerField(default=0, null=True)
   # Label value for type Boolean.
-  ValueBool = models.BooleanField(default=False)
+  ValueBool = models.BooleanField(default=False, null=True)
   # Label value for type Date.
-  ValueDate = models.DateTimeField()
+  ValueDate = models.DateTimeField(null=True)
   # Label value for type Time.
-  ValueTime = models.IntegerField(default=0)
+  ValueTime = models.IntegerField(default=0, null=True)
   # Label value for type Partner Key.
-  ValuePartner = models.ForeignKey(PPartner, related_name="PDataLabelValueApplication_ValuePartner", on_delete=models.CASCADE)
+  ValuePartner = models.ForeignKey(PPartner, null=True, related_name="PDataLabelValueApplication_ValuePartner", on_delete=models.CASCADE)
   # Label value for type Lookup Value.
-  ValueLookup = models.CharField(max_length=40)
+  ValueLookup = models.CharField(max_length=40, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_data_label_value_application_pk', fields=['GeneralApplication', 'DataLabel']),
     ]
+  def __str__(self):
+    return f"{self.GeneralApplication} - {self.DataLabel}"
+
 
 class PmPersonEvaluation(models.Model):
   """
@@ -5497,16 +6163,19 @@ class PmPersonEvaluation(models.Model):
   # This field describes the timing of the progress report, eg.  Semi-Annual, Annual, or Leaving.
   EvaluationType = models.CharField(max_length=12, null=False, blank=False)
   # Comments on the progress report.
-  EvaluationComments = models.CharField(max_length=500)
+  EvaluationComments = models.CharField(max_length=500, null=True)
   # Describe possible actions to take.
-  PersonEvalAction = models.CharField(max_length=500)
+  PersonEvalAction = models.CharField(max_length=500, null=True)
   # Date of next evaluation.
-  NextEvaluationDate = models.DateTimeField()
+  NextEvaluationDate = models.DateTimeField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_person_evaluation_pk', fields=['Partner', 'EvaluationDate', 'Evaluator']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.EvaluationDate} - {self.Evaluator}"
+
 
 class PmPersonAbsence(models.Model):
   """
@@ -5517,15 +6186,17 @@ class PmPersonAbsence(models.Model):
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPerson, null=False, blank=False, related_name="PmPersonAbsence_Partner", on_delete=models.CASCADE)
   # First day of abscence
-  AbsenceFrom = models.DateTimeField()
+  AbsenceFrom = models.DateTimeField(null=True)
   # Last day of abscence
-  AbsenceTo = models.DateTimeField()
+  AbsenceTo = models.DateTimeField(null=True)
   # Total number of working days absent
-  AbsenceDays = models.IntegerField()
+  AbsenceDays = models.IntegerField(null=True)
   # Type of Absence
-  AbsenceType = models.CharField(max_length=30)
-  Comment = models.CharField(max_length=500)
+  AbsenceType = models.CharField(max_length=30, null=True)
+  Comment = models.CharField(max_length=500, null=True)
 
+  def __str__(self):
+    return str(self.PersonAbsenceKey)
 
 class PmSpecialNeed(models.Model):
   """
@@ -5533,16 +6204,18 @@ class PmSpecialNeed(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Partner = models.ForeignKey(PPerson, null=False, blank=False, related_name="PmSpecialNeed_Partner", on_delete=models.CASCADE)
+  Partner = models.OneToOneField(PPerson, null=False, blank=False, related_name="PmSpecialNeed_Partner", on_delete=models.CASCADE)
   # Contains special medical information if needed.
-  MedicalComment = models.CharField(max_length=2500)
+  MedicalComment = models.CharField(max_length=2500, null=True)
   # Contains special dietary information if needed.
-  DietaryComment = models.CharField(max_length=2500)
+  DietaryComment = models.CharField(max_length=2500, null=True)
   # Contains any other special need that may be applicable.
-  OtherSpecialNeed = models.CharField(max_length=2500)
+  OtherSpecialNeed = models.CharField(max_length=2500, null=True)
   # Indicates if there are vegetarian needs.
-  Vegetarian = models.BooleanField(default=False)
+  Vegetarian = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.Partner)
 
 class PmStaffData(models.Model):
   """
@@ -5556,13 +6229,13 @@ class PmStaffData(models.Model):
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPerson, null=False, blank=False, related_name="PmStaffData_Partner", on_delete=models.CASCADE)
   # This is a field indicating the status of the commitment
-  Status = models.ForeignKey(PmCommitmentStatus, related_name="PmStaffData_Status", on_delete=models.CASCADE)
+  Status = models.ForeignKey(PmCommitmentStatus, null=True, related_name="PmStaffData_Status", on_delete=models.CASCADE)
   # This is the expected date their commitment starts.
   StartOfCommitment = models.DateTimeField(null=False, blank=False)
   # Is the commitment start date an approximate date?
-  StartDateApprox = models.BooleanField(default=False)
+  StartDateApprox = models.BooleanField(default=False, null=True)
   # This is the expected date their commitment ends.
-  EndOfCommitment = models.DateTimeField()
+  EndOfCommitment = models.DateTimeField(null=True)
   # The office that recruited the partner. This is a unit of type field, not of type office.
   OfficeRecruitedBy = models.ForeignKey(PUnit, null=False, blank=False, related_name="PmStaffData_OfficeRecruitedBy", on_delete=models.CASCADE)
   # The home office of the person. This is a unit of type field, not of type office.
@@ -5570,18 +6243,21 @@ class PmStaffData(models.Model):
   # The person's is serving for that field.
   ReceivingField = models.ForeignKey(PUnit, null=False, blank=False, related_name="PmStaffData_ReceivingField", on_delete=models.CASCADE)
   # The office they work at in the receiving field.
-  ReceivingFieldOffice = models.ForeignKey(PUnit, related_name="PmStaffData_ReceivingFieldOffice", on_delete=models.CASCADE)
+  ReceivingFieldOffice = models.ForeignKey(PUnit, null=True, related_name="PmStaffData_ReceivingFieldOffice", on_delete=models.CASCADE)
   # Comments on commitment record.
-  StaffDataComments = models.CharField(max_length=320)
+  StaffDataComments = models.CharField(max_length=320, null=True)
   # A free text field for a job title for a person. This is not the same as the person's role, however it may be auto generated from the roles.
-  JobTitle = models.CharField(max_length=200)
+  JobTitle = models.CharField(max_length=200, null=True)
   # Phone extension of the person at this office
-  OfficePhoneExt = models.CharField(max_length=25)
+  OfficePhoneExt = models.CharField(max_length=25, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_staff_data_pk', fields=['SiteKey', 'Key']),
     ]
+  def __str__(self):
+    return f"{self.SiteKey} - {self.Key}"
+
 
 class PmPersonCommitmentStatus(models.Model):
   """
@@ -5599,6 +6275,9 @@ class PmPersonCommitmentStatus(models.Model):
     constraints = [
       models.UniqueConstraint(name='pm_person_commitment_status_pk', fields=['Partner', 'Status', 'StatusSince']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.Status} - {self.StatusSince}"
+
 
 class UmJob(models.Model):
   """
@@ -5613,36 +6292,39 @@ class UmJob(models.Model):
   # Indicates the normal length of commitment, eg. short-term.
   JobType = models.CharField(max_length=20, default='Short Term', null=False, blank=False)
   # Date from um_training_period.
-  FromDate = models.DateTimeField()
+  FromDate = models.DateTimeField(null=True)
   # Date the job posting is to.
-  ToDate = models.DateTimeField()
+  ToDate = models.DateTimeField(null=True)
   # Indicates the minimum number of staff required.
-  Minimum = models.IntegerField(default=0)
+  Minimum = models.IntegerField(default=0, null=True)
   # Indicates the maximum number of staff required.
-  Maximum = models.IntegerField(default=0)
+  Maximum = models.IntegerField(default=0, null=True)
   # Indicates the present number on staff.
-  Present = models.IntegerField(default=0)
+  Present = models.IntegerField(default=0, null=True)
   # Number of part-timers acceptable.
-  PartTimers = models.IntegerField(default=0)
+  PartTimers = models.IntegerField(default=0, null=True)
   # Number of applications on file for this position. This field is driven from the pm_job_assignment.
-  Applications = models.IntegerField(default=0)
+  Applications = models.IntegerField(default=0, null=True)
   # Indicates if part-timers can be accepted for this position.
-  PartTime = models.BooleanField(default=False)
+  PartTime = models.BooleanField(default=False, null=True)
   # Length of training required for this position.
   TrainingPeriod = models.CharField(max_length=15, default='One month', null=False, blank=False)
   # Length of commitment required for this position.
   CommitmentPeriod = models.CharField(max_length=15, default='Three months', null=False, blank=False)
   # Is this position available to other systems.
-  Public = models.BooleanField(default=False)
+  Public = models.BooleanField(default=False, null=True)
   # Describes where you want to advertise about a job opening, only within the Unit, to the whole organisation, or outside our organisation.
-  JobPublicity = models.IntegerField(default=0)
+  JobPublicity = models.IntegerField(default=0, null=True)
   # Indicates whether previous experience with our organisation is required for this job.
-  PreviousInternalExpReq = models.BooleanField(default=False)
+  PreviousInternalExpReq = models.BooleanField(default=False, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='um_job_pk', fields=['Unit', 'Position', 'JobKey']),
     ]
+  def __str__(self):
+    return f"{self.Unit} - {self.Position} - {self.JobKey}"
+
 
 class UmJobRequirement(models.Model):
   """
@@ -5655,12 +6337,15 @@ class UmJobRequirement(models.Model):
   # Years of experience required for this position..
   YearsOfExperience = models.IntegerField(default=99, null=False, blank=False)
   # This field is a numeric representation of level of ability.
-  AbilityLevel = models.ForeignKey(PtAbilityLevel, related_name="UmJobRequirement_AbilityLevel", on_delete=models.CASCADE)
+  AbilityLevel = models.ForeignKey(PtAbilityLevel, null=True, related_name="UmJobRequirement_AbilityLevel", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='um_job_requirement_pk', fields=['Job', 'AbilityArea']),
     ]
+  def __str__(self):
+    return f"{self.Job} - {self.AbilityArea}"
+
 
 class UmJobLanguage(models.Model):
   """
@@ -5673,12 +6358,15 @@ class UmJobLanguage(models.Model):
   # Years of experience required using this language.
   YearsOfExperience = models.IntegerField(default=99, null=False, blank=False)
   # This field is a numeric representation of level of language.
-  LanguageLevel = models.ForeignKey(PtLanguageLevel, related_name="UmJobLanguage_LanguageLevel", on_delete=models.CASCADE)
+  LanguageLevel = models.ForeignKey(PtLanguageLevel, null=True, related_name="UmJobLanguage_LanguageLevel", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='um_job_language_pk', fields=['Job', 'Language']),
     ]
+  def __str__(self):
+    return f"{self.Job} - {self.Language}"
+
 
 class UmJobQualification(models.Model):
   """
@@ -5689,16 +6377,19 @@ class UmJobQualification(models.Model):
   # Name of the area of qualification.
   QualificationArea = models.ForeignKey(PtQualificationArea, null=False, blank=False, related_name="UmJobQualification_QualificationArea", on_delete=models.CASCADE)
   # Years of experience required using this qualification.
-  YearsOfExperience = models.IntegerField(default=99)
+  YearsOfExperience = models.IntegerField(default=99, null=True)
   # This field indicate whether the qualifications can be the result of <br/>informal training.
-  Informal = models.BooleanField(default=False)
+  Informal = models.BooleanField(default=False, null=True)
   # This field is a numeric representation of level of qualification.
-  QualificationLevel = models.ForeignKey(PtQualificationLevel, related_name="UmJobQualification_QualificationLevel", on_delete=models.CASCADE)
+  QualificationLevel = models.ForeignKey(PtQualificationLevel, null=True, related_name="UmJobQualification_QualificationLevel", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='um_job_qualification_pk', fields=['Job', 'QualificationArea']),
     ]
+  def __str__(self):
+    return f"{self.Job} - {self.QualificationArea}"
+
 
 class PmJobAssignment(models.Model):
   """
@@ -5711,26 +6402,29 @@ class PmJobAssignment(models.Model):
   # A number to make this unique as other wise we would need to add date from/to
   JobAssignmentKey = models.IntegerField(null=False, blank=False)
   # Indicates if the assignment is in assistance to the given position.
-  AssistantTo = models.BooleanField(default=False)
+  AssistantTo = models.BooleanField(default=False, null=True)
   # This defines the type of assignment.
-  AssignmentType = models.ForeignKey(PtAssignmentType, related_name="PmJobAssignment_AssignmentType", on_delete=models.CASCADE)
+  AssignmentType = models.ForeignKey(PtAssignmentType, null=True, related_name="PmJobAssignment_AssignmentType", on_delete=models.CASCADE)
   # Can these costs be changed?
-  CostsChanged = models.BooleanField(default=False)
+  CostsChanged = models.BooleanField(default=False, null=True)
   # This is the date from which this job is assigned.
   FromDate = models.DateTimeField(null=False, blank=False)
   # This is the date to which a job is expected to be filled.
-  ToDate = models.DateTimeField()
+  ToDate = models.DateTimeField(null=True)
   # This field indicates if the hard copy details have been changed.
-  HrdCpyDetailChange = models.BooleanField(default=False)
+  HrdCpyDetailChange = models.BooleanField(default=False, null=True)
   # This field indicates if the record is deletable.
-  Deleteable = models.BooleanField(default=False)
+  Deleteable = models.BooleanField(default=False, null=True)
   # The office that entered this assignment
-  RegistrationOffice = models.IntegerField()
+  RegistrationOffice = models.IntegerField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_job_assignment_pk', fields=['Partner', 'Job', 'JobAssignmentKey']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.Job} - {self.JobAssignmentKey}"
+
 
 class UmUnitAbility(models.Model):
   """
@@ -5750,6 +6444,9 @@ class UmUnitAbility(models.Model):
     constraints = [
       models.UniqueConstraint(name='um_unit_ability_pk', fields=['Partner', 'AbilityArea']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.AbilityArea}"
+
 
 class UmUnitLanguage(models.Model):
   """
@@ -5765,14 +6462,17 @@ class UmUnitLanguage(models.Model):
   # Years of experience required using this language.
   YearsOfExperience = models.IntegerField(default=99, null=False, blank=False)
   # Contains comments pertaining to the language of the unit.
-  UnitLangComment = models.CharField(max_length=40)
+  UnitLangComment = models.CharField(max_length=40, null=True)
   # Lists whether the languare is required or desired.
-  UnitLanguageReq = models.CharField(max_length=8)
+  UnitLanguageReq = models.CharField(max_length=8, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='um_unit_language_pk', fields=['Partner', 'Language', 'LanguageLevel']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.Language} - {self.LanguageLevel}"
+
 
 class UmUnitCost(models.Model):
   """
@@ -5784,46 +6484,49 @@ class UmUnitCost(models.Model):
   # Date from which these costs are applicable.
   ValidFromDate = models.DateTimeField(null=False, blank=False)
   # Indicates amount it costs a single to be on the team.
-  SingleCostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  SingleCostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates amount it costs a couple to be on the team.
-  CoupleCostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  CoupleCostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates amount it costs a child to be on the team.
-  Child1CostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  Child1CostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates amount it costs a child to be on the team.
-  Child2CostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  Child2CostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates amount it costs a child to be on the team.
-  Child3CostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  Child3CostsPeriodIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates the joining charge for adults.
-  AdultJoiningChargeIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  AdultJoiningChargeIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates the joining charge for couples.
-  CoupleJoiningChargeIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  CoupleJoiningChargeIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates the joining charge for a child.
-  ChildJoiningChargeIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ChildJoiningChargeIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates the local currency.
-  LocalCurrency = models.ForeignKey(ACurrency, related_name="UmUnitCost_LocalCurrency", on_delete=models.CASCADE)
+  LocalCurrency = models.ForeignKey(ACurrency, null=True, related_name="UmUnitCost_LocalCurrency", on_delete=models.CASCADE)
   # The charge period for the unit, eg. monthly, quarterly.
   ChargePeriod = models.CharField(max_length=12, null=False, blank=False)
   # Indicates amount it costs a single to be on the team.
-  SingleCostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  SingleCostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates amount it costs a couple to be on the team.
-  CoupleCostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  CoupleCostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates amount it costs a child to be on the team.
-  Child1CostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  Child1CostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates amount it costs a child to be on the team.
-  Child2CostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  Child2CostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates amount it costs a child to be on the team.
-  Child3CostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  Child3CostsPeriodBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates the joining charge for adults.
-  AdultJoiningChargeBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  AdultJoiningChargeBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates the joining charge for couples.
-  CoupleJoiningChargeBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  CoupleJoiningChargeBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Indicates the joining charge for a child.
-  ChildJoiningChargeBase = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  ChildJoiningChargeBase = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='um_unit_cost_pk', fields=['Partner', 'ValidFromDate']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.ValidFromDate}"
+
 
 class UmUnitEvaluation(models.Model):
   """
@@ -5844,12 +6547,15 @@ class UmUnitEvaluation(models.Model):
   EvaluatorAge = models.IntegerField(default=0, null=False, blank=False)
   EvaluatorSex = models.CharField(max_length=20, null=False, blank=False)
   # Data regarding the unit evaluation.
-  UnitEvaluationData = models.CharField(max_length=80)
+  UnitEvaluationData = models.CharField(max_length=80, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='um_unit_evaluation_pk', fields=['Partner', 'DateOfEvaluation', 'EvaluationNumber']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.DateOfEvaluation} - {self.EvaluationNumber}"
+
 
 class PcConference(models.Model):
   """
@@ -5857,13 +6563,15 @@ class PcConference(models.Model):
   """
 
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  Conference = models.ForeignKey(PUnit, null=False, blank=False, related_name="PcConference_Conference", on_delete=models.CASCADE)
-  OutreachPrefix = models.CharField(max_length=5)
-  Start = models.DateTimeField()
-  End = models.DateTimeField()
+  Conference = models.OneToOneField(PUnit, null=False, blank=False, related_name="PcConference_Conference", on_delete=models.CASCADE)
+  OutreachPrefix = models.CharField(max_length=5, null=True)
+  Start = models.DateTimeField(null=True)
+  End = models.DateTimeField(null=True)
   # This defines which currency is being used
   Currency = models.ForeignKey(ACurrency, null=False, blank=False, related_name="PcConference_Currency", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.Conference)
 
 class PcConferenceOption(models.Model):
   """
@@ -5875,12 +6583,15 @@ class PcConferenceOption(models.Model):
   # Unique name of the cost type
   OptionType = models.ForeignKey(PcConferenceOptionType, null=False, blank=False, related_name="PcConferenceOption_OptionType", on_delete=models.CASCADE)
   # Description of the option type
-  OptionSet = models.BooleanField()
+  OptionSet = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pc_conference_option_pk', fields=['Conference', 'OptionType']),
     ]
+  def __str__(self):
+    return f"{self.Conference} - {self.OptionType}"
+
 
 class PcDiscount(models.Model):
   """
@@ -5898,14 +6609,17 @@ class PcDiscount(models.Model):
   # For discounts up to a certain age (mainly child discount). If age does not matter, set to -1.
   UpToAge = models.IntegerField(null=False, blank=False)
   # Is the discount value given in percent (or total otherwise)
-  Percentage = models.BooleanField()
+  Percentage = models.BooleanField(null=True)
   # Amount of discount (in percent or total)
-  Discount = models.DecimalField(max_digits=24, decimal_places=10)
+  Discount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pc_discount_pk', fields=['Conference', 'DiscountCriteria', 'CostType', 'Validity', 'UpToAge']),
     ]
+  def __str__(self):
+    return f"{self.Conference} - {self.DiscountCriteria} - {self.CostType} - {self.Validity} - {self.UpToAge}"
+
 
 class PcAttendee(models.Model):
   """
@@ -5918,22 +6632,25 @@ class PcAttendee(models.Model):
   Partner = models.ForeignKey(PPerson, null=False, blank=False, related_name="PcAttendee_Partner", on_delete=models.CASCADE)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   HomeOffice = models.ForeignKey(PUnit, null=False, blank=False, related_name="PcAttendee_HomeOffice", on_delete=models.CASCADE)
-  OutreachType = models.CharField(max_length=6)
-  ActualArr = models.DateTimeField()
-  ActualDep = models.DateTimeField()
-  BadgePrint = models.DateTimeField()
-  DetailsPrint = models.DateTimeField()
-  Comments = models.CharField(max_length=500)
-  DiscoveryGroup = models.CharField(max_length=16)
-  WorkGroup = models.CharField(max_length=16)
-  Registered = models.DateTimeField()
-  ArrivalGroup = models.CharField(max_length=20)
-  DepartureGroup = models.CharField(max_length=20)
+  OutreachType = models.CharField(max_length=6, null=True)
+  ActualArr = models.DateTimeField(null=True)
+  ActualDep = models.DateTimeField(null=True)
+  BadgePrint = models.DateTimeField(null=True)
+  DetailsPrint = models.DateTimeField(null=True)
+  Comments = models.CharField(max_length=500, null=True)
+  DiscoveryGroup = models.CharField(max_length=16, null=True)
+  WorkGroup = models.CharField(max_length=16, null=True)
+  Registered = models.DateTimeField(null=True)
+  ArrivalGroup = models.CharField(max_length=20, null=True)
+  DepartureGroup = models.CharField(max_length=20, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pc_attendee_pk', fields=['Conference', 'Partner']),
     ]
+  def __str__(self):
+    return f"{self.Conference} - {self.Partner}"
+
 
 class PcConferenceCost(models.Model):
   """
@@ -5944,12 +6661,15 @@ class PcConferenceCost(models.Model):
   Conference = models.ForeignKey(PcConference, null=False, blank=False, related_name="PcConferenceCost_Conference", on_delete=models.CASCADE)
   # 9999999999
   OptionDays = models.IntegerField(default=0, null=False, blank=False)
-  Charge = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  Charge = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pc_conference_cost_pk', fields=['Conference', 'OptionDays']),
     ]
+  def __str__(self):
+    return f"{self.Conference} - {self.OptionDays}"
+
 
 class PcExtraCost(models.Model):
   """
@@ -5959,18 +6679,21 @@ class PcExtraCost(models.Model):
   Attendee = models.ForeignKey(PcAttendee, null=False, blank=False, related_name="PcExtraCost_Attendee", on_delete=models.CASCADE)
   # Key to identify the extra cost, along with conference and partner key
   ExtraCostKey = models.IntegerField(default=0, null=False, blank=False)
-  CostType = models.ForeignKey(PcCostType, related_name="PcExtraCost_CostType", on_delete=models.CASCADE)
-  CostAmount = models.DecimalField(max_digits=24, decimal_places=10)
-  Comment = models.CharField(max_length=256)
+  CostType = models.ForeignKey(PcCostType, null=True, related_name="PcExtraCost_CostType", on_delete=models.CASCADE)
+  CostAmount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
+  Comment = models.CharField(max_length=256, null=True)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
-  AuthorisingField = models.ForeignKey(PUnit, related_name="PcExtraCost_AuthorisingField", on_delete=models.CASCADE)
+  AuthorisingField = models.ForeignKey(PUnit, null=True, related_name="PcExtraCost_AuthorisingField", on_delete=models.CASCADE)
   # Indicate who authorised the extra cost.
-  AuthorisingPerson = models.CharField(max_length=20)
+  AuthorisingPerson = models.CharField(max_length=20, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pc_extra_cost_pk', fields=['Attendee', 'ExtraCostKey']),
     ]
+  def __str__(self):
+    return f"{self.Attendee} - {self.ExtraCostKey}"
+
 
 class PcEarlyLate(models.Model):
   """
@@ -5980,15 +6703,18 @@ class PcEarlyLate(models.Model):
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Conference = models.ForeignKey(PcConference, null=False, blank=False, related_name="PcEarlyLate_Conference", on_delete=models.CASCADE)
   Applicable = models.DateTimeField(null=False, blank=False)
-  Type = models.BooleanField()
-  AmountPercent = models.BooleanField()
-  Amount = models.DecimalField(max_digits=24, decimal_places=10, default=0)
-  Percent = models.IntegerField(default=0)
+  Type = models.BooleanField(null=True)
+  AmountPercent = models.BooleanField(null=True)
+  Amount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+  Percent = models.IntegerField(default=0, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pc_early_late_pk', fields=['Conference', 'Applicable']),
     ]
+  def __str__(self):
+    return f"{self.Conference} - {self.Applicable}"
+
 
 class PcGroup(models.Model):
   """
@@ -6003,6 +6729,9 @@ class PcGroup(models.Model):
     constraints = [
       models.UniqueConstraint(name='pc_group_pk', fields=['Attendee', 'GroupType', 'Name']),
     ]
+  def __str__(self):
+    return f"{self.Attendee} - {self.GroupType} - {self.Name}"
+
 
 class PcSupplement(models.Model):
   """
@@ -6012,14 +6741,17 @@ class PcSupplement(models.Model):
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Conference = models.ForeignKey(PcConference, null=False, blank=False, related_name="PcSupplement_Conference", on_delete=models.CASCADE)
   OutreachType = models.CharField(max_length=6, null=False, blank=False)
-  Supplement = models.DecimalField(max_digits=24, decimal_places=10, default=0)
+  Supplement = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   # Apply conference fee discounts to this supplement
-  ApplyDiscounts = models.BooleanField()
+  ApplyDiscounts = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pc_supplement_pk', fields=['Conference', 'OutreachType']),
     ]
+  def __str__(self):
+    return f"{self.Conference} - {self.OutreachType}"
+
 
 class PcBuilding(models.Model):
   """
@@ -6029,12 +6761,15 @@ class PcBuilding(models.Model):
   Venue = models.ForeignKey(PVenue, null=False, blank=False, related_name="PcBuilding_Venue", on_delete=models.CASCADE)
   Code = models.CharField(max_length=8, null=False, blank=False)
   # This is a long description and is 80 characters long.
-  Desc = models.CharField(max_length=80)
+  Desc = models.CharField(max_length=80, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pc_building_pk', fields=['Venue', 'Code']),
     ]
+  def __str__(self):
+    return f"{self.Venue} - {self.Code}"
+
 
 class PcRoom(models.Model):
   """
@@ -6043,27 +6778,30 @@ class PcRoom(models.Model):
 
   Building = models.ForeignKey(PcBuilding, null=False, blank=False, related_name="PcRoom_Building", on_delete=models.CASCADE)
   RoomNumber = models.CharField(max_length=8, null=False, blank=False)
-  Name = models.CharField(max_length=50)
-  Beds = models.IntegerField(default=0)
-  MaxOccupancy = models.IntegerField(default=0)
-  BedCharge = models.DecimalField(max_digits=24, decimal_places=10, default=0)
-  BedCost = models.DecimalField(max_digits=24, decimal_places=10, default=0)
-  Usage = models.CharField(max_length=16)
+  Name = models.CharField(max_length=50, null=True)
+  Beds = models.IntegerField(default=0, null=True)
+  MaxOccupancy = models.IntegerField(default=0, null=True)
+  BedCharge = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+  BedCost = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
+  Usage = models.CharField(max_length=16, null=True)
   # Gender that is preferred to use that room
-  GenderPreference = models.CharField(max_length=3)
+  GenderPreference = models.CharField(max_length=3, null=True)
   # X Position for the room layout designer in pixels
-  LayoutXpos = models.IntegerField()
+  LayoutXpos = models.IntegerField(null=True)
   # Y Position for the room layout designer in pixels
-  LayoutYpos = models.IntegerField()
+  LayoutYpos = models.IntegerField(null=True)
   # Width for the room layout designer in pixels
-  LayoutWidth = models.IntegerField()
+  LayoutWidth = models.IntegerField(null=True)
   # Height for the room layout designer in pixels
-  LayoutHeight = models.IntegerField()
+  LayoutHeight = models.IntegerField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pc_room_pk', fields=['Building', 'RoomNumber']),
     ]
+  def __str__(self):
+    return f"{self.Building} - {self.RoomNumber}"
+
 
 class PcRoomAlloc(models.Model):
   """
@@ -6075,16 +6813,18 @@ class PcRoomAlloc(models.Model):
   # This makes the room unavailable for other guests even if not all beds are used
   BookWholeRoom = models.BooleanField(default=True, null=False, blank=False)
   # number of beds required by this allocation
-  NumberOfBeds = models.IntegerField(default=1)
+  NumberOfBeds = models.IntegerField(default=1, null=True)
   # number of additional beds (e.g. mattrass, childrens cot, etc) required by this allocation
-  NumberOfOverflowBeds = models.IntegerField(default=0)
+  NumberOfOverflowBeds = models.IntegerField(default=0, null=True)
   # possible values: couple, family, male, female
-  Gender = models.CharField(max_length=20)
+  Gender = models.CharField(max_length=20, null=True)
   In = models.DateTimeField(null=False, blank=False)
-  Out = models.DateTimeField()
-  Attendee = models.ForeignKey(PcAttendee, related_name="PcRoomAlloc_Attendee", on_delete=models.CASCADE)
+  Out = models.DateTimeField(null=True)
+  Attendee = models.ForeignKey(PcAttendee, null=True, related_name="PcRoomAlloc_Attendee", on_delete=models.CASCADE)
   Room = models.ForeignKey(PcRoom, null=False, blank=False, related_name="PcRoomAlloc_Room", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.Key)
 
 class PcRoomAttribute(models.Model):
   """
@@ -6098,6 +6838,9 @@ class PcRoomAttribute(models.Model):
     constraints = [
       models.UniqueConstraint(name='pc_room_attribute_pk', fields=['Room', 'RoomAttrType']),
     ]
+  def __str__(self):
+    return f"{self.Room} - {self.RoomAttrType}"
+
 
 class PcConferenceVenue(models.Model):
   """
@@ -6113,6 +6856,9 @@ class PcConferenceVenue(models.Model):
     constraints = [
       models.UniqueConstraint(name='pc_conference_venue_pk', fields=['Conference', 'Venue']),
     ]
+  def __str__(self):
+    return f"{self.Conference} - {self.Venue}"
+
 
 class PhBooking(models.Model):
   """
@@ -6122,29 +6868,31 @@ class PhBooking(models.Model):
   # Surrogate Primary Key; required because there can be several bookings per room and per group
   Key = models.IntegerField(null=False, blank=False, unique=True)
   # the partner key of the visitor or the partner key of the organisation or group that is visiting; each room allocation can refer to the individual guest as well; this can be different from the partner that is charged in the invoice
-  Contact = models.ForeignKey(PPartner, related_name="PhBooking_Contact", on_delete=models.CASCADE)
+  Contact = models.ForeignKey(PPartner, null=True, related_name="PhBooking_Contact", on_delete=models.CASCADE)
   # This is a booking for n adults
-  NumberOfAdults = models.IntegerField(default=0)
+  NumberOfAdults = models.IntegerField(default=0, null=True)
   # This is a booking for n children
-  NumberOfChildren = models.IntegerField(default=0)
+  NumberOfChildren = models.IntegerField(default=0, null=True)
   # The people that are part of this booking had n breakfasts; also useful for the kitchen
-  NumberOfBreakfast = models.IntegerField(default=0)
+  NumberOfBreakfast = models.IntegerField(default=0, null=True)
   # The people that are part of this booking had n lunches
-  NumberOfLunch = models.IntegerField(default=0)
+  NumberOfLunch = models.IntegerField(default=0, null=True)
   # The people that are part of this booking had n suppers
-  NumberOfSupper = models.IntegerField(default=0)
+  NumberOfSupper = models.IntegerField(default=0, null=True)
   # The number of linen that have been provided for this booking
-  NumberOfLinenNeeded = models.IntegerField(default=0)
+  NumberOfLinenNeeded = models.IntegerField(default=0, null=True)
   # this should be set to the date when the booking has been confirmed; required for early booking discounts
-  Confirmed = models.DateTimeField()
+  Confirmed = models.DateTimeField(null=True)
   In = models.DateTimeField(null=False, blank=False)
-  Out = models.DateTimeField()
-  TimeArrival = models.IntegerField()
-  TimeDeparture = models.IntegerField()
+  Out = models.DateTimeField(null=True)
+  TimeArrival = models.IntegerField(null=True)
+  TimeDeparture = models.IntegerField(null=True)
   # Add notes about the stay or special requests by the guest
-  Notes = models.CharField(max_length=500)
-  ArInvoice = models.ForeignKey(AArInvoice, related_name="PhBooking_ArInvoice", on_delete=models.CASCADE)
+  Notes = models.CharField(max_length=500, null=True)
+  ArInvoice = models.ForeignKey(AArInvoice, null=True, related_name="PhBooking_ArInvoice", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.Key)
 
 class PhRoomBooking(models.Model):
   """
@@ -6160,6 +6908,9 @@ class PhRoomBooking(models.Model):
     constraints = [
       models.UniqueConstraint(name='ph_room_booking_pk', fields=['Booking', 'RoomAlloc']),
     ]
+  def __str__(self):
+    return f"{self.Booking} - {self.RoomAlloc}"
+
 
 class PTax(models.Model):
   """
@@ -6172,14 +6923,17 @@ class PTax(models.Model):
   TaxType = models.CharField(max_length=8, null=False, blank=False)
   # Tax Reference
   TaxRef = models.CharField(max_length=50, null=False, blank=False)
-  ValidFrom = models.DateTimeField()
-  ValidUntil = models.DateTimeField()
-  Comment = models.CharField(max_length=256)
+  ValidFrom = models.DateTimeField(null=True)
+  ValidUntil = models.DateTimeField(null=True)
+  Comment = models.CharField(max_length=256, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_tax_pk', fields=['Partner', 'TaxType', 'TaxRef']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.TaxType} - {self.TaxRef}"
+
 
 class PPartnerInterest(models.Model):
   """
@@ -6190,19 +6944,22 @@ class PPartnerInterest(models.Model):
   # Sequence number per Partner (required to make PK)
   InterestNumber = models.IntegerField(null=False, blank=False)
   # The Field the Partner is interested in
-  Field = models.ForeignKey(PUnit, related_name="PPartnerInterest_Field", on_delete=models.CASCADE)
+  Field = models.ForeignKey(PUnit, null=True, related_name="PPartnerInterest_Field", on_delete=models.CASCADE)
   # The Country the Partner is interested in
-  Country = models.ForeignKey(PCountry, related_name="PPartnerInterest_Country", on_delete=models.CASCADE)
+  Country = models.ForeignKey(PCountry, null=True, related_name="PPartnerInterest_Country", on_delete=models.CASCADE)
   # The Interest the Partner is interested in
-  Interest = models.ForeignKey(PInterest, related_name="PPartnerInterest_Interest", on_delete=models.CASCADE)
+  Interest = models.ForeignKey(PInterest, null=True, related_name="PPartnerInterest_Interest", on_delete=models.CASCADE)
   # The level of interest
-  Level = models.IntegerField()
-  Comment = models.CharField(max_length=256)
+  Level = models.IntegerField(null=True)
+  Comment = models.CharField(max_length=256, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_interest_pk', fields=['Partner', 'InterestNumber']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.InterestNumber}"
+
 
 class PPartnerMerge(models.Model):
   """
@@ -6210,14 +6967,16 @@ class PPartnerMerge(models.Model):
   """
 
   # The partner that was merged.
-  MergeFrom = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerMerge_MergeFrom", on_delete=models.CASCADE)
+  MergeFrom = models.OneToOneField(PPartner, null=False, blank=False, related_name="PPartnerMerge_MergeFrom", on_delete=models.CASCADE)
   # The partner they were merged into.
-  MergeTo = models.ForeignKey(PPartner, related_name="PPartnerMerge_MergeTo", on_delete=models.CASCADE)
+  MergeTo = models.ForeignKey(PPartner, null=True, related_name="PPartnerMerge_MergeTo", on_delete=models.CASCADE)
   # The user who did the merge.
-  MergedBy = models.ForeignKey(SUser, related_name="PPartnerMerge_MergedBy", on_delete=models.CASCADE)
+  MergedBy = models.ForeignKey(SUser, null=True, related_name="PPartnerMerge_MergedBy", on_delete=models.CASCADE)
   # Date of merge.
-  MergeDate = models.DateTimeField()
+  MergeDate = models.DateTimeField(null=True)
 
+  def __str__(self):
+    return str(self.MergeFrom)
 
 class PPartnerReminder(models.Model):
   """
@@ -6229,44 +6988,46 @@ class PPartnerReminder(models.Model):
   # Partner key of Partner to which the reminder is related
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerReminder_Partner", on_delete=models.CASCADE)
   # ID of Contact to which reminder relates. Null means that reminder relates just to a Partner
-  Contact = models.ForeignKey(PContactLog, related_name="PPartnerReminder_Contact", on_delete=models.CASCADE)
+  Contact = models.ForeignKey(PContactLog, null=True, related_name="PPartnerReminder_Contact", on_delete=models.CASCADE)
   # ID of this reminder (only unique per Partner/Contact)
   ReminderId = models.IntegerField(default=0, null=False, blank=False)
   # The user that requires this reminder
-  User = models.ForeignKey(SUser, related_name="PPartnerReminder_User", on_delete=models.CASCADE)
+  User = models.ForeignKey(SUser, null=True, related_name="PPartnerReminder_User", on_delete=models.CASCADE)
   # This is a category, by which reminders can be grouped.
-  Category = models.ForeignKey(PReminderCategory, related_name="PPartnerReminder_Category", on_delete=models.CASCADE)
+  Category = models.ForeignKey(PReminderCategory, null=True, related_name="PPartnerReminder_Category", on_delete=models.CASCADE)
   # Type of action to take on getting the reminder (eg. Email etc)
-  ActionType = models.CharField(max_length=8)
+  ActionType = models.CharField(max_length=8, null=True)
   # Reason for the reminder (eg. birthday, etc.)
-  ReminderReason = models.CharField(max_length=300)
+  ReminderReason = models.CharField(max_length=300, null=True)
   # Additional Comments
-  Comment = models.CharField(max_length=2500)
+  Comment = models.CharField(max_length=2500, null=True)
   # Date of event that reminder is about (if the reminder relates to a specific event like a birthday).
   EventDate = models.DateTimeField(null=False, blank=False)
   # Date on which to send/display first reminder.
-  FirstReminderDate = models.DateTimeField()
+  FirstReminderDate = models.DateTimeField(null=True)
   # Frequency (in days) with which re-reminders should be sent.
-  ReminderFrequency = models.IntegerField(default=0)
+  ReminderFrequency = models.IntegerField(default=0, null=True)
   # Date on which the last reminder was sent
-  LastReminderSent = models.DateTimeField()
+  LastReminderSent = models.DateTimeField(null=True)
   # Date on which the next reminder will be sent
-  NextReminderDate = models.DateTimeField()
+  NextReminderDate = models.DateTimeField(null=True)
   # Is this reminder still active?
   ReminderActive = models.BooleanField(default=True, null=False, blank=False)
   # Email address to which reminder should be sent
-  EmailAddress = models.CharField(max_length=500)
+  EmailAddress = models.CharField(max_length=500, null=True)
   # Indicates whether or not the contact has restricted access. If it does then the access will be controlled by s_group_partner_reminder
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
   # Identifies a module. A module is any part of aprogram which is related to each menu entry or to the sub-system. Eg, partner administration, AP, AR etc.
-  Module = models.ForeignKey(SModule, related_name="PPartnerReminder_Module", on_delete=models.CASCADE)
+  Module = models.ForeignKey(SModule, null=True, related_name="PPartnerReminder_Module", on_delete=models.CASCADE)
   # If set, this contact is restricted to one user.
-  UserRestriction = models.ForeignKey(SUser, related_name="PPartnerReminder_UserRestriction", on_delete=models.CASCADE)
+  UserRestriction = models.ForeignKey(SUser, null=True, related_name="PPartnerReminder_UserRestriction", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_reminder_uk', fields=['Partner', 'Contact', 'ReminderId']),
     ]
+  def __str__(self):
+    return str(self.PartnerReminderId)
 
 class PPartnerGiftDestination(models.Model):
   """
@@ -6282,17 +7043,19 @@ class PPartnerGiftDestination(models.Model):
   # Date from which field assignment is valid
   DateEffective = models.DateTimeField(null=False, blank=False)
   # Date on which field assignment expires
-  DateExpires = models.DateTimeField()
+  DateExpires = models.DateTimeField(null=True)
   # Is the field assignment currently valid
-  Active = models.BooleanField()
+  Active = models.BooleanField(null=True)
   # Is this field the default gift destination?
-  DefaultGiftDestination = models.BooleanField()
+  DefaultGiftDestination = models.BooleanField(null=True)
   # Is this the field for a person or a family?
-  PartnerClass = models.ForeignKey(PPartnerClasses, related_name="PPartnerGiftDestination_PartnerClass", on_delete=models.CASCADE)
+  PartnerClass = models.ForeignKey(PPartnerClasses, null=True, related_name="PPartnerGiftDestination_PartnerClass", on_delete=models.CASCADE)
   # Any comments relating to this field assignment
-  Comment = models.CharField(max_length=200)
-  StaffData = models.ForeignKey(PmStaffData, related_name="PPartnerGiftDestination_StaffData", on_delete=models.CASCADE)
+  Comment = models.CharField(max_length=200, null=True)
+  StaffData = models.ForeignKey(PmStaffData, null=True, related_name="PPartnerGiftDestination_StaffData", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.Key)
 
 class PPartnerShortCode(models.Model):
   """
@@ -6306,14 +7069,17 @@ class PPartnerShortCode(models.Model):
   # Field to which Partner is assigned
   FieldKey = models.IntegerField(null=False, blank=False)
   # Is this a short code to identify a recipient?
-  Recipient = models.BooleanField()
+  Recipient = models.BooleanField(null=True)
   # Is this a short code to identify a donor?
-  Donor = models.BooleanField()
+  Donor = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_short_code_pk', fields=['Partner', 'C']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.C}"
+
 
 class PPartnerState(models.Model):
   """
@@ -6325,19 +7091,22 @@ class PPartnerState(models.Model):
   # Unique identifier of this state for this partner
   StateIndex = models.IntegerField(null=False, blank=False)
   # State of the Partner (freetext)
-  StateFreeform = models.CharField(max_length=200)
+  StateFreeform = models.CharField(max_length=200, null=True)
   # When did the Partner enter this state?
-  StateStartDate = models.DateTimeField()
+  StateStartDate = models.DateTimeField(null=True)
   # When will/did the Partner exit this state?
-  StateEndDate = models.DateTimeField()
+  StateEndDate = models.DateTimeField(null=True)
   # Has the Partner left this state?
-  StateComplete = models.BooleanField()
-  State = models.ForeignKey(PState, related_name="PPartnerState_State", on_delete=models.CASCADE)
+  StateComplete = models.BooleanField(null=True)
+  State = models.ForeignKey(PState, null=True, related_name="PPartnerState_State", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_state_pk', fields=['Partner', 'StateIndex']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.StateIndex}"
+
 
 class PPartnerAction(models.Model):
   """
@@ -6349,25 +7118,28 @@ class PPartnerAction(models.Model):
   # Sequential identifier for this action for this partner
   ActionNumber = models.IntegerField(null=False, blank=False)
   # Action to be applied to Partner (freetext)
-  ActionFreeform = models.CharField(max_length=200)
+  ActionFreeform = models.CharField(max_length=200, null=True)
   # Date by which action should be performed. Reminders could be set up based on this
-  PerformByDate = models.DateTimeField()
+  PerformByDate = models.DateTimeField(null=True)
   # Has the action already been completed?
-  ActionComplete = models.BooleanField()
+  ActionComplete = models.BooleanField(null=True)
   # When was the action completed?
-  ActionCompleteDate = models.DateTimeField()
+  ActionCompleteDate = models.DateTimeField(null=True)
   # Who should perform this action?
-  UserToPerformAction = models.ForeignKey(SUser, related_name="PPartnerAction_UserToPerformAction", on_delete=models.CASCADE)
+  UserToPerformAction = models.ForeignKey(SUser, null=True, related_name="PPartnerAction_UserToPerformAction", on_delete=models.CASCADE)
   # Who actually performed this action?
-  UserThatPerformedAction = models.ForeignKey(SUser, related_name="PPartnerAction_UserThatPerformedAction", on_delete=models.CASCADE)
-  Action = models.ForeignKey(PAction, related_name="PPartnerAction_Action", on_delete=models.CASCADE)
-  Group = models.ForeignKey(SGroup, related_name="PPartnerAction_Group", on_delete=models.CASCADE)
+  UserThatPerformedAction = models.ForeignKey(SUser, null=True, related_name="PPartnerAction_UserThatPerformedAction", on_delete=models.CASCADE)
+  Action = models.ForeignKey(PAction, null=True, related_name="PPartnerAction_Action", on_delete=models.CASCADE)
+  Group = models.ForeignKey(SGroup, null=True, related_name="PPartnerAction_Group", on_delete=models.CASCADE)
   PartnerReminder = models.ForeignKey(PPartnerReminder, null=False, blank=False, related_name="PPartnerAction_PartnerReminder", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_action_pk', fields=['ActionNumber']),
     ]
+  def __str__(self):
+    return f"{self.ActionNumber}"
+
 
 class SFunction(models.Model):
   """
@@ -6379,12 +7151,14 @@ class SFunction(models.Model):
   # Petra Module which contains the function
   ModuleName = models.CharField(max_length=100, null=False, blank=False)
   # Petra Sub-Module which contains the function
-  SubModuleName = models.CharField(max_length=100)
+  SubModuleName = models.CharField(max_length=100, null=True)
   # Function name
   Name = models.CharField(max_length=100, null=False, blank=False)
   # Filename associated with the function
-  Filename = models.CharField(max_length=100)
+  Filename = models.CharField(max_length=100, null=True)
 
+  def __str__(self):
+    return str(self.FunctionId)
 
 class SGroupFunction(models.Model):
   """
@@ -6395,12 +7169,15 @@ class SGroupFunction(models.Model):
   # Identifier for the particular function
   Function = models.ForeignKey(SFunction, null=False, blank=False, related_name="SGroupFunction_Function", on_delete=models.CASCADE)
   # Does the group have access to this function?
-  CanAccess = models.BooleanField()
+  CanAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_function_pk', fields=['Group', 'Function']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.Function}"
+
 
 class SJobGroup(models.Model):
   """
@@ -6420,6 +7197,9 @@ class SJobGroup(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_job_group_pk', fields=['Group']),
     ]
+  def __str__(self):
+    return f"{self.Group}"
+
 
 class PPartnerSet(models.Model):
   """
@@ -6431,12 +7211,15 @@ class PPartnerSet(models.Model):
   # Field that the Partner Set relates to
   Unit = models.ForeignKey(PUnit, null=False, blank=False, related_name="PPartnerSet_Unit", on_delete=models.CASCADE)
   # Name of the Partner set
-  Name = models.CharField(max_length=100)
+  Name = models.CharField(max_length=100, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_set_pk', fields=['PartnerSetId', 'Unit']),
     ]
+  def __str__(self):
+    return f"{self.PartnerSetId} - {self.Unit}"
+
 
 class SGroupPartnerSet(models.Model):
   """
@@ -6448,16 +7231,19 @@ class SGroupPartnerSet(models.Model):
   # Is the association between the Group and Partner Set inclusive or exclusive
   InclusiveOrExclusive = models.BooleanField(null=False, blank=False)
   # If the association is inclusive this will grant read access to the Partners, otherwise it will deny read access to the Partners
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # If the association is inclusive this will grant write access to the Partners, otherwise it will deny write access to the Partners
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # If the association is inclusive this will grant delete access to the Partners, otherwise it will deny delete access to the Partners
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_partner_set_pk', fields=['Group', 'PartnerSet']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.PartnerSet}"
+
 
 class PPartnerSetPartner(models.Model):
   """
@@ -6472,6 +7258,9 @@ class PPartnerSetPartner(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_partner_set_partner_pk', fields=['PartnerSet', 'Partner']),
     ]
+  def __str__(self):
+    return f"{self.PartnerSet} - {self.Partner}"
+
 
 class SGroupGift(models.Model):
   """
@@ -6481,16 +7270,19 @@ class SGroupGift(models.Model):
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupGift_Group", on_delete=models.CASCADE)
   Gift = models.ForeignKey(AGift, null=False, blank=False, related_name="SGroupGift_Gift", on_delete=models.CASCADE)
   # Control read access to the gift
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # Control write access to the gift
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # Control delete access to the gift
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_gift_pk', fields=['Group', 'Gift']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.Gift}"
+
 
 class SGroupMotivation(models.Model):
   """
@@ -6500,16 +7292,19 @@ class SGroupMotivation(models.Model):
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupMotivation_Group", on_delete=models.CASCADE)
   MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="SGroupMotivation_MotivationDetail", on_delete=models.CASCADE)
   # Control read access to gifts with this motivation
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # Control write access to gifts with this motivation
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # Control delete access to gifts with this motivation
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_motivation_pk', fields=['Group', 'MotivationDetail']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.MotivationDetail}"
+
 
 class SGroupPartnerContact(models.Model):
   """
@@ -6520,16 +7315,19 @@ class SGroupPartnerContact(models.Model):
   # identifying key for p_contact_log
   Contact = models.ForeignKey(PContactLog, null=False, blank=False, related_name="SGroupPartnerContact_Contact", on_delete=models.CASCADE)
   # Control read access to the contact
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # Control write access to the contact
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # Control delete access to the contact
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_partner_contact_pk', fields=['Group', 'Contact']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.Contact}"
+
 
 class SGroupPartnerReminder(models.Model):
   """
@@ -6540,16 +7338,19 @@ class SGroupPartnerReminder(models.Model):
   # Primary Key of this reminder
   PartnerReminder = models.ForeignKey(PPartnerReminder, null=False, blank=False, related_name="SGroupPartnerReminder_PartnerReminder", on_delete=models.CASCADE)
   # Control read access to the reminder
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # Control write access to the reminder
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # Control delete access to the reminder
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_partner_reminder_pk', fields=['Group', 'PartnerReminder']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.PartnerReminder}"
+
 
 class SGroupLocation(models.Model):
   """
@@ -6559,16 +7360,19 @@ class SGroupLocation(models.Model):
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupLocation_Group", on_delete=models.CASCADE)
   Location = models.ForeignKey(PLocation, null=False, blank=False, related_name="SGroupLocation_Location", on_delete=models.CASCADE)
   # Control read access to the location
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # Control write access to the location
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # Control delete access to the location
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_location_pk', fields=['Group', 'Location']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.Location}"
+
 
 class SGroupPartnerLocation(models.Model):
   """
@@ -6578,16 +7382,19 @@ class SGroupPartnerLocation(models.Model):
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupPartnerLocation_Group", on_delete=models.CASCADE)
   PartnerLocation = models.ForeignKey(PPartnerLocation, null=False, blank=False, related_name="SGroupPartnerLocation_PartnerLocation", on_delete=models.CASCADE)
   # Control read access to the partner location
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # Control write access to the partner location
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # Control delete access to the partner location
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_partner_location_pk', fields=['Group', 'PartnerLocation']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.PartnerLocation}"
+
 
 class SGroupDataLabel(models.Model):
   """
@@ -6598,16 +7405,19 @@ class SGroupDataLabel(models.Model):
   # Identifying key for p_data_label
   DataLabel = models.ForeignKey(PDataLabel, null=False, blank=False, related_name="SGroupDataLabel_DataLabel", on_delete=models.CASCADE)
   # Control read access to the data label
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # Control write access to the data label
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # Control delete access to the data label
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_data_label_pk', fields=['Group', 'DataLabel']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.DataLabel}"
+
 
 class SGroupLedger(models.Model):
   """
@@ -6622,6 +7432,9 @@ class SGroupLedger(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_group_ledger_pk', fields=['Group', 'Ledger']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.Ledger}"
+
 
 class SGroupCostCentre(models.Model):
   """
@@ -6635,6 +7448,9 @@ class SGroupCostCentre(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_group_cost_centre_pk', fields=['Group', 'CostCentre']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.CostCentre}"
+
 
 class SGroupExtract(models.Model):
   """
@@ -6645,16 +7461,19 @@ class SGroupExtract(models.Model):
   # Identifier for the extract
   Extract = models.ForeignKey(MExtractMaster, null=False, blank=False, related_name="SGroupExtract_Extract", on_delete=models.CASCADE)
   # Control read access to the extract
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # Control write access to the extract
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # Control delete access to the extract
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_extract_pk', fields=['Group', 'Extract']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.Extract}"
+
 
 class SChangeEvent(models.Model):
   """
@@ -6678,6 +7497,9 @@ class SChangeEvent(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_change_event_pk', fields=['TableName', 'Rowid']),
     ]
+  def __str__(self):
+    return f"{self.TableName} - {self.Rowid}"
+
 
 class SLabel(models.Model):
   """
@@ -6685,7 +7507,7 @@ class SLabel(models.Model):
   """
 
   LabelName = models.CharField(max_length=10, null=False, blank=False, unique=True)
-  LabelDescription = models.CharField(max_length=40)
+  LabelDescription = models.CharField(max_length=40, null=True)
   # The form the label is designed for
   Form = models.ForeignKey(SForm, null=False, blank=False, related_name="SLabel_Form", on_delete=models.CASCADE)
   # The disance from the top of the page to the top of the first label.
@@ -6705,6 +7527,8 @@ class SLabel(models.Model):
   # The number of labels down a page.
   LabelsDown = models.IntegerField(default=0, null=False, blank=False)
 
+  def __str__(self):
+    return str(self.LabelName)
 
 class PPartnerComment(models.Model):
   """
@@ -6717,14 +7541,17 @@ class PPartnerComment(models.Model):
   # Sequence number (is necessary to concatenate records to one comment)
   Sequence = models.IntegerField(null=False, blank=False)
   # Comment
-  Comment = models.CharField(max_length=5000)
+  Comment = models.CharField(max_length=5000, null=True)
   # Comment Type
-  CommentType = models.CharField(max_length=20)
+  CommentType = models.CharField(max_length=20, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_partner_comment_pk', fields=['Partner', 'Index', 'Sequence']),
     ]
+  def __str__(self):
+    return f"{self.Partner} - {self.Index} - {self.Sequence}"
+
 
 class PProposalSubmissionType(models.Model):
   """
@@ -6732,8 +7559,10 @@ class PProposalSubmissionType(models.Model):
   """
 
   SubmissionTypeCode = models.CharField(max_length=15, null=False, blank=False, unique=True)
-  SubmissionTypeDescription = models.CharField(max_length=40)
+  SubmissionTypeDescription = models.CharField(max_length=40, null=True)
 
+  def __str__(self):
+    return str(self.SubmissionTypeCode)
 
 class PFoundation(models.Model):
   """
@@ -6741,31 +7570,33 @@ class PFoundation(models.Model):
   """
 
   # ORGANISATION key of the foundation.
-  Partner = models.ForeignKey(POrganisation, null=False, blank=False, related_name="PFoundation_Partner", on_delete=models.CASCADE)
+  Partner = models.OneToOneField(POrganisation, null=False, blank=False, related_name="PFoundation_Partner", on_delete=models.CASCADE)
   # The Financial Development person who handles appeals to this foundation. Anyone else must get permission from the owner to contact the foundation.
-  Owner1 = models.ForeignKey(PPartner, related_name="PFoundation_Owner1", on_delete=models.CASCADE)
+  Owner1 = models.ForeignKey(PPartner, null=True, related_name="PFoundation_Owner1", on_delete=models.CASCADE)
   # A second F.D. person who may do business with the foundation.
-  Owner2 = models.ForeignKey(PPartner, related_name="PFoundation_Owner2", on_delete=models.CASCADE)
+  Owner2 = models.ForeignKey(PPartner, null=True, related_name="PFoundation_Owner2", on_delete=models.CASCADE)
   # Name of the contact for this Foundation
-  KeyContactName = models.CharField(max_length=35)
+  KeyContactName = models.CharField(max_length=35, null=True)
   # The contact person's title.
-  KeyContactTitle = models.CharField(max_length=35)
+  KeyContactTitle = models.CharField(max_length=35, null=True)
   # Contact email address
-  KeyContactEmail = models.CharField(max_length=60)
+  KeyContactEmail = models.CharField(max_length=60, null=True)
   # Contact's phone number
-  KeyContactPhone = models.CharField(max_length=20)
+  KeyContactPhone = models.CharField(max_length=20, null=True)
   # Not part of original specification - provided in case contact does ever need to be a full Partner.
-  ContactPartner = models.ForeignKey(PPartner, related_name="PFoundation_ContactPartner", on_delete=models.CASCADE)
-  SpecialRequirements = models.CharField(max_length=350)
-  ProposalFormatting = models.CharField(max_length=350)
+  ContactPartner = models.ForeignKey(PPartner, null=True, related_name="PFoundation_ContactPartner", on_delete=models.CASCADE)
+  SpecialRequirements = models.CharField(max_length=350, null=True)
+  ProposalFormatting = models.CharField(max_length=350, null=True)
   # A lookup table would go with this. e.g. EMAIL, LETTER.
-  ProposalSubmissionType = models.ForeignKey(PProposalSubmissionType, related_name="PFoundation_ProposalSubmissionType", on_delete=models.CASCADE)
-  SpecialInstructions = models.CharField(max_length=350)
+  ProposalSubmissionType = models.ForeignKey(PProposalSubmissionType, null=True, related_name="PFoundation_ProposalSubmissionType", on_delete=models.CASCADE)
+  SpecialInstructions = models.CharField(max_length=350, null=True)
   # (Monthly | Quarterly | Annually)  These are the only ones we use now.
-  ReviewFrequency = models.CharField(max_length=10)
+  ReviewFrequency = models.CharField(max_length=10, null=True)
   # (Annually | Bi-Annually | No Restrictions)  This is a static list.
-  SubmitFrequency = models.CharField(max_length=15)
+  SubmitFrequency = models.CharField(max_length=15, null=True)
 
+  def __str__(self):
+    return str(self.Partner)
 
 class PFoundationProposalStatus(models.Model):
   """
@@ -6773,8 +7604,10 @@ class PFoundationProposalStatus(models.Model):
   """
 
   StatusCode = models.CharField(max_length=15, null=False, blank=False, unique=True)
-  StatusDescription = models.CharField(max_length=40)
+  StatusDescription = models.CharField(max_length=40, null=True)
 
+  def __str__(self):
+    return str(self.StatusCode)
 
 class PFoundationProposal(models.Model):
   """
@@ -6783,20 +7616,23 @@ class PFoundationProposal(models.Model):
 
   FoundationPartner = models.ForeignKey(PFoundation, null=False, blank=False, related_name="PFoundationProposal_FoundationPartner", on_delete=models.CASCADE)
   FoundationProposalKey = models.IntegerField(null=False, blank=False)
-  ProposalStatus = models.ForeignKey(PFoundationProposalStatus, related_name="PFoundationProposal_ProposalStatus", on_delete=models.CASCADE)
-  ProposalNotes = models.CharField(max_length=350)
-  SubmittedDate = models.DateTimeField()
-  AmountRequested = models.DecimalField(max_digits=19, decimal_places=2)
-  AmountApproved = models.DecimalField(max_digits=19, decimal_places=2)
-  AmountGranted = models.DecimalField(max_digits=19, decimal_places=2)
-  DateGranted = models.DateTimeField()
+  ProposalStatus = models.ForeignKey(PFoundationProposalStatus, null=True, related_name="PFoundationProposal_ProposalStatus", on_delete=models.CASCADE)
+  ProposalNotes = models.CharField(max_length=350, null=True)
+  SubmittedDate = models.DateTimeField(null=True)
+  AmountRequested = models.DecimalField(max_digits=19, decimal_places=2, null=True)
+  AmountApproved = models.DecimalField(max_digits=19, decimal_places=2, null=True)
+  AmountGranted = models.DecimalField(max_digits=19, decimal_places=2, null=True)
+  DateGranted = models.DateTimeField(null=True)
   # The F.D. person who sent the proposal
-  PartnerSubmittedBy = models.ForeignKey(PPartner, related_name="PFoundationProposal_PartnerSubmittedBy", on_delete=models.CASCADE)
+  PartnerSubmittedBy = models.ForeignKey(PPartner, null=True, related_name="PFoundationProposal_PartnerSubmittedBy", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_proposal_pk', fields=['FoundationPartner', 'FoundationProposalKey']),
     ]
+  def __str__(self):
+    return f"{self.FoundationPartner} - {self.FoundationProposalKey}"
+
 
 class PFoundationProposalDetail(models.Model):
   """
@@ -6806,17 +7642,20 @@ class PFoundationProposalDetail(models.Model):
   FoundationProposal = models.ForeignKey(PFoundationProposal, null=False, blank=False, related_name="PFoundationProposalDetail_FoundationProposal", on_delete=models.CASCADE)
   ProposalDetailId = models.IntegerField(null=False, blank=False)
   # Used when the proposal is for a key ministry
-  KeyMinistry = models.ForeignKey(PUnit, related_name="PFoundationProposalDetail_KeyMinistry", on_delete=models.CASCADE)
+  KeyMinistry = models.ForeignKey(PUnit, null=True, related_name="PFoundationProposalDetail_KeyMinistry", on_delete=models.CASCADE)
   # The area that the project or key ministry is for
-  AreaPartner = models.ForeignKey(PUnit, related_name="PFoundationProposalDetail_AreaPartner", on_delete=models.CASCADE)
+  AreaPartner = models.ForeignKey(PUnit, null=True, related_name="PFoundationProposalDetail_AreaPartner", on_delete=models.CASCADE)
   # The field that the project or key ministry is for if it applies
-  FieldPartner = models.ForeignKey(PUnit, related_name="PFoundationProposalDetail_FieldPartner", on_delete=models.CASCADE)
-  MotivationDetail = models.ForeignKey(AMotivationDetail, related_name="PFoundationProposalDetail_MotivationDetail", on_delete=models.CASCADE)
+  FieldPartner = models.ForeignKey(PUnit, null=True, related_name="PFoundationProposalDetail_FieldPartner", on_delete=models.CASCADE)
+  MotivationDetail = models.ForeignKey(AMotivationDetail, null=True, related_name="PFoundationProposalDetail_MotivationDetail", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_proposal_detail_pk', fields=['FoundationProposal', 'ProposalDetailId']),
     ]
+  def __str__(self):
+    return f"{self.FoundationProposal} - {self.ProposalDetailId}"
+
 
 class PFoundationDeadline(models.Model):
   """
@@ -6826,14 +7665,17 @@ class PFoundationDeadline(models.Model):
   FoundationPartner = models.ForeignKey(PFoundation, null=False, blank=False, related_name="PFoundationDeadline_FoundationPartner", on_delete=models.CASCADE)
   FoundationDeadlineKey = models.IntegerField(null=False, blank=False)
   # The month number
-  DeadlineMonth = models.IntegerField()
+  DeadlineMonth = models.IntegerField(null=True)
   # The day number
-  DeadlineDay = models.IntegerField()
+  DeadlineDay = models.IntegerField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='p_deadline_pk', fields=['FoundationPartner', 'FoundationDeadlineKey']),
     ]
+  def __str__(self):
+    return f"{self.FoundationPartner} - {self.FoundationDeadlineKey}"
+
 
 class SWorkflowDefinition(models.Model):
   """
@@ -6843,12 +7685,14 @@ class SWorkflowDefinition(models.Model):
   # Workflow ID
   WorkflowId = models.IntegerField(null=False, blank=False, unique=True)
   Name = models.CharField(max_length=30, null=False, blank=False)
-  Description = models.CharField(max_length=300)
+  Description = models.CharField(max_length=300, null=True)
   # List of all modules within which workflow should be available
-  ModuleList = models.CharField(max_length=100)
+  ModuleList = models.CharField(max_length=100, null=True)
   # If workflow is dependent on a particular data item what sort of data item is it (eg. partner key, application, extract).
-  TypeOfSharedData = models.CharField(max_length=100)
+  TypeOfSharedData = models.CharField(max_length=100, null=True)
 
+  def __str__(self):
+    return str(self.WorkflowId)
 
 class SWorkflowUser(models.Model):
   """
@@ -6864,6 +7708,9 @@ class SWorkflowUser(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_workflow_user_pk', fields=['Workflow', 'User']),
     ]
+  def __str__(self):
+    return f"{self.Workflow} - {self.User}"
+
 
 class SWorkflowGroup(models.Model):
   """
@@ -6878,6 +7725,9 @@ class SWorkflowGroup(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_workflow_group_pk', fields=['Workflow', 'Group']),
     ]
+  def __str__(self):
+    return f"{self.Workflow} - {self.Group}"
+
 
 class SWorkflowStep(models.Model):
   """
@@ -6895,6 +7745,9 @@ class SWorkflowStep(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_workflow_step_pk', fields=['Workflow', 'StepNumber']),
     ]
+  def __str__(self):
+    return f"{self.Workflow} - {self.StepNumber}"
+
 
 class SFunctionRelationship(models.Model):
   """
@@ -6906,12 +7759,15 @@ class SFunctionRelationship(models.Model):
   # Identifier for related function
   Function2 = models.ForeignKey(SFunction, null=False, blank=False, related_name="SFunctionRelationship_Function2", on_delete=models.CASCADE)
   # Code to run if a workflow contains function_1 and function_2 as adjacent steps. This code will provide the glue to connect the two steps.
-  CodeToRun = models.CharField(max_length=200)
+  CodeToRun = models.CharField(max_length=200, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_function_relationship_pk', fields=['Function1', 'Function2']),
     ]
+  def __str__(self):
+    return f"{self.Function1} - {self.Function2}"
+
 
 class SWorkflowInstance(models.Model):
   """
@@ -6923,16 +7779,18 @@ class SWorkflowInstance(models.Model):
   # Workflow ID
   Workflow = models.ForeignKey(SWorkflowDefinition, null=False, blank=False, related_name="SWorkflowInstance_Workflow", on_delete=models.CASCADE)
   # If there is a particular data item required through the workflow what is it. Eg. if a Partner Key is required what is that Partner Key
-  KeyDataItem = models.CharField(max_length=100)
+  KeyDataItem = models.CharField(max_length=100, null=True)
   # The type of the shared data item (eg. Partner Key)
-  KeyDataItemType = models.CharField(max_length=100)
+  KeyDataItemType = models.CharField(max_length=100, null=True)
   # Was this instance generated by the System rather than the user
-  SystemGenerated = models.BooleanField()
+  SystemGenerated = models.BooleanField(null=True)
   # Has the workflow been completed
-  Complete = models.BooleanField()
+  Complete = models.BooleanField(null=True)
   # User entered comment or note attached to the workflow
-  Note = models.CharField(max_length=300)
+  Note = models.CharField(max_length=300, null=True)
 
+  def __str__(self):
+    return str(self.WorkflowInstanceId)
 
 class SWorkflowInstanceStep(models.Model):
   """
@@ -6944,16 +7802,19 @@ class SWorkflowInstanceStep(models.Model):
   # Indicates current position within workflow instance
   StepNumber = models.IntegerField(null=False, blank=False)
   # Has this step been completed
-  Complete = models.BooleanField()
+  Complete = models.BooleanField(null=True)
   # User who ran or is running this step
   User = models.ForeignKey(SUser, null=False, blank=False, related_name="SWorkflowInstanceStep_User", on_delete=models.CASCADE)
   # Any output parameters from this step
-  OutputParameters = models.CharField(max_length=100)
+  OutputParameters = models.CharField(max_length=100, null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_workflow_instance_step_pk', fields=['WorkflowInstance', 'StepNumber']),
     ]
+  def __str__(self):
+    return f"{self.WorkflowInstance} - {self.StepNumber}"
+
 
 class SVolume(models.Model):
   """
@@ -6963,12 +7824,14 @@ class SVolume(models.Model):
   # Name (Identifier) for the volume
   Name = models.CharField(max_length=80, null=False, blank=False, unique=True)
   # Name of the parent volume (use either Path or Parent Volume)
-  ParentVolume = models.ForeignKey('self', related_name="SVolume_ParentVolume", on_delete=models.CASCADE)
+  ParentVolume = models.ForeignKey('self', null=True, related_name="SVolume_ParentVolume", on_delete=models.CASCADE)
   # Path information (use either Path or Parent Volume)
-  Path = models.CharField(max_length=2048)
+  Path = models.CharField(max_length=2048, null=True)
   # Comment for the user
-  Comment = models.CharField(max_length=500)
+  Comment = models.CharField(max_length=500, null=True)
 
+  def __str__(self):
+    return str(self.Name)
 
 class PFileInfo(models.Model):
   """
@@ -6979,84 +7842,98 @@ class PFileInfo(models.Model):
   # Partner key that the file is linked with (needed for performance reasons)
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PFileInfo_Partner", on_delete=models.CASCADE)
   # Volume this file can be found in (use either volume or path)
-  Volume = models.ForeignKey(SVolume, related_name="PFileInfo_Volume", on_delete=models.CASCADE)
+  Volume = models.ForeignKey(SVolume, null=True, related_name="PFileInfo_Volume", on_delete=models.CASCADE)
   # Path this file can be found in (use either volume or path)
-  Path = models.CharField(max_length=2048)
+  Path = models.CharField(max_length=2048, null=True)
   # File name this file can be found under in given volume or path
-  FileName = models.CharField(max_length=512)
+  FileName = models.CharField(max_length=512, null=True)
   # Internal name of the file, different from actual file name
-  Name = models.CharField(max_length=80)
+  Name = models.CharField(max_length=80, null=True)
   # Information about the file type
-  FileType = models.CharField(max_length=50)
+  FileType = models.CharField(max_length=50, null=True)
   # Comment for the user
-  Comment = models.CharField(max_length=500)
+  Comment = models.CharField(max_length=500, null=True)
   # Indicates whether or not the file info has restricted access. If it does then the access will be controlled by s_group_file_info.
-  Restricted = models.BooleanField(default=False)
+  Restricted = models.BooleanField(default=False, null=True)
 
+  def __str__(self):
+    return str(self.Key)
 
 class PPartnerGraphic(models.Model):
   """
   Any graphic associated to a partner can be stored here.
   """
 
-  FileInfo = models.ForeignKey(PFileInfo, null=False, blank=False, related_name="PPartnerGraphic_FileInfo", on_delete=models.CASCADE)
+  FileInfo = models.OneToOneField(PFileInfo, null=False, blank=False, related_name="PPartnerGraphic_FileInfo", on_delete=models.CASCADE)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerGraphic_Partner", on_delete=models.CASCADE)
   # The label for the graphic related to the partner.
-  GraphicLabel = models.CharField(max_length=32)
+  GraphicLabel = models.CharField(max_length=32, null=True)
 
+  def __str__(self):
+    return str(self.FileInfo)
 
 class PPartnerFile(models.Model):
   """
   Link file with a partner
   """
 
-  FileInfo = models.ForeignKey(PFileInfo, null=False, blank=False, related_name="PPartnerFile_FileInfo", on_delete=models.CASCADE)
+  FileInfo = models.OneToOneField(PFileInfo, null=False, blank=False, related_name="PPartnerFile_FileInfo", on_delete=models.CASCADE)
   # Partner key that the file is linked with (needed for performance reasons)
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerFile_Partner", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.FileInfo)
 
 class PmPersonFile(models.Model):
   """
   Link file with a person
   """
 
-  FileInfo = models.ForeignKey(PFileInfo, null=False, blank=False, related_name="PmPersonFile_FileInfo", on_delete=models.CASCADE)
+  FileInfo = models.OneToOneField(PFileInfo, null=False, blank=False, related_name="PmPersonFile_FileInfo", on_delete=models.CASCADE)
   # Partner key that the file is linked with (needed for performance reasons)
   Partner = models.ForeignKey(PPerson, null=False, blank=False, related_name="PmPersonFile_Partner", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.FileInfo)
 
 class PPartnerContactFile(models.Model):
   """
   Link file with a partner contact
   """
 
-  FileInfo = models.ForeignKey(PFileInfo, null=False, blank=False, related_name="PPartnerContactFile_FileInfo", on_delete=models.CASCADE)
+  FileInfo = models.OneToOneField(PFileInfo, null=False, blank=False, related_name="PPartnerContactFile_FileInfo", on_delete=models.CASCADE)
   # Partner key that the file is linked with (needed for performance reasons)
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerContactFile_Partner", on_delete=models.CASCADE)
   # identifying key for Partner Contact
   Contact = models.ForeignKey(PContactLog, null=False, blank=False, related_name="PPartnerContactFile_Contact", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.FileInfo)
 
 class PmDocumentFile(models.Model):
   """
   Link file with a personal document
   """
 
-  FileInfo = models.ForeignKey(PFileInfo, null=False, blank=False, related_name="PmDocumentFile_FileInfo", on_delete=models.CASCADE)
+  FileInfo = models.OneToOneField(PFileInfo, null=False, blank=False, related_name="PmDocumentFile_FileInfo", on_delete=models.CASCADE)
   # Partner key that the file is linked with (needed for performance reasons to find all records linked with a partner)
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PmDocumentFile_Partner", on_delete=models.CASCADE)
   Document = models.ForeignKey(PmDocument, null=False, blank=False, related_name="PmDocumentFile_Document", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.FileInfo)
 
 class PmApplicationFile(models.Model):
   """
   Link file with an application
   """
 
-  FileInfo = models.ForeignKey(PFileInfo, null=False, blank=False, related_name="PmApplicationFile_FileInfo", on_delete=models.CASCADE)
+  FileInfo = models.OneToOneField(PFileInfo, null=False, blank=False, related_name="PmApplicationFile_FileInfo", on_delete=models.CASCADE)
   GeneralApplication = models.ForeignKey(PmGeneralApplication, null=False, blank=False, related_name="PmApplicationFile_GeneralApplication", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.FileInfo)
 
 class SVolumePartnerGroup(models.Model):
   """
@@ -7066,10 +7943,12 @@ class SVolumePartnerGroup(models.Model):
   # Group Name this default volume applies to
   Name = models.CharField(max_length=30, null=False, blank=False, unique=True)
   # Description
-  Description = models.CharField(max_length=80)
+  Description = models.CharField(max_length=80, null=True)
   # Comment field
-  Comment = models.CharField(max_length=300)
+  Comment = models.CharField(max_length=300, null=True)
 
+  def __str__(self):
+    return str(self.Name)
 
 class SDefaultFileVolume(models.Model):
   """
@@ -7081,12 +7960,15 @@ class SDefaultFileVolume(models.Model):
   # Area this default volume applies to (e.g. Partner, Application, Contacts, ...)
   Area = models.CharField(max_length=30, null=False, blank=False)
   # Default Volume for combination of group and area
-  Volume = models.ForeignKey(SVolume, related_name="SDefaultFileVolume_Volume", on_delete=models.CASCADE)
+  Volume = models.ForeignKey(SVolume, null=True, related_name="SDefaultFileVolume_Volume", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_default_file_volume_pk', fields=['Group', 'Area']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.Area}"
+
 
 class SVolumePartnerGroupPartner(models.Model):
   """
@@ -7102,6 +7984,9 @@ class SVolumePartnerGroupPartner(models.Model):
     constraints = [
       models.UniqueConstraint(name='s_volume_partner_group_ptn_pk', fields=['Group', 'Partner']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.Partner}"
+
 
 class SGroupFileInfo(models.Model):
   """
@@ -7111,16 +7996,19 @@ class SGroupFileInfo(models.Model):
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupFileInfo_Group", on_delete=models.CASCADE)
   FileInfo = models.ForeignKey(PFileInfo, null=False, blank=False, related_name="SGroupFileInfo_FileInfo", on_delete=models.CASCADE)
   # Control read access to the file information
-  ReadAccess = models.BooleanField()
+  ReadAccess = models.BooleanField(null=True)
   # Control write access to the file information
-  WriteAccess = models.BooleanField()
+  WriteAccess = models.BooleanField(null=True)
   # Control delete access to the file information
-  DeleteAccess = models.BooleanField()
+  DeleteAccess = models.BooleanField(null=True)
 
   class Meta:
     constraints = [
       models.UniqueConstraint(name='s_group_file_info_pk', fields=['Group', 'FileInfo']),
     ]
+  def __str__(self):
+    return f"{self.Group} - {self.FileInfo}"
+
 
 class PConsentChannel(models.Model):
   """
@@ -7132,8 +8020,10 @@ class PConsentChannel(models.Model):
   # international name for i18n translation
   Name = models.CharField(max_length=64, default='0', null=False, blank=False)
   # comment for a channel
-  Comment = models.CharField(max_length=256)
+  Comment = models.CharField(max_length=256, null=True)
 
+  def __str__(self):
+    return str(self.ChannelCode)
 
 class PConsentHistory(models.Model):
   """
@@ -7147,12 +8037,14 @@ class PConsentHistory(models.Model):
   # Type for Data saved
   Type = models.CharField(max_length=64, null=False, blank=False)
   # Value for type key
-  Value = models.CharField(max_length=512)
+  Value = models.CharField(max_length=512, null=True)
   # Date the consent was given
   ConsentDate = models.DateTimeField(null=False, blank=False)
   # Code of channel
   Channel = models.ForeignKey(PConsentChannel, null=False, blank=False, related_name="PConsentHistory_Channel", on_delete=models.CASCADE)
 
+  def __str__(self):
+    return str(self.EntryId)
 
 class PConsentPurpose(models.Model):
   """
@@ -7164,8 +8056,10 @@ class PConsentPurpose(models.Model):
   # international name for i18n translation
   Name = models.CharField(max_length=64, default='0', null=False, blank=False)
   # comment for a purpose
-  Comment = models.CharField(max_length=256)
+  Comment = models.CharField(max_length=256, null=True)
 
+  def __str__(self):
+    return str(self.PurposeCode)
 
 class PConsentHistoryPermission(models.Model):
   """
@@ -7181,3 +8075,5 @@ class PConsentHistoryPermission(models.Model):
     constraints = [
       models.UniqueConstraint(name='p_consent_history_permission_pk', fields=['ConsentHistoryEntry', 'Purpose']),
     ]
+  def __str__(self):
+    return f"{self.ConsentHistoryEntry} - {self.Purpose}"

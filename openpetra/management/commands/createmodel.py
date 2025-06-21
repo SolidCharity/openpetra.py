@@ -16,6 +16,7 @@ class Command(BaseCommand):
         return s
 
     def upper_camel_case(self, s, stripPrefix = False, stripSuffix = False, stripSuffixCodeOrKey = False, stripPrefixTableName = False, tableName = ''):
+
         if stripSuffix:
             if s.endswith('_flag_l'):
                 s = s[:-1*len('_flag_l')] + '_l'
@@ -36,7 +37,7 @@ class Command(BaseCommand):
             elif s.endswith('_number_i'):
                 s = s[:-1*len('_number_i')] + '_i'
         if stripPrefixTableName:
-            if s.startswith(tableName) and (s.endswith('_code_c') or s.endswith('_name_c') or s.endswith('_descr_c') or s.endswith('_desc_c')):
+            if s.startswith(tableName) and (s.endswith('_code_c') or s.endswith('_name_c') or s.endswith('_key_n') or s.endswith('_descr_c') or s.endswith('_desc_c')):
                 # keep prefix, but remove table name
                 s = s[:s.index('_')] + s[len(tableName):]
 
@@ -53,12 +54,19 @@ class Command(BaseCommand):
             for key in foreignKeyNodes:
                 if key.attrib['thisFields'] == fieldNode.attrib['name']:
                     foreignkey = key
+        if fieldNode.attrib['name'] == 'a_ledger_number_i' and tableName != 'a_ledger' and foreignkey is None:
+            # create a foreign key for the ledger (eg. AAccountHierarchy)
+            foreignkey = copy.deepcopy(foreignKeyNodes[0])
+            foreignkey.attrib['name'] = 'a_ledger_fk1'
+            foreignkey.attrib['thisfields'] = 'a_ledger_number_i'
+            foreignkey.attrib['otherTable'] = 'a_ledger'
 
         fieldName = self.upper_camel_case(fieldNode.attrib['name'], stripPrefix=True, stripSuffix=True, stripPrefixTableName=True, tableName=tableName)
         fieldNode.attrib['fieldname'] = fieldName
         fieldType = fieldNode.attrib['type']
 
         if 'descr' in fieldNode.attrib and fieldNode.attrib['descr'].strip(' '):
+            # TODO: or use db_comment?
             f.write(f"  # {fieldNode.attrib['descr'].strip()}\n")
 
         default = ''
@@ -74,14 +82,20 @@ class Command(BaseCommand):
             otherTable = self.upper_camel_case(foreignkey.attrib['otherTable'])
             if otherTable == className:
                 otherTable = "'self'"
-            #related_name = f'related_name="+"'
             related_name = f'related_name="{className}_{fieldName}"'
 
         if 'notnull' in fieldNode.attrib:
             if fieldNode.attrib['notnull'] == 'yes':
                 null = 'null=False, blank=False'
+            elif fieldNode.attrib['notnull'] == 'no':
+                null = 'null=True'
+        else:
+            null = 'null=True'
 
         if foreignkey is not None:
+            if unique == 'unique=True':
+                f.write(f"  {fieldName} = models.OneToOneField({self.concat([otherTable,default,null,related_name])}, on_delete=models.CASCADE)\n")
+            else:
                 f.write(f"  {fieldName} = models.ForeignKey({self.concat([otherTable,default,null,related_name])}, on_delete=models.CASCADE)\n")
         elif fieldType == "varchar" or fieldType == "text":
             maxlength = 20
@@ -116,8 +130,10 @@ class Command(BaseCommand):
             f.write(f"  {fieldName} = models.DecimalField({self.concat([max_digits, decimal_places, default,null])})\n")
         elif fieldType == "date" or fieldType == "datetime":
             f.write(f"  {fieldName} = models.DateTimeField({self.concat([null])})\n")
+        print(f"  {fieldNode.attrib['name']} => {fieldName}")
 
     def process_table(self, f, tableNode):
+
         print(f"process_table {tableNode.attrib['name']}")
 
         className = self.upper_camel_case(tableNode.attrib['name'])
@@ -148,22 +164,39 @@ class Command(BaseCommand):
 
         # replace composite foreign keys with direct foreign keys
         for key in compositekeys:
+            print(f"     composite key {key.attrib['name']}")
 
             fieldnames = key.attrib['thisFields'].replace(' ', '').split(',')
             first = True
             for fieldname in fieldnames:
+                print(f"       {fieldname}")
                 if first:
                     first = False
                     # create a new foreign key directly to the table
-                    newfieldname = key.attrib['otherTable'] + "_x"
+                    if key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_root_account_code_c':
+                        newfieldname = 'a_root_account_x'
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_reporting_account_code_c':
+                        newfieldname = 'a_reporting_account_code_x'
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_account_code_to_report_to_c':
+                        newfieldname = 'a_account_code_to_report_to_x'
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_debit_account_code_c':
+                        newfieldname = 'a_debit_account_code_x'
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_credit_account_code_c':
+                        newfieldname = 'a_credit_account_code_x'
+                    else:
+                        newfieldname = key.attrib['otherTable'] + "_x"
                     fields[newfieldname] = copy.deepcopy(fields[fieldname])
                     fields[newfieldname].attrib['name'] = newfieldname
                     fields[newfieldname].attrib['fieldname'] = self.upper_camel_case(newfieldname, stripPrefix=True, stripSuffix=True)
                     fields[newfieldname].attrib['descr'] = ""
                     fields[newfieldname].attrib['dropped'] = "False"
 
-                # mark the old field
-                fields[fieldname].attrib['dropped'] = "True"
+                if className == 'AAccountHierarchy' and fieldname == 'a_ledger_number_i':
+                    # keep the field
+                    None
+                else:
+                    # mark the old field
+                    fields[fieldname].attrib['dropped'] = "True"
 
             # replace fields in uniquekey
             for uniquekey in uniquekeys:
@@ -190,12 +223,40 @@ class Command(BaseCommand):
             for key in uniquekeys:
                 uniquefields = []
                 for field in key.attrib['thisFields'].replace(' ', '').split(','):
+                    if className == "AAccountHierarchyDetail" and field == 'a_reporting_account_code_c':
+                        uniquefields.append("'ReportingAccountCode'")
+                        continue
+                    if className == "ACostCentre" and field == 'a_ledger_number_i':
+                        uniquefields.append("'Ledger'")
+                        continue
+                    if className == "ATransactionType" and field == 'a_ledger_number_i':
+                        uniquefields.append("'Ledger'")
+                        continue
                     if fields[field].attrib['dropped'] == "True":
                         # ignore dropped field of composite key
                         continue
                     uniquefields.append("'" + fields[field].attrib['fieldname'] + "'")
                 f.write(f"\n      models.UniqueConstraint(name='{key.attrib['name']}', fields=[{self.concat(uniquefields)}]),")
             f.write(f'\n    ]')
+
+        # write __str__ method
+        f.write(f'\n  def __str__(self):')
+        if primarykey is not None and not ',' in primarykey.attrib['thisFields']:
+            f.write(f"\n    return str(self.{fields[primarykey.attrib['thisFields']].attrib['fieldname']})")
+        elif len(uniquekeys) > 0:
+            f.write(f'\n    return f"')
+            for key in uniquekeys:
+                uniquefields = []
+                firstField = True
+                for field in key.attrib['thisFields'].replace(' ', '').split(','):
+                    if not fields[field].attrib['dropped'] == "True":
+                        if not firstField:
+                            f.write(' - ')
+                        firstField = False
+                        f.write('{' + f"self.{fields[field].attrib['fieldname']}" + '}')
+            f.write('"\n')
+        else:
+            f.write(f'\n    return str(self.id)')
 
     def get_tables_without_unsatisfied_dependancies(self, tables):
         for key in tables.keys():
@@ -208,11 +269,11 @@ class Command(BaseCommand):
             if not unsatisfied_dep:
                 return tables[key]
 
-    def process_database(self, f, root):
+    def process_database(self, f, petraxml):
 
         tables = {}
 
-        for child in root:
+        for child in petraxml:
             # print(f"{child.tag} {child.attrib['name']}")
 
             if child.tag == "table":
@@ -235,10 +296,10 @@ class Command(BaseCommand):
             self.process_table(f, table)
 
     def handle(self, *args, **options):
-        tree = etree.parse("definitions/petra.xml")
+        petraxml = etree.parse("definitions/petra.xml").getroot()
 
         with open('apps/data/models.py', 'w') as f:
             f.write('# this is a generated file.\n')
             f.write('# do not edit manually, but run: python manage.py createmodel\n')
             f.write('from django.db import models\n')
-            self.process_database(f, tree.getroot())
+            self.process_database(f, petraxml)
