@@ -7,6 +7,8 @@ name = "pypi"
 django = "~=4.2"
 lxml = "*"
 pyyaml = "*"
+mysqlclient = "*"
+django-extensions = "*"
 
 [dev-packages]
 
