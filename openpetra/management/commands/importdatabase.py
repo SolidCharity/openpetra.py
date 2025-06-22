@@ -182,12 +182,14 @@ class Command(BaseCommand):
                     continue
 
                 if field.is_relation:
-                    print(f"    foreign key: field {field.name} => {field.related_model.__name__}")
+                    if self.DEBUG:
+                        print(f"    foreign key: field {field.name} => {field.related_model.__name__}")
                     compositekey = self.find_compositekey(field.related_model)
                     filter = {}
                     for f in compositekey:
                         importedfield = f
-                        print("        " + f)
+                        if self.DEBUG:
+                            print("        " + f)
                         if not importedfield in values:
                             # eg. prefix Code with referenced Table name
                             importedfield = self.drop_prefix(field.related_model.__name__) + f
@@ -225,9 +227,11 @@ class Command(BaseCommand):
                         filter[filter_on_field] = values[importedfield]
                         fields_of_composite_keys.append(importedfield)
                     if len(filter.keys()) > 0:
-                        print(f"      filter: {filter}")
+                        if self.DEBUG:
+                            print(f"      filter: {filter}")
                         refobj = field.related_model.objects.get(**filter)
-                        print(f"       result: {refobj}")
+                        if self.DEBUG:
+                            print(f"       result: {refobj}")
                         insert[field.name] = refobj
                 else:
                     value = values[name]
@@ -264,11 +268,23 @@ class Command(BaseCommand):
         # for sequence in data["Sequences"]:
         #    print(f"  {sequence}")
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "--ymlfile",
+            required=True,
+            type=str,
+            help = "The path to the file in yml format, that will be imported")
+        parser.add_argument(
+            "--debug",
+            required=False,
+            type=bool,
+            default=False,
+            help = "Should we print detailed messages during the import")
 
 
     def handle(self, *args, **options):
-        # TODO: use parameter
-        with open("definitions/clean.yml") as stream:
+        self.DEBUG = options['debug']
+        with open(options["ymlfile"]) as stream:
             try:
                 data = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
