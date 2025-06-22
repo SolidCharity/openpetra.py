@@ -126,10 +126,11 @@ class Command(BaseCommand):
                 except:
                     None
 
-                if classname == "PRecentPartnersTable" and name == "When":
-                    field = model._meta.get_field('WhenDate')
-                if classname == "PRecentPartnersTable" and name == "WhenT":
-                    field = model._meta.get_field('WhenTime')
+                if field is None and classname == "PRecentPartners":
+                    if name == "When":
+                        field = model._meta.get_field('WhenDate')
+                    elif name == "WhenT":
+                        field = model._meta.get_field('WhenTime')
 
                 if field is None and name.endswith('Code'):
                     try:
