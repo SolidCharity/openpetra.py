@@ -2818,12 +2818,13 @@
                 format="9999"
                 label="Index"
                 notnull="yes"/>
+     <!-- CHANGED_FOR_DJANGO notnull=no -->
     <tablefield name="p_value_c"
                 type="varchar"
                 descr="The value of the attribute."
                 format="X(200)"
                 label="Partner Attribute Value"
-                notnull="yes"/>
+                notnull="no"/>
     <tablefield name="p_value_country_c"
                 type="varchar"
                 descr="The country of the value of the attribute (only relevant for Telephone and Fax Numbers)."

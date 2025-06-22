@@ -125,6 +125,12 @@ class Command(BaseCommand):
                     field = model._meta.get_field(name)
                 except:
                     None
+
+                if classname == "PRecentPartnersTable" and name == "When":
+                    field = model._meta.get_field('WhenDate')
+                if classname == "PRecentPartnersTable" and name == "WhenT":
+                    field = model._meta.get_field('WhenTime')
+
                 if field is None and name.endswith('Code'):
                     try:
                         field = model._meta.get_field(name.replace('Code', ''))
@@ -228,14 +234,11 @@ class Command(BaseCommand):
                     if isinstance(value, date):
                         value = datetime(value.year, value.month, value.day, tzinfo=timezone.get_default_timezone())
                     elif isinstance(value, str) and len(value) == len('YYYY-MM-DD hh:mm:ss'):
-                        for f in model._meta.get_fields():
-                            if f.name == field.name:
-                                if type(f) is models.DateTimeField:
-                                    value = datetime(int(value[0:4]), int(value[5:7]), int(value[8:10]),
-                                                     int(value[11:13]), int(value[14:16]), int(value[17:19]),
-                                                     tzinfo=timezone.get_default_timezone())
-
-                                    break
+                        f = model._meta.get_field(field.name)
+                        if type(f) is models.DateTimeField:
+                            value = datetime(int(value[0:4]), int(value[5:7]), int(value[8:10]),
+                                                int(value[11:13]), int(value[14:16]), int(value[17:19]),
+                                                tzinfo=timezone.get_default_timezone())
                     insert[field.name] = value
 
             for fieldname in missing_fields:

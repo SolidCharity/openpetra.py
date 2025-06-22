@@ -177,6 +177,7 @@ class SReportResult(models.Model):
   # Parameters list in json
   ParameterList = models.CharField(max_length=20, null=True)
   # result represented in HTML
+  ResultHtml = models.CharField(max_length=20, null=True)
   # Did the report finish successfully to be calculated?
   Success = models.BooleanField(default=False, null=True)
   # in case of failure, this contains the error message
@@ -430,53 +431,53 @@ class SLanguageSpecific(models.Model):
   # This is the code used to identify a language.
   Language = models.OneToOneField(PLanguage, null=False, blank=False, related_name="SLanguageSpecific_Language", on_delete=models.CASCADE)
   # The language specific month name 1.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName1 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 2.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName2 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 3.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName3 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 4.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName4 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 5.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName5 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 6.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName6 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 7.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName7 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 8.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName8 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 9.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName9 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 10.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName10 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 11.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName11 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific month name 12.
-  MonthNameC = models.CharField(max_length=20, null=False, blank=False)
+  MonthName12 = models.CharField(max_length=20, null=False, blank=False)
   # The language specific short month name 1.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort1 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 2.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort2 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 3.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort3 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 4.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort4 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 5.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort5 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 6.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort6 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 7.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort7 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 8.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort8 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 9.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort9 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 10.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort10 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 11.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort11 = models.CharField(max_length=3, null=False, blank=False)
   # The language specific short month name 12.
-  MonthNameShortC = models.CharField(max_length=3, null=False, blank=False)
+  MonthNameShort12 = models.CharField(max_length=3, null=False, blank=False)
 
   def __str__(self):
     return str(self.Language)
@@ -1091,9 +1092,9 @@ class MExtractMaster(models.Model):
   KeyCount = models.IntegerField(default=0, null=True)
   Public = models.BooleanField(default=True, null=False, blank=False)
   # Indicates that the extract has been edited by a user
-  ManualMod = models.BooleanField(default=False, null=False, blank=False)
+  ManualModication = models.BooleanField(default=False, null=False, blank=False)
   # Date the extract was manually modified
-  ManualMod = models.DateTimeField(null=True)
+  ManualModicationDate = models.DateTimeField(null=True)
   # Who made the last manual modification ?
   ManualModBy = models.ForeignKey(SUser, null=True, related_name="MExtractMaster_ManualModBy", on_delete=models.CASCADE)
   # Indicate the extract type. Which function was the extract created through?
@@ -1626,6 +1627,7 @@ class PForm(models.Model):
   # Is the template available in the database.
   TemplateAvailable = models.BooleanField(default=False, null=False, blank=False)
   # The binary template file encoded as Base64 text
+  TemplateDocument = models.CharField(max_length=20, null=True)
   # The file type associated with the template.
   TemplateFileExtension = models.CharField(max_length=8, null=True)
   # Date the template was uploaded to the database
@@ -1790,7 +1792,7 @@ class ALedger(models.Model):
   GiftDataRetention = models.IntegerField(default=2, null=True)
   # When recalculating the account report structure this indicates that all periods should be recalculated.
   RecalculateAllPeriods = models.BooleanField(default=False, null=True)
-  # identifes the Last used ICH process number
+  # identifies the Last used ICH process number
   LastIchNumber = models.IntegerField(default=0, null=False, blank=False)
   # Indicates whether the ledger is just for storing consolidated accounts (rather than a 'real' ledger).
   ConsolidationLedger = models.BooleanField(default=False, null=True)
@@ -2220,7 +2222,7 @@ class AIchStewardship(models.Model):
   """
 
   AccountingPeriod = models.ForeignKey(AAccountingPeriod, null=False, blank=False, related_name="AIchStewardship_AccountingPeriod", on_delete=models.CASCADE)
-  # identifes the ICH process number
+  # identifies the ICH process number
   IchNumber = models.IntegerField(default=0, null=False, blank=False)
   # This identifies which cost centre an account is applied to. A cost centre can be a partner but reflected as a character rather than a numeric
   CostCentreCode = models.CharField(max_length=12, null=False, blank=False)
@@ -2323,7 +2325,7 @@ class ARecurringBatch(models.Model):
 
   # This is used as a key field in most of the accounting system files
   Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ARecurringBatch_Ledger", on_delete=models.CASCADE)
-  # identifes which batch a transaction belongs to
+  # identifies which batch a transaction belongs to
   BatchNumber = models.IntegerField(default=0, null=False, blank=False)
   # This is a long description and is 80 characters long.
   BatchDescription = models.CharField(max_length=80, null=True)
@@ -3458,8 +3460,8 @@ class PRecentPartners(models.Model):
   # What partner is it about?
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PRecentPartners_Partner", on_delete=models.CASCADE)
   # When was this partner edited by this user?
-  When = models.DateTimeField(null=True)
-  When = models.IntegerField(null=True)
+  WhenDate = models.DateTimeField(null=True)
+  WhenTime = models.IntegerField(null=True)
 
   class Meta:
     constraints = [
@@ -3507,7 +3509,7 @@ class PPartnerAttribute(models.Model):
   # Allows for manual ordering of Partner Attributes within a Partner Attribute Type by the user (e.g. re-ordering of phone numbers within the 'Phone Number' Partner Attribute Type).
   Index = models.IntegerField(null=False, blank=False)
   # The value of the attribute.
-  Value = models.CharField(max_length=200, null=False, blank=False)
+  Value = models.CharField(max_length=200, null=True)
   # The country of the value of the attribute (only relevant for Telephone and Fax Numbers).
   ValueCountry = models.ForeignKey(PCountry, null=True, related_name="PPartnerAttribute_ValueCountry", on_delete=models.CASCADE)
   # Any comment to explain this attribute value, or some additional info that may be required.
@@ -3605,6 +3607,7 @@ class PFamily(models.Model):
   DateOfBirth = models.DateTimeField(null=True)
   Gender = models.CharField(max_length=8, default='Unknown', null=True)
   # A photo of the person, encoded with Base64, and prefixed with the file type
+  Photo = models.CharField(max_length=20, default='?', null=True)
 
   def __str__(self):
     return str(self.Partner)
@@ -4994,7 +4997,7 @@ class AGiftDetail(models.Model):
   FixedGiftDestination = models.BooleanField(default=False, null=True)
   # This is a number of currency units in the entered Currency
   GiftTransactionAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
-  # identifes the ICH process number
+  # identifies the ICH process number
   IchNumber = models.IntegerField(default=0, null=False, blank=False)
   # Mailing Code of the mailing that the gift was a response to.
   Mailing = models.ForeignKey(PMailing, null=True, related_name="AGiftDetail_Mailing", on_delete=models.CASCADE)
@@ -5145,7 +5148,7 @@ class ATransaction(models.Model):
   SystemGenerated = models.BooleanField(default=False, null=True)
   # The transaction amount in the second base currency.
   AmountInIntlCurrency = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
-  # identifes the ICH process number
+  # identifies the ICH process number
   IchNumber = models.IntegerField(default=0, null=False, blank=False)
   # Key ministry to which this transaction applies (just for fund transfers)
   KeyMinistry = models.ForeignKey(PUnit, null=True, related_name="ATransaction_KeyMinistry", on_delete=models.CASCADE)
@@ -5581,7 +5584,7 @@ class PmGeneralApplication(models.Model):
   # Describes if the applicant has been accepted by the sending field.
   GenAppSendFldAccept = models.BooleanField(default=False, null=True)
   # This is the date the sending field accepted the applicant.
-  GenAppSendFldAccept = models.DateTimeField(null=True)
+  GenAppSendFldAcceptDate = models.DateTimeField(null=True)
   # This field indicates how they were influenced to apply with us.
   GenContact1 = models.ForeignKey(PtContact, null=True, related_name="PmGeneralApplication_GenContact1", on_delete=models.CASCADE)
   # This field indicates how they were influenced to apply with us.

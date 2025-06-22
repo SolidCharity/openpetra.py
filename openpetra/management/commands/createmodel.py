@@ -61,7 +61,11 @@ class Command(BaseCommand):
             foreignkey.attrib['thisfields'] = 'a_ledger_number_i'
             foreignkey.attrib['otherTable'] = 'a_ledger'
 
-        fieldName = self.upper_camel_case(fieldNode.attrib['name'], stripPrefix=True, stripSuffix=True, stripPrefixTableName=True, tableName=tableName)
+        if 'namedotnet' in fieldNode.attrib:
+            fieldName = fieldNode.attrib['namedotnet']
+            fieldName = fieldName[0].upper() + fieldName[1:]
+        else:
+            fieldName = self.upper_camel_case(fieldNode.attrib['name'], stripPrefix=True, stripSuffix=True, stripPrefixTableName=True, tableName=tableName)
         fieldNode.attrib['fieldname'] = fieldName
         fieldType = fieldNode.attrib['type']
 
@@ -97,7 +101,7 @@ class Command(BaseCommand):
                 f.write(f"  {fieldName} = models.OneToOneField({self.concat([otherTable,default,null,related_name])}, on_delete=models.CASCADE)\n")
             else:
                 f.write(f"  {fieldName} = models.ForeignKey({self.concat([otherTable,default,null,related_name])}, on_delete=models.CASCADE)\n")
-        elif fieldType == "varchar" or fieldType == "text":
+        elif fieldType == "varchar" or fieldType == "text" or fieldType == "longtext":
             maxlength = 20
             if 'format' in fieldNode.attrib:
                 format = fieldNode.attrib['format']
