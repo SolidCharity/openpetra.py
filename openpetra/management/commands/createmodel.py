@@ -61,7 +61,9 @@ class Command(BaseCommand):
             foreignkey.attrib['thisfields'] = 'a_ledger_number_i'
             foreignkey.attrib['otherTable'] = 'a_ledger'
 
-        if 'namedotnet' in fieldNode.attrib:
+        if 'namedjango' in fieldNode.attrib:
+            fieldName = fieldNode.attrib['namedjango']
+        elif 'namedotnet' in fieldNode.attrib:
             fieldName = fieldNode.attrib['namedotnet']
             fieldName = fieldName[0].upper() + fieldName[1:]
         else:
@@ -82,6 +84,8 @@ class Command(BaseCommand):
 
         if foreignkey is not None:
             fieldName = self.upper_camel_case(fieldNode.attrib['name'], stripPrefix=True, stripSuffix=True, stripSuffixCodeOrKey=True)
+            if 'namedjango' in fieldNode.attrib:
+                fieldName = fieldNode.attrib['namedjango']
             fieldNode.attrib['fieldname'] = fieldName
             otherTable = self.upper_camel_case(foreignkey.attrib['otherTable'])
             if otherTable == className:
@@ -96,25 +100,47 @@ class Command(BaseCommand):
         else:
             null = 'null=True'
 
+        if fieldType == "varchar":
+            if 'format' in fieldNode.attrib:
+                format = fieldNode.attrib['format']
+                if format.lower().startswith('x('):
+                    maxlength = int(format[2:-1])*2
+                    if maxlength >= 1000:
+                        fieldType = 'text'
+
         if foreignkey is not None:
             if unique == 'unique=True':
                 f.write(f"  {fieldName} = models.OneToOneField({self.concat([otherTable,default,null,related_name])}, on_delete=models.CASCADE)\n")
             else:
                 f.write(f"  {fieldName} = models.ForeignKey({self.concat([otherTable,default,null,related_name])}, on_delete=models.CASCADE)\n")
-        elif fieldType == "varchar" or fieldType == "text" or fieldType == "longtext":
+        elif fieldType == "varchar":
             maxlength = 20
             if 'format' in fieldNode.attrib:
                 format = fieldNode.attrib['format']
                 if format.lower().startswith('x('):
-                    maxlength = format[2:-1]
-                elif format.lower().startswith('x('):
-                    maxlength = len(format)
+                    maxlength = int(format[2:-1])*2
+                else:
+                    maxlength = len(format)*2
 
             if 'initial' in fieldNode.attrib:
                 default = f"default='{fieldNode.attrib['initial']}'"
 
             max_length = f"max_length={maxlength}"
             f.write(f"  {fieldName} = models.CharField({self.concat([max_length,default,null,unique])})\n")
+        elif fieldType == "text" or fieldType == "longtext":
+            maxlength = 20
+            if 'format' in fieldNode.attrib:
+                format = fieldNode.attrib['format']
+                if format.lower().startswith('x('):
+                    maxlength = int(format[2:-1])*2
+                else:
+                    maxlength = len(format)*2
+
+            if 'initial' in fieldNode.attrib:
+                default = f"default='{fieldNode.attrib['initial']}'"
+
+            max_length = f"max_length={maxlength}"
+            f.write(f"  {fieldName} = models.TextField({self.concat([max_length,default,null,unique])})\n")
         elif fieldType == "bit":
             if 'initial' in fieldNode.attrib:
                 if fieldNode.attrib['initial'].lower() == 'yes':
@@ -180,13 +206,17 @@ class Command(BaseCommand):
                     if key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_root_account_code_c':
                         newfieldname = 'a_root_account_x'
                     elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_reporting_account_code_c':
-                        newfieldname = 'a_reporting_account_code_x'
+                        newfieldname = 'a_reporting_account_x'
                     elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_account_code_to_report_to_c':
-                        newfieldname = 'a_account_code_to_report_to_x'
+                        newfieldname = 'a_account_to_report_to_x'
                     elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_debit_account_code_c':
-                        newfieldname = 'a_debit_account_code_x'
+                        newfieldname = 'a_debit_account_x'
                     elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_credit_account_code_c':
-                        newfieldname = 'a_credit_account_code_x'
+                        newfieldname = 'a_credit_account_x'
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_bank_account_code_c':
+                        newfieldname = 'a_bank_account_x'
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_dr_account_code_c':
+                        newfieldname = 'a_dr_account_x'
                     else:
                         newfieldname = key.attrib['otherTable'] + "_x"
                     fields[newfieldname] = copy.deepcopy(fields[fieldname])
@@ -195,11 +225,16 @@ class Command(BaseCommand):
                     fields[newfieldname].attrib['descr'] = ""
                     fields[newfieldname].attrib['dropped'] = "False"
 
-                if className == 'AAccountHierarchy' and fieldname == 'a_ledger_number_i':
+                if fieldname == 'a_ledger_number_i' and className in ['AAccountHierarchy', 
+                                                                      'ACostCentre',
+                                                                      'AEpStatement',
+                                                                      'ATransactionType',
+                                                                      'AGeneralLedgerMaster']:
                     # keep the field
                     None
                 else:
                     # mark the old field
+                    print(f"dropping field {fieldname}")
                     fields[fieldname].attrib['dropped'] = "True"
 
             # replace fields in uniquekey
@@ -212,7 +247,8 @@ class Command(BaseCommand):
 
         # first process fields of primary key
         for fieldname in primarykey.attrib['thisFields'].replace(' ', '').split(','):
-            self.process_field(f, tableNode.attrib['name'], className, fields[fieldname], primarykey, foreignkeys)
+            if fields[fieldname].attrib['dropped'] == "False":
+                self.process_field(f, tableNode.attrib['name'], className, fields[fieldname], primarykey, foreignkeys)
 
         # then process the other fields
         for fieldname in fields.keys():
@@ -228,7 +264,7 @@ class Command(BaseCommand):
                 uniquefields = []
                 for field in key.attrib['thisFields'].replace(' ', '').split(','):
                     if className == "AAccountHierarchyDetail" and field == 'a_reporting_account_code_c':
-                        uniquefields.append("'ReportingAccountCode'")
+                        uniquefields.append("'ReportingAccount'")
                         continue
                     if className == "ACostCentre" and field == 'a_ledger_number_i':
                         uniquefields.append("'Ledger'")

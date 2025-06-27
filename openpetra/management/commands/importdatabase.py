@@ -59,6 +59,11 @@ class Command(BaseCommand):
 
     def find_compositekey(self, model: models.Model):
 
+        # PBankingType
+        if model.__name__ == 'PBankingType':
+            f = model._meta.get_field('OldId')
+            return [f.name]
+
         # try the unique constraint with postfix _pk (from petra.xml)
         for constr in model._meta.constraints:
             if constr.name.endswith('_pk'):
@@ -110,15 +115,16 @@ class Command(BaseCommand):
             fields_of_composite_keys = []
             missing_fields = []
             for name in values:
-                # for PBankingTypeTable, we ignore the id column
-                if name in ['Id']:
-                    continue
                 # for AAccountHierarchyDetail, we ignore ALedgerNumber
                 if classname == "AAccountHierarchyDetail" and name == "LedgerNumber":
+                    continue
+                # for PBankingDetailsUsage, we ignore PPartnerKey
+                if classname == "PBankingDetailsUsage" and name == "PartnerKey":
                     continue
                 # TODO
                 if name in ['DateCreated', 'CreatedBy', 'DateModified', 'ModifiedBy']:
                     continue
+
                 field = None
                 droppedSuffix = None
                 try:
@@ -126,11 +132,37 @@ class Command(BaseCommand):
                 except:
                     None
 
+                # for PBankingTypeTable, we must rename this column
+                if name == "Id":
+                    field = model._meta.get_field('OldId')
+
                 if field is None and classname == "PRecentPartners":
                     if name == "When":
                         field = model._meta.get_field('WhenDate')
                     elif name == "WhenT":
                         field = model._meta.get_field('WhenTime')
+
+                if field is None and classname == "MExtractMaster":
+                    if name == "ManualMod":
+                        field = model._meta.get_field('ManualModification')
+                    elif name == "ManualModT":
+                        field = model._meta.get_field('ManualModificationDate')
+
+                if field is None and classname == "AAccountHierarchyDetail":
+                    if name == "AccountCodeToReportTo":
+                        field = model._meta.get_field('AccountToReportTo')
+                    elif name == "ReportingAccountCode":
+                        field = model._meta.get_field('ReportingAccount')
+
+                if field is None and classname == "ATransactionType":
+                    if name == "DebitAccountCode":
+                        field = model._meta.get_field('DebitAccount')
+                    elif name == "CreditAccountCode":
+                        field = model._meta.get_field('CreditAccount')
+
+                if field is None and classname == "PBankingDetailsUsage":
+                    if name == "BankingDetailsKey":
+                        field = model._meta.get_field('PartnerBankingDetails')
 
                 if field is None and name.endswith('Code'):
                     try:
@@ -182,6 +214,8 @@ class Command(BaseCommand):
                     missing_fields.append(name)
                     continue
 
+                #if self.DEBUG:
+                #    print(f"    field: {field.name} is_relation: {field.is_relation}")
                 if field.is_relation:
                     if self.DEBUG:
                         print(f"    foreign key: field {field.name} => {field.related_model.__name__}")
@@ -190,7 +224,7 @@ class Command(BaseCommand):
                     for f in compositekey:
                         importedfield = f
                         if self.DEBUG:
-                            print("        " + f)
+                            print(f"        {f}")
                         if not importedfield in values:
                             # eg. prefix Code with referenced Table name
                             importedfield = self.drop_prefix(field.related_model.__name__) + f
@@ -210,10 +244,20 @@ class Command(BaseCommand):
                             importedfield = "LedgerNumber"
                         if not importedfield in values and classname == "AAccountHierarchy" and f == 'Code':
                             importedfield = "RootAccountCode"
-                        #if not importedfield in values and classname == "AAccountHierarchyDetail" and field.name == 'ReportingAccountCode':
-                        #    importedfield = field.name
-                        #if not importedfield in values and classname == "AAccountHierarchyDetail" and field.name == 'AccountCodeToReportTo':
-                        #    importedfield = field.name
+                        if not importedfield in values and classname == "AAccountHierarchyDetail" and field.name == 'ReportingAccount':
+                            importedfield = "ReportingAccountCode"
+                        if not importedfield in values and classname == "AAccountHierarchyDetail" and field.name == 'AccountToReportTo':
+                            importedfield = "AccountCodeToReportTo"
+                        if not importedfield in values and classname == "ATransactionType" and field.name == 'DebitAccount':
+                            importedfield = "DebitAccountCode"
+                        if not importedfield in values and classname == "ATransactionType" and field.name == 'CreditAccount':
+                            importedfield = "CreditAccountCode"
+                        if not importedfield in values and classname == "AEpStatement" and field.name == 'BankAccount':
+                            importedfield = "BankAccountCode"
+                        if not importedfield in values and classname == "PBankingDetailsUsage" and f == 'Partner':
+                            importedfield = "PartnerKey"
+                        if not importedfield in values and classname == "PBankingDetailsUsage" and f == 'BankingDetails':
+                            importedfield = "BankingDetailsKey"
                         if not importedfield in values and field.name in values:
                             importedfield = field.name
                         filter_on_field = f
@@ -244,6 +288,10 @@ class Command(BaseCommand):
                             value = datetime(int(value[0:4]), int(value[5:7]), int(value[8:10]),
                                                 int(value[11:13]), int(value[14:16]), int(value[17:19]),
                                                 tzinfo=timezone.get_default_timezone())
+                    if classname == "ACostCentre" and field.name == "Name" and value is None:
+                        value = "N/A"
+                    if classname == "PPartnerAttribute" and field.name == "Value" and value is None:
+                        value = "N/A"
                     insert[field.name] = value
 
             for fieldname in missing_fields:

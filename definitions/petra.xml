@@ -2818,13 +2818,12 @@
                 format="9999"
                 label="Index"
                 notnull="yes"/>
-     <!-- CHANGED_FOR_DJANGO notnull=no -->
     <tablefield name="p_value_c"
                 type="varchar"
                 descr="The value of the attribute."
                 format="X(200)"
                 label="Partner Attribute Value"
-                notnull="no"/>
+                notnull="yes"/>
     <tablefield name="p_value_country_c"
                 type="varchar"
                 descr="The country of the value of the attribute (only relevant for Telephone and Fax Numbers)."
@@ -3912,13 +3911,12 @@
          label="Banking Type"
          dumpname="p_bnktyp"
          group="partner">
-     <!-- CHANGED_FOR_DJANGO
     <tablefield name="p_id_i"
+                namedjango="OldId"
                 type="integer"
                 descr="The ID of this type"
                 format=""
                 notnull="yes"/>
-     -->
     <tablefield name="p_type_c"
                 type="varchar"
                 descr="Human readable form of this type"
@@ -4302,6 +4300,7 @@
                 label="Bank statement"
                 notnull="yes"/>
     <tablefield name="a_bank_account_key_i"
+                namedjango="BankingDetail"
                 type="integer"
                 descr="this is the bank account that this statement is for; this is necessary because you can have several accounts at the same bank"
                 format="9999999"
@@ -5113,6 +5112,7 @@
                 help="Select the Relation Name/type"
                 notnull="yes"/>
     <tablefield name="p_relation_key_n"
+                namedjango="RelatedPartner"
                 type="number"
                 length="10"
                 descr="This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number."
@@ -5270,16 +5270,18 @@
                 help="Allow all users to see this extract?"
                 notnull="yes"
                 initial="Yes"/>
+     <!-- CHANGED_FOR_DJANGO: namedotnet -->
     <tablefield name="m_manual_mod_l"
-                namedotnet="ManualModication"
+                namedotnet="ManualModification"
                 type="bit"
                 descr="Indicates that the extract has been edited by a user"
                 format="Yes/No"
                 help="Enter Yes or No"
                 notnull="yes"
                 initial="no"/>
+     <!-- CHANGED_FOR_DJANGO: namedotnet -->
     <tablefield name="m_manual_mod_d"
-                namedotnet="ManualModicationDate"
+                namedotnet="ManualModificationDate"
                 type="date"
                 descr="Date the extract was manually modified"
                 format="99/99/9999"
