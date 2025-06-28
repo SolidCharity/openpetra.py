@@ -2207,6 +2207,8 @@ class AFreeformAnalysis(models.Model):
   AnalysisType = models.ForeignKey(AAnalysisType, null=False, blank=False, related_name="AFreeformAnalysis_AnalysisType", on_delete=models.CASCADE)
   # Value of analysis code
   AnalysisValue = models.CharField(max_length=160, null=False, blank=False)
+  # Ledger Number
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AFreeformAnalysis_Ledger", on_delete=models.CASCADE)
   # Analysis attribute values cannot be deleted, because they are needed for existing transaction analysis attributes. But they can be deactivated.
   Active = models.BooleanField(default=True, null=True)
 
@@ -2226,6 +2228,8 @@ class AIchStewardship(models.Model):
   AccountingPeriod = models.ForeignKey(AAccountingPeriod, null=False, blank=False, related_name="AIchStewardship_AccountingPeriod", on_delete=models.CASCADE)
   # identifies the ICH process number
   IchNumber = models.IntegerField(default=0, null=False, blank=False)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AIchStewardship_Ledger", on_delete=models.CASCADE)
   # Accounting Year
   Year = models.IntegerField(default=0, null=False, blank=False)
   # This is the date the stewardship was processed.
@@ -2409,6 +2413,8 @@ class ARevaluation(models.Model):
   Batch = models.ForeignKey(ABatch, null=False, blank=False, related_name="ARevaluation_Batch", on_delete=models.CASCADE)
   # Identifies the revaluation journal within a batch (usually 1)
   JournalNumber = models.IntegerField(null=False, blank=False)
+  # The revaluation journal belongs to this ledger.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ARevaluation_Ledger", on_delete=models.CASCADE)
   # This defines which revaluation currency the rate applies to
   RevaluationCurrency = models.CharField(max_length=16, null=False, blank=False)
   # The rate of exchange from the revaluation currency (in a_revaluation_currency_c) to the ledger base currency.
@@ -4103,6 +4109,7 @@ class AAccountProperty(models.Model):
   Property = models.ForeignKey(AAccountPropertyCode, null=False, blank=False, related_name="AAccountProperty_Property", on_delete=models.CASCADE)
   # value of this property
   PropertyValue = models.CharField(max_length=200, null=False, blank=False)
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AAccountProperty_Ledger", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
@@ -4136,6 +4143,7 @@ class AAccountHierarchyDetail(models.Model):
   """
 
   AccountHierarchy = models.ForeignKey(AAccountHierarchy, null=False, blank=False, related_name="AAccountHierarchyDetail_AccountHierarchy", on_delete=models.CASCADE)
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AAccountHierarchyDetail_Ledger", on_delete=models.CASCADE)
   # Order to display the account or heading on the Balance Sheet & Income Statement report.
   ReportOrder = models.IntegerField(default=0, null=False, blank=False)
   ReportingAccount = models.ForeignKey(AAccount, null=False, blank=False, related_name="AAccountHierarchyDetail_ReportingAccount", on_delete=models.CASCADE)
@@ -4154,6 +4162,8 @@ class AValidLedgerNumber(models.Model):
   List of foreign ledgers (eg, other fields) which the local ledger may send transctions to.
   """
 
+  # This is used as a key field in most of the accounting system files .It is created from the first 4 digits of a partner key of type ""ledger"".
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AValidLedgerNumber_Ledger", on_delete=models.CASCADE)
   # This is the partner key assigned to each partner. It consists of the fund id followed by a computer generated six digit number.
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="AValidLedgerNumber_Partner", on_delete=models.CASCADE)
   # The ledger through which inter ledger transactions are routed for processing.
@@ -4162,10 +4172,10 @@ class AValidLedgerNumber(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_valid_ledger_number_pk', fields=['CostCentre', 'Partner']),
+      models.UniqueConstraint(name='a_valid_ledger_number_pk', fields=['Ledger', 'Partner']),
     ]
   def __str__(self):
-    return f"{self.Partner}"
+    return f"{self.Ledger} - {self.Partner}"
 
 
 class ABudget(models.Model):
@@ -4174,6 +4184,8 @@ class ABudget(models.Model):
   """
 
   BudgetSequence = models.IntegerField(null=False, blank=False, unique=True)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ABudget_Ledger", on_delete=models.CASCADE)
   # See a_budget_type table.  Indicates the method used for creating the budget.
   BudgetType = models.ForeignKey(ABudgetType, null=False, blank=False, related_name="ABudget_BudgetType", on_delete=models.CASCADE)
   # Has the budget been ""posted"" to the general ledger master <br/>and account files.
@@ -4215,6 +4227,8 @@ class AAnalysisAttribute(models.Model):
   """
 
   AnalysisType = models.ForeignKey(AAnalysisType, null=False, blank=False, related_name="AAnalysisAttribute_AnalysisType", on_delete=models.CASCADE)
+  # The number of the ledger in which the analysis attribute is used.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AAnalysisAttribute_Ledger", on_delete=models.CASCADE)
   # Analysis attributes cannot be deleted, because they are needed for existing transaction analysis attributes. But they can be deactivated.
   Active = models.BooleanField(default=True, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AAnalysisAttribute_Account", on_delete=models.CASCADE)
@@ -4254,6 +4268,8 @@ class AFeesPayable(models.Model):
   Fees owed to another ledger. (e.g. admin grant)
   """
 
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AFeesPayable_Ledger", on_delete=models.CASCADE)
   # Identifies a specific fee.
   FeeCode = models.CharField(max_length=16, null=False, blank=False)
   ChargeOption = models.CharField(max_length=40, null=False, blank=False)
@@ -4268,10 +4284,10 @@ class AFeesPayable(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_fees_payable_pk', fields=['DrAccount', 'FeeCode']),
+      models.UniqueConstraint(name='a_fees_payable_pk', fields=['Ledger', 'FeeCode']),
     ]
   def __str__(self):
-    return f"{self.FeeCode}"
+    return f"{self.Ledger} - {self.FeeCode}"
 
 
 class AFeesReceivable(models.Model):
@@ -4279,6 +4295,8 @@ class AFeesReceivable(models.Model):
   Charges to collect from other ledgers. (e.g. office admin fee)
   """
 
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AFeesReceivable_Ledger", on_delete=models.CASCADE)
   # Identifies a specific fee.
   FeeCode = models.CharField(max_length=16, null=False, blank=False)
   ChargeOption = models.CharField(max_length=40, null=False, blank=False)
@@ -4293,10 +4311,10 @@ class AFeesReceivable(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_fees_receivable_pk', fields=['DrAccount', 'FeeCode']),
+      models.UniqueConstraint(name='a_fees_receivable_pk', fields=['Ledger', 'FeeCode']),
     ]
   def __str__(self):
-    return f"{self.FeeCode}"
+    return f"{self.Ledger} - {self.FeeCode}"
 
 
 class AGeneralLedgerMaster(models.Model):
@@ -4365,6 +4383,8 @@ class AMotivationDetail(models.Model):
   MotivationGroup = models.ForeignKey(AMotivationGroup, null=False, blank=False, related_name="AMotivationDetail_MotivationGroup", on_delete=models.CASCADE)
   # This defines the motivation detail within a motivation group.
   Code = models.CharField(max_length=16, null=False, blank=False)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AMotivationDetail_Ledger", on_delete=models.CASCADE)
   # This is a long description and is 80 characters long.
   MotivationDetailAudience = models.CharField(max_length=160, null=True)
   # This is a long description and is 80 characters long.
@@ -4434,6 +4454,8 @@ class AEpAccount(models.Model):
 
   # The bank account whose settings are defined here
   BankingDetails = models.OneToOneField(PBankingDetails, null=False, blank=False, related_name="AEpAccount_BankingDetails", on_delete=models.CASCADE)
+  # The bank account has to be assigned to a ledger
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AEpAccount_Ledger", on_delete=models.CASCADE)
   # This tells the plugin where to find the statement files for this bank account
   ImportfilePath = models.CharField(max_length=200, null=True)
   # This tells the plugin where to write any generated files for this bank account
@@ -4467,6 +4489,8 @@ class AEpMatch(models.Model):
   Action = models.CharField(max_length=40, null=False, blank=False)
   # The date when this match was recently applied; useful for purging old entries
   RecentMatch = models.DateTimeField(null=False, blank=False)
+  # The four digit ledger number of the gift.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AEpMatch_Ledger", on_delete=models.CASCADE)
   # The partner key of the commitment field (the unit) of the recipient of the gift.  This is not the ledger number but rather the partner key of the unit associated with the ledger.
   RecipientLedgerNumber = models.ForeignKey(PPartner, null=True, related_name="AEpMatch_RecipientLedgerNumber", on_delete=models.CASCADE)
   # Used to decide whose reports will see this comment
@@ -4523,7 +4547,7 @@ class AEpMatch(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ep_match_uk', fields=['MatchText', 'Detail', 'Account']),
+      models.UniqueConstraint(name='a_ep_match_uk', fields=['MatchText', 'Detail', 'Ledger']),
     ]
   def __str__(self):
     return str(self.EpMatchKey)
@@ -4584,6 +4608,7 @@ class AMotivationDetailFee(models.Model):
 
   MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="AMotivationDetailFee_MotivationDetail", on_delete=models.CASCADE)
   FeeCode = models.CharField(max_length=16, null=False, blank=False)
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AMotivationDetailFee_Ledger", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
@@ -4631,6 +4656,8 @@ class ARecurringJournal(models.Model):
   RecurringBatch = models.ForeignKey(ARecurringBatch, null=False, blank=False, related_name="ARecurringJournal_RecurringBatch", on_delete=models.CASCADE)
   # Identifies a journal within a batch
   JournalNumber = models.IntegerField(default=0, null=False, blank=False)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ARecurringJournal_Ledger", on_delete=models.CASCADE)
   # This is a long description and is 80 characters long.
   JournalDescription = models.CharField(max_length=160, null=False, blank=False)
   # identifies the status of a batch
@@ -4668,6 +4695,8 @@ class ARecurringTransaction(models.Model):
   RecurringJournal = models.ForeignKey(ARecurringJournal, null=False, blank=False, related_name="ARecurringTransaction_RecurringJournal", on_delete=models.CASCADE)
   # Identifies a transaction within a journal within a batch within a ledger
   TransactionNumber = models.IntegerField(default=0, null=False, blank=False)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ARecurringTransaction_Ledger", on_delete=models.CASCADE)
   # Date the transaction took place
   TransactionDate = models.DateTimeField(null=False, blank=False)
   # This defines which currency is being used
@@ -4719,6 +4748,8 @@ class ARecurringTransAnalAttrib(models.Model):
   """
 
   RecurringTransaction = models.ForeignKey(ARecurringTransaction, null=False, blank=False, related_name="ARecurringTransAnalAttrib_RecurringTransaction", on_delete=models.CASCADE)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ARecurringTransAnalAttrib_Ledger", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ARecurringTransAnalAttrib_Account", on_delete=models.CASCADE)
   AnalysisAttribute = models.ForeignKey(AAnalysisAttribute, null=False, blank=False, related_name="ARecurringTransAnalAttrib_AnalysisAttribute", on_delete=models.CASCADE)
   FreeformAnalysis = models.ForeignKey(AFreeformAnalysis, null=False, blank=False, related_name="ARecurringTransAnalAttrib_FreeformAnalysis", on_delete=models.CASCADE)
@@ -4739,6 +4770,8 @@ class ARecurringGiftBatch(models.Model):
   Templates of gift batches which can be copied into the gift system.
   """
 
+  # ledger number
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ARecurringGiftBatch_Ledger", on_delete=models.CASCADE)
   # Gift batch number
   BatchNumber = models.IntegerField(default=0, null=False, blank=False)
   # gift batch description
@@ -4760,10 +4793,10 @@ class ARecurringGiftBatch(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_recurring_gift_batch_pk', fields=['BankCostCentre', 'BatchNumber']),
+      models.UniqueConstraint(name='a_recurring_gift_batch_pk', fields=['Ledger', 'BatchNumber']),
     ]
   def __str__(self):
-    return f"{self.BatchNumber}"
+    return f"{self.Ledger} - {self.BatchNumber}"
 
 
 class ARecurringGift(models.Model):
@@ -4774,6 +4807,8 @@ class ARecurringGift(models.Model):
   RecurringGiftBatch = models.ForeignKey(ARecurringGiftBatch, null=False, blank=False, related_name="ARecurringGift_RecurringGiftBatch", on_delete=models.CASCADE)
   # Identifies a transaction within a journal within a batch within a ledger
   GiftTransactionNumber = models.IntegerField(default=0, null=False, blank=False)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ARecurringGift_Ledger", on_delete=models.CASCADE)
   ReceiptLetterCode = models.CharField(max_length=16, null=True)
   # Defines how a gift is given
   MethodOfGiving = models.ForeignKey(AMethodOfGiving, null=True, related_name="ARecurringGift_MethodOfGiving", on_delete=models.CASCADE)
@@ -4816,6 +4851,8 @@ class ARecurringGiftDetail(models.Model):
   RecurringGift = models.ForeignKey(ARecurringGift, null=False, blank=False, related_name="ARecurringGiftDetail_RecurringGift", on_delete=models.CASCADE)
   # Identifies a gift
   DetailNumber = models.IntegerField(default=0, null=False, blank=False)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ARecurringGiftDetail_Ledger", on_delete=models.CASCADE)
   # This is used as a key field in most of the accounting system files
   RecipientLedgerNumber = models.ForeignKey(PPartner, null=True, related_name="ARecurringGiftDetail_RecipientLedgerNumber", on_delete=models.CASCADE)
   # This is the amount in transaction currency. This field should be renamed to a_gift_transaction_amount_n, to be in analogy to a_gift_detail.a_gift_transaction_amount_n
@@ -4911,6 +4948,8 @@ class AGift(models.Model):
   GiftBatch = models.ForeignKey(AGiftBatch, null=False, blank=False, related_name="AGift_GiftBatch", on_delete=models.CASCADE)
   # Identifies a transaction within a journal within a batch within a ledger
   GiftTransactionNumber = models.IntegerField(default=0, null=False, blank=False)
+  # This is used as a key field in most of the accounting system files.  The four digit ledger number of the gift.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AGift_Ledger", on_delete=models.CASCADE)
   GiftStatus = models.CharField(max_length=24, null=True)
   DateEntered = models.DateTimeField(null=False, blank=False)
   # Used to get a yes no response from the user
@@ -4961,6 +5000,8 @@ class AGiftDetail(models.Model):
   Gift = models.ForeignKey(AGift, null=False, blank=False, related_name="AGiftDetail_Gift", on_delete=models.CASCADE)
   # Identifies a gift detail within a gift transaction.   When a donor gives a donation to multiple recipients (a split gift), a gift detail record is created for each recipient.
   DetailNumber = models.IntegerField(default=0, null=False, blank=False)
+  # The four digit ledger number of the gift.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AGiftDetail_Ledger", on_delete=models.CASCADE)
   # The partner key of the commitment field (the unit) of the recipient of the gift.  This is not the ledger number but rather the partner key of the unit associated with the ledger.
   RecipientLedgerNumber = models.ForeignKey(PPartner, null=False, blank=False, related_name="AGiftDetail_RecipientLedgerNumber", on_delete=models.CASCADE)
   # This is a number of currency units of the ledger base currency.
@@ -5035,6 +5076,8 @@ class AProcessedFee(models.Model):
   GiftDetail = models.ForeignKey(AGiftDetail, null=False, blank=False, related_name="AProcessedFee_GiftDetail", on_delete=models.CASCADE)
   # the fee which the calculated amounts are stored against.
   FeeCode = models.CharField(max_length=16, null=False, blank=False)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AProcessedFee_Ledger", on_delete=models.CASCADE)
   # Total Amount of the fee for the given period.
   PeriodicAmount = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=False, blank=False)
   # Date ""admin fee calculations"" have been run to fee total has been created as a transaction in the general ledger.
@@ -5061,6 +5104,8 @@ class AJournal(models.Model):
   Batch = models.ForeignKey(ABatch, null=False, blank=False, related_name="AJournal_Batch", on_delete=models.CASCADE)
   # Identifies a journal within a batch
   JournalNumber = models.IntegerField(null=False, blank=False)
+  # The journal belongs to this ledger.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AJournal_Ledger", on_delete=models.CASCADE)
   # This is a long description and is 80 characters long.
   JournalDescription = models.CharField(max_length=160, null=False, blank=False)
   # This is a number of currency units in the currency of the transaction.
@@ -5104,6 +5149,8 @@ class ATransaction(models.Model):
   Journal = models.ForeignKey(AJournal, null=False, blank=False, related_name="ATransaction_Journal", on_delete=models.CASCADE)
   # Identifies a transaction within a journal within a batch within a ledger
   TransactionNumber = models.IntegerField(default=0, null=False, blank=False)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ATransaction_Ledger", on_delete=models.CASCADE)
   # This identifies the account the financial transaction must be stored against [NOT USED]
   PrimaryAccountCode = models.CharField(max_length=16, null=True)
   # This identifies which cost centre an account is applied to [NOT USED]
@@ -5161,6 +5208,8 @@ class ATransAnalAttrib(models.Model):
   """
 
   Transaction = models.ForeignKey(ATransaction, null=False, blank=False, related_name="ATransAnalAttrib_Transaction", on_delete=models.CASCADE)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ATransAnalAttrib_Ledger", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ATransAnalAttrib_Account", on_delete=models.CASCADE)
   AnalysisAttribute = models.ForeignKey(AAnalysisAttribute, null=False, blank=False, related_name="ATransAnalAttrib_AnalysisAttribute", on_delete=models.CASCADE)
   FreeformAnalysis = models.ForeignKey(AFreeformAnalysis, null=False, blank=False, related_name="ATransAnalAttrib_FreeformAnalysis", on_delete=models.CASCADE)
@@ -5182,6 +5231,8 @@ class ASuspenseAccount(models.Model):
   """
 
   Account = models.OneToOneField(AAccount, null=False, blank=False, related_name="ASuspenseAccount_Account", on_delete=models.CASCADE)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="ASuspenseAccount_Ledger", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
@@ -5232,6 +5283,8 @@ class AApDocument(models.Model):
 
   # Unique key for this record
   ApDocumentId = models.IntegerField(default=0, null=False, blank=False, unique=True)
+  # Reference to the ledger for this invoice.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AApDocument_Ledger", on_delete=models.CASCADE)
   # A unique key (together with the ledger number) to identify this document.
   ApNumber = models.IntegerField(null=False, blank=False)
   # Reference to the supplier that sent this invoice.
@@ -5266,7 +5319,7 @@ class AApDocument(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ap_document_uk', fields=['Account', 'ApNumber']),
+      models.UniqueConstraint(name='a_ap_document_uk', fields=['Ledger', 'ApNumber']),
     ]
   def __str__(self):
     return str(self.ApDocumentId)
@@ -5301,6 +5354,8 @@ class AApDocumentDetail(models.Model):
   ApDocument = models.ForeignKey(AApDocument, null=False, blank=False, related_name="AApDocumentDetail_ApDocument", on_delete=models.CASCADE)
   # A unique number for this detail for its document.
   DetailNumber = models.IntegerField(null=False, blank=False)
+  # Reference to the ledger
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AApDocumentDetail_Ledger", on_delete=models.CASCADE)
   # Indicates if this detail has been approved or not.
   DetailApproved = models.BooleanField(default=False, null=False, blank=False)
   # Some other reference to the item.
@@ -5327,6 +5382,8 @@ class AApPayment(models.Model):
   Records all payments that have been made against an accounts payable detail.
   """
 
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AApPayment_Ledger", on_delete=models.CASCADE)
   # Unique number to identify each payment batch.
   PaymentNumber = models.IntegerField(default=0, null=False, blank=False)
   # The amount of money that was paid
@@ -5347,10 +5404,10 @@ class AApPayment(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ap_payment_pk', fields=['Account', 'PaymentNumber']),
+      models.UniqueConstraint(name='a_ap_payment_pk', fields=['Ledger', 'PaymentNumber']),
     ]
   def __str__(self):
-    return f"{self.PaymentNumber}"
+    return f"{self.Ledger} - {self.PaymentNumber}"
 
 
 class AApDocumentPayment(models.Model):
@@ -5360,6 +5417,8 @@ class AApDocumentPayment(models.Model):
 
   # AP document ref
   ApDocument = models.ForeignKey(AApDocument, null=False, blank=False, related_name="AApDocumentPayment_ApDocument", on_delete=models.CASCADE)
+  # The ledger that the attribute value is associated with.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AApDocumentPayment_Ledger", on_delete=models.CASCADE)
   # The amount of money that was paid
   Amount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   ApPayment = models.ForeignKey(AApPayment, null=False, blank=False, related_name="AApDocumentPayment_ApPayment", on_delete=models.CASCADE)
@@ -5377,6 +5436,8 @@ class AEpPayment(models.Model):
   This table acts as a queue for electronic payments. If an invoice is paid electronically, the payment is added to this table. A EP program will go through this table paying all entries to GL and moving them to the a_ap_payment table.
   """
 
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AEpPayment_Ledger", on_delete=models.CASCADE)
   # Unique number to identify each payment batch.
   PaymentNumber = models.IntegerField(default=0, null=False, blank=False)
   # The amount of money that was paid
@@ -5389,10 +5450,10 @@ class AEpPayment(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ep_payment_pk', fields=['Account', 'PaymentNumber']),
+      models.UniqueConstraint(name='a_ep_payment_pk', fields=['Ledger', 'PaymentNumber']),
     ]
   def __str__(self):
-    return f"{self.PaymentNumber}"
+    return f"{self.Ledger} - {self.PaymentNumber}"
 
 
 class AEpDocumentPayment(models.Model):
@@ -5402,6 +5463,8 @@ class AEpDocumentPayment(models.Model):
 
   # AP Document ref
   ApDocument = models.OneToOneField(AApDocument, null=False, blank=False, related_name="AEpDocumentPayment_ApDocument", on_delete=models.CASCADE)
+  # The ledger that the attribute value is associated with.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AEpDocumentPayment_Ledger", on_delete=models.CASCADE)
   # The amount of money that was paid
   Amount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   EpPayment = models.ForeignKey(AEpPayment, null=False, blank=False, related_name="AEpDocumentPayment_EpPayment", on_delete=models.CASCADE)
@@ -5415,6 +5478,8 @@ class AApAnalAttrib(models.Model):
   """
 
   ApDocumentDetail = models.ForeignKey(AApDocumentDetail, null=False, blank=False, related_name="AApAnalAttrib_ApDocumentDetail", on_delete=models.CASCADE)
+  # The ledger that the attribute value is associated with.
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AApAnalAttrib_Ledger", on_delete=models.CASCADE)
   AnalysisAttribute = models.ForeignKey(AAnalysisAttribute, null=False, blank=False, related_name="AApAnalAttrib_AnalysisAttribute", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AApAnalAttrib_Account", on_delete=models.CASCADE)
   FreeformAnalysis = models.ForeignKey(AFreeformAnalysis, null=False, blank=False, related_name="AApAnalAttrib_FreeformAnalysis", on_delete=models.CASCADE)
@@ -5432,6 +5497,8 @@ class AArInvoice(models.Model):
   the invoice (which is also an offer at a certain stage)
   """
 
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AArInvoice_Ledger", on_delete=models.CASCADE)
   # Key to uniquely identify invoice
   Key = models.IntegerField(null=False, blank=False)
   # an invoice can have these states: OFFER, CHARGED, PARTIALLYPAID, PAID
@@ -5452,10 +5519,10 @@ class AArInvoice(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ar_invoice_pk', fields=['TaxTable', 'Key']),
+      models.UniqueConstraint(name='a_ar_invoice_pk', fields=['Ledger', 'Key']),
     ]
   def __str__(self):
-    return f"{self.Key}"
+    return f"{self.Ledger} - {self.Key}"
 
 
 class AArInvoiceDetail(models.Model):
@@ -5466,6 +5533,8 @@ class AArInvoiceDetail(models.Model):
   ArInvoice = models.ForeignKey(AArInvoice, null=False, blank=False, related_name="AArInvoiceDetail_ArInvoice", on_delete=models.CASCADE)
   # A unique number for this detail for its invoice.
   DetailNumber = models.IntegerField(null=False, blank=False)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AArInvoiceDetail_Ledger", on_delete=models.CASCADE)
   # Reference for this invoice detail; for a non specific article that could give more details (e.g. which book of type small book)
   ArReference = models.CharField(max_length=100, null=True)
   # defines the number of the article items that is bought
@@ -5492,6 +5561,8 @@ class AArInvoiceDiscount(models.Model):
 
   ArInvoice = models.ForeignKey(AArInvoice, null=False, blank=False, related_name="AArInvoiceDiscount_ArInvoice", on_delete=models.CASCADE)
   ArDiscount = models.ForeignKey(AArDiscount, null=False, blank=False, related_name="AArInvoiceDiscount_ArDiscount", on_delete=models.CASCADE)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AArInvoiceDiscount_Ledger", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
@@ -5508,6 +5579,8 @@ class AArInvoiceDetailDiscount(models.Model):
 
   ArInvoiceDetail = models.ForeignKey(AArInvoiceDetail, null=False, blank=False, related_name="AArInvoiceDetailDiscount_ArInvoiceDetail", on_delete=models.CASCADE)
   ArDiscount = models.ForeignKey(AArDiscount, null=False, blank=False, related_name="AArInvoiceDetailDiscount_ArDiscount", on_delete=models.CASCADE)
+  # This is used as a key field in most of the accounting system files
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AArInvoiceDetailDiscount_Ledger", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
@@ -7245,6 +7318,8 @@ class SGroupGift(models.Model):
 
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupGift_Group", on_delete=models.CASCADE)
   Gift = models.ForeignKey(AGift, null=False, blank=False, related_name="SGroupGift_Gift", on_delete=models.CASCADE)
+  # Ledger Number
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="SGroupGift_Ledger", on_delete=models.CASCADE)
   # Control read access to the gift
   ReadAccess = models.BooleanField(null=True)
   # Control write access to the gift
@@ -7267,6 +7342,8 @@ class SGroupMotivation(models.Model):
 
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupMotivation_Group", on_delete=models.CASCADE)
   MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="SGroupMotivation_MotivationDetail", on_delete=models.CASCADE)
+  # Ledger Number
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="SGroupMotivation_Ledger", on_delete=models.CASCADE)
   # Control read access to gifts with this motivation
   ReadAccess = models.BooleanField(null=True)
   # Control write access to gifts with this motivation
@@ -7419,6 +7496,8 @@ class SGroupCostCentre(models.Model):
 
   Group = models.ForeignKey(SGroup, null=False, blank=False, related_name="SGroupCostCentre_Group", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="SGroupCostCentre_CostCentre", on_delete=models.CASCADE)
+  # Ledger Number
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="SGroupCostCentre_Ledger", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [

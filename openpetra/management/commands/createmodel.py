@@ -244,12 +244,10 @@ class Command(BaseCommand):
                     fields[newfieldname].attrib['descr'] = ""
                     fields[newfieldname].attrib['dropped'] = "False"
 
-                if fieldname == 'a_ledger_number_i' and className in ['AAccountHierarchy', 
-                                                                      'ACostCentre',
-                                                                      'AEpStatement',
-                                                                      'ATransactionType',
-                                                                      'AGeneralLedgerMaster',
-                                                                      'AGiftBatch']:
+                if fieldname == 'a_ledger_number_i':
+                    # keep the field
+                    None
+                elif 'batch_number_i' in fieldname and newfieldname is None:
                     # keep the field
                     None
                 else:

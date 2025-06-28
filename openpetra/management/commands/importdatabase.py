@@ -115,20 +115,14 @@ class Command(BaseCommand):
             fields_of_composite_keys = []
             missing_fields = []
             for name in values:
-                # for AAccountHierarchyDetail, we ignore ALedgerNumber
-                if classname == "AAccountHierarchyDetail" and name == "LedgerNumber":
-                    continue
-                # for AGift, we ignore LedgerNumber
-                if classname == "AGift" and name == "LedgerNumber":
-                    continue
-                # for AMotivationDetailFee, we ignore LedgerNumber
-                if classname == "AMotivationDetailFee" and name == "LedgerNumber":
-                    continue
                 # for PBankingDetailsUsage, we ignore PartnerKey
                 if classname == "PBankingDetailsUsage" and name == "PartnerKey":
                     continue
                 # for AJournal, we ignore SubSystem
                 if classname == "AJournal" and name == "SubSystemCode":
+                    continue
+                # for AProcessedFee, we ignore GiftTransactionNumber
+                if classname == "AProcessedFee" and name == "GiftTransactionNumber":
                     continue
                 # TODO
                 if name in ['DateCreated', 'CreatedBy', 'DateModified', 'ModifiedBy']:
@@ -173,9 +167,15 @@ class Command(BaseCommand):
                     if name == "BankingDetailsKey":
                         field = model._meta.get_field('PartnerBankingDetails')
 
-                if field is None and classname in ("AGift", "AGiftDetail"):
+                if field is None and classname in ("AGift", "AGiftDetail", "AProcessedFee"):
                     if name == "BatchNumber":
                         field = model._meta.get_field('GiftBatch')
+
+                if field is None and classname in ("AProcessedFee"):
+                    if name == "DetailNumber":
+                        field = model._meta.get_field('GiftDetail')
+                    if name == "PeriodNumber":
+                        field = model._meta.get_field('AccountingPeriod')
 
                 if field is None and classname == "AGiftDetail":
                     if name == "GiftTransactionNumber":
@@ -291,10 +291,16 @@ class Command(BaseCommand):
                             importedfield = "MotivationGroupCode"
                         if not importedfield in values and classname == "AGiftDetail" and f == 'GiftBatch':
                             importedfield = "BatchNumber"
+                        if not importedfield in values and classname == "AProcessedFee" and field.name == 'GiftDetail':
+                            importedfield = "DetailNumber"
+                        if not importedfield in values and classname == "AProcessedFee" and field.name == 'AccountingPeriod':
+                            importedfield = "PeriodNumber"
                         if not importedfield in values and classname == "AMotivationDetailFee" and f == 'MotivationGroup':
                             importedfield = "MotivationGroupCode"
                         if not importedfield in values and field.name in values:
                             importedfield = field.name
+
+                        # print(f"importedfield: {importedfield}, classname: {classname}, field.name: {field.name}, f: {f}")
                         filter_on_field = f
                         otherfield = field.related_model._meta.get_field(f)
                         if otherfield.is_relation:
@@ -313,6 +319,14 @@ class Command(BaseCommand):
                                 filter_on_field = f'{f}__Code'
                                 # also filter on ledger number
                                 filter['MotivationGroup__Ledger__LedgerNumber'] = values['LedgerNumber']
+                            elif otherfield.name == 'Gift':
+                                filter_on_field = f'DetailNumber'
+                                # also filter on ledger number
+                                filter['Gift__Ledger__LedgerNumber'] = values['LedgerNumber']
+                                # also filter on batch number
+                                filter['GiftBatch__BatchNumber'] = values['BatchNumber']
+                                # also filter on Gift number
+                                filter['Gift__GiftTransactionNumber'] = values['GiftTransactionNumber']
 
                         filter[filter_on_field] = values[importedfield]
                         fields_of_composite_keys.append(importedfield)
