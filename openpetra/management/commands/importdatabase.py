@@ -121,6 +121,9 @@ class Command(BaseCommand):
                 # for AGift, we ignore LedgerNumber
                 if classname == "AGift" and name == "LedgerNumber":
                     continue
+                # for AMotivationDetailFee, we ignore LedgerNumber
+                if classname == "AMotivationDetailFee" and name == "LedgerNumber":
+                    continue
                 # for PBankingDetailsUsage, we ignore PartnerKey
                 if classname == "PBankingDetailsUsage" and name == "PartnerKey":
                     continue
@@ -288,6 +291,8 @@ class Command(BaseCommand):
                             importedfield = "MotivationGroupCode"
                         if not importedfield in values and classname == "AGiftDetail" and f == 'GiftBatch':
                             importedfield = "BatchNumber"
+                        if not importedfield in values and classname == "AMotivationDetailFee" and f == 'MotivationGroup':
+                            importedfield = "MotivationGroupCode"
                         if not importedfield in values and field.name in values:
                             importedfield = field.name
                         filter_on_field = f
@@ -306,6 +311,8 @@ class Command(BaseCommand):
                                 filter_on_field = f'{f}__JournalNumber'
                             elif otherfield.name == 'MotivationGroup':
                                 filter_on_field = f'{f}__Code'
+                                # also filter on ledger number
+                                filter['MotivationGroup__Ledger__LedgerNumber'] = values['LedgerNumber']
 
                         filter[filter_on_field] = values[importedfield]
                         fields_of_composite_keys.append(importedfield)
