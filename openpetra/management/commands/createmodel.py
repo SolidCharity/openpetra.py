@@ -8,8 +8,10 @@ class Command(BaseCommand):
 
     def concat(self, list, separator=', '):
         s = ''
+        added = []
         for element in list:
-            if element is not None and len(element) > 0:
+            if element is not None and len(element) > 0 and element not in added:
+                added.append(element)
                 if len(s) > 0:
                     s += separator
                 s += element
@@ -194,10 +196,11 @@ class Command(BaseCommand):
 
         # replace composite foreign keys with direct foreign keys
         for key in compositekeys:
-            print(f"     composite key {key.attrib['name']}")
+            print(f"     composite key {key.attrib['name']}: {key.attrib['thisFields']}")
 
             fieldnames = key.attrib['thisFields'].replace(' ', '').split(',')
             first = True
+            newfieldname = None
             for fieldname in fieldnames:
                 print(f"       {fieldname}")
                 if first:
@@ -217,9 +220,25 @@ class Command(BaseCommand):
                         newfieldname = 'a_bank_account_x'
                     elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_dr_account_code_c':
                         newfieldname = 'a_dr_account_x'
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_bank_cost_centre_c':
+                        newfieldname = 'a_bank_cost_centre_x'
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_tax_deductible_account_code_c':
+                        newfieldname = 'a_tax_deductible_account_x'
                     else:
                         newfieldname = key.attrib['otherTable'] + "_x"
-                    fields[newfieldname] = copy.deepcopy(fields[fieldname])
+
+                    copy_field_from = fields[fieldname]
+                    if key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_cost_centre_code_c':
+                        # we want "not null" from a_cost_centre_code_c
+                        copy_field_from = fields['a_cost_centre_code_c']
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_account_code_c':
+                        copy_field_from = fields['a_account_code_c']
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_tax_deductible_account_code_c':
+                        copy_field_from = fields['a_tax_deductible_account_code_c']
+                    elif newfieldname.endswith('_x') and (newfieldname[:-2] + "_c") in fields:
+                        copy_field_from = fields[newfieldname[:-2] + "_c"]
+
+                    fields[newfieldname] = copy.deepcopy(copy_field_from)
                     fields[newfieldname].attrib['name'] = newfieldname
                     fields[newfieldname].attrib['fieldname'] = self.upper_camel_case(newfieldname, stripPrefix=True, stripSuffix=True)
                     fields[newfieldname].attrib['descr'] = ""
@@ -229,21 +248,25 @@ class Command(BaseCommand):
                                                                       'ACostCentre',
                                                                       'AEpStatement',
                                                                       'ATransactionType',
-                                                                      'AGeneralLedgerMaster']:
+                                                                      'AGeneralLedgerMaster',
+                                                                      'AGiftBatch']:
                     # keep the field
                     None
                 else:
                     # mark the old field
                     print(f"dropping field {fieldname}")
                     fields[fieldname].attrib['dropped'] = "True"
+                    if newfieldname is not None:
+                        fields[fieldname].attrib['replacedBy'] = fields[newfieldname].attrib['fieldname']
 
-            # replace fields in uniquekey
-            for uniquekey in uniquekeys:
-                uniquekey.attrib['thisFields'] = uniquekey.attrib['thisFields'].replace(' ', '').replace(key.attrib['thisFields'].replace(' ', ''), newfieldname)
-            primarykey.attrib['thisFields'] = primarykey.attrib['thisFields'].replace(' ', '').replace(key.attrib['thisFields'].replace(' ', ''), newfieldname)
-            # add new foreignkey
-            key.attrib['thisFields'] = newfieldname
-            foreignkeys.append(key)
+            if newfieldname is not None:
+                # replace fields in uniquekey
+                for uniquekey in uniquekeys:
+                    uniquekey.attrib['thisFields'] = uniquekey.attrib['thisFields'].replace(' ', '').replace(key.attrib['thisFields'].replace(' ', ''), newfieldname)
+                primarykey.attrib['thisFields'] = primarykey.attrib['thisFields'].replace(' ', '').replace(key.attrib['thisFields'].replace(' ', ''), newfieldname)
+                # add new foreignkey
+                key.attrib['thisFields'] = newfieldname
+                foreignkeys.append(key)
 
         # first process fields of primary key
         for fieldname in primarykey.attrib['thisFields'].replace(' ', '').split(','):
@@ -273,6 +296,8 @@ class Command(BaseCommand):
                         uniquefields.append("'Ledger'")
                         continue
                     if fields[field].attrib['dropped'] == "True":
+                        if "replacedBy" in fields[field].attrib:
+                            uniquefields.append("'" + fields[field].attrib['replacedBy'] + "'")
                         # ignore dropped field of composite key
                         continue
                     uniquefields.append("'" + fields[field].attrib['fieldname'] + "'")

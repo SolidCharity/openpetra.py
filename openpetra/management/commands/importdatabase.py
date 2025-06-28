@@ -118,8 +118,14 @@ class Command(BaseCommand):
                 # for AAccountHierarchyDetail, we ignore ALedgerNumber
                 if classname == "AAccountHierarchyDetail" and name == "LedgerNumber":
                     continue
-                # for PBankingDetailsUsage, we ignore PPartnerKey
+                # for AGift, we ignore LedgerNumber
+                if classname == "AGift" and name == "LedgerNumber":
+                    continue
+                # for PBankingDetailsUsage, we ignore PartnerKey
                 if classname == "PBankingDetailsUsage" and name == "PartnerKey":
+                    continue
+                # for AJournal, we ignore SubSystem
+                if classname == "AJournal" and name == "SubSystemCode":
                     continue
                 # TODO
                 if name in ['DateCreated', 'CreatedBy', 'DateModified', 'ModifiedBy']:
@@ -163,6 +169,14 @@ class Command(BaseCommand):
                 if field is None and classname == "PBankingDetailsUsage":
                     if name == "BankingDetailsKey":
                         field = model._meta.get_field('PartnerBankingDetails')
+
+                if field is None and classname in ("AGift", "AGiftDetail"):
+                    if name == "BatchNumber":
+                        field = model._meta.get_field('GiftBatch')
+
+                if field is None and classname == "AGiftDetail":
+                    if name == "GiftTransactionNumber":
+                        field = model._meta.get_field('Gift')
 
                 if field is None and name.endswith('Code'):
                     try:
@@ -258,6 +272,22 @@ class Command(BaseCommand):
                             importedfield = "PartnerKey"
                         if not importedfield in values and classname == "PBankingDetailsUsage" and f == 'BankingDetails':
                             importedfield = "BankingDetailsKey"
+                        if not importedfield in values and classname == "AJournal" and f == 'TransactionType':
+                            importedfield = "TransactionType"
+                        if not importedfield in values and classname == "AJournal" and f == 'SubSystem':
+                            importedfield = "SubSystemCode"
+                        if not importedfield in values and classname == "ATransaction" and f == 'Batch':
+                            importedfield = "BatchNumber"
+                        if not importedfield in values and classname == "ATransaction" and f == 'Journal':
+                            importedfield = "JournalNumber"
+                        if not importedfield in values and classname == "AGiftBatch" and field.name == 'BankAccount':
+                            importedfield = "BankAccountCode"
+                        if not importedfield in values and classname == "AGiftBatch" and field.name == 'BankCostCentre':
+                            importedfield = "BankCostCentreCode"
+                        if not importedfield in values and classname == "AGiftDetail" and f == 'MotivationGroup':
+                            importedfield = "MotivationGroupCode"
+                        if not importedfield in values and classname == "AGiftDetail" and f == 'GiftBatch':
+                            importedfield = "BatchNumber"
                         if not importedfield in values and field.name in values:
                             importedfield = field.name
                         filter_on_field = f
@@ -268,6 +298,14 @@ class Command(BaseCommand):
                                 filter_on_field = f'{f}__Key'
                             elif otherfield.name == 'Ledger':
                                 filter_on_field = f'{f}__LedgerNumber'
+                            elif otherfield.name == 'SubSystem':
+                                filter_on_field = f'{f}__Code'
+                            elif otherfield.name == 'Batch':
+                                filter_on_field = f'{f}__BatchNumber'
+                            elif otherfield.name == 'Journal':
+                                filter_on_field = f'{f}__JournalNumber'
+                            elif otherfield.name == 'MotivationGroup':
+                                filter_on_field = f'{f}__Code'
 
                         filter[filter_on_field] = values[importedfield]
                         fields_of_composite_keys.append(importedfield)
@@ -304,12 +342,14 @@ class Command(BaseCommand):
             obj = model.objects.create(**insert)
 
 
-    def import_database(self, data):
+    def import_database(self, data, startattable):
 
         # get tables in order for import
         tables = self.get_sorted_tables_list(data)
 
         for tablename in tables:
+            if startattable is not None and tablename != startattable:
+                continue
             self.import_table(data, f"{tablename}Table")
 
         # TODO
@@ -329,6 +369,11 @@ class Command(BaseCommand):
             type=bool,
             default=False,
             help = "Should we print detailed messages during the import")
+        parser.add_argument(
+            "--startattable",
+            required=False,
+            type=str,
+            help = "For Debugging: start import at this table")
 
 
     def handle(self, *args, **options):
@@ -341,4 +386,4 @@ class Command(BaseCommand):
                 return
 
         if data is not None:
-            self.import_database(data['RootNodeInternal'])
+            self.import_database(data['RootNodeInternal'], options['startattable'])

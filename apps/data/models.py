@@ -1920,7 +1920,7 @@ class ACostCentre(models.Model):
   RetEarningsAccountCode = models.CharField(max_length=24, default='9700', null=True)
   # Determine how to roll up the balance in this Cost Centre
   RollupStyle = models.CharField(max_length=24, default='Always', null=True)
-  CostCentreType = models.ForeignKey(ACostCentreType, null=False, blank=False, related_name="ACostCentre_CostCentreType", on_delete=models.CASCADE)
+  CostCentreType = models.ForeignKey(ACostCentreType, null=True, related_name="ACostCentre_CostCentreType", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
@@ -2246,7 +2246,7 @@ class AIchStewardship(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ich_stewardship_pk', fields=['AccountingPeriod', 'IchNumber']),
+      models.UniqueConstraint(name='a_ich_stewardship_pk', fields=['AccountingPeriod', 'IchNumber', 'CostCentre']),
     ]
   def __str__(self):
     return f"{self.AccountingPeriod} - {self.IchNumber}"
@@ -2613,7 +2613,7 @@ class AArDiscountPerCategory(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='ar_discount_per_category_pk', fields=['ArCategory']),
+      models.UniqueConstraint(name='ar_discount_per_category_pk', fields=['ArCategory', 'ArDiscount']),
     ]
   def __str__(self):
     return f"{self.ArCategory}"
@@ -3885,7 +3885,7 @@ class MExtract(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='m_extract_pk', fields=['Extract', 'Partner']),
+      models.UniqueConstraint(name='m_extract_pk', fields=['Extract', 'Partner', 'Location']),
     ]
   def __str__(self):
     return f"{self.Extract} - {self.Partner}"
@@ -4162,7 +4162,7 @@ class AValidLedgerNumber(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_valid_ledger_number_pk', fields=['Partner']),
+      models.UniqueConstraint(name='a_valid_ledger_number_pk', fields=['CostCentre', 'Partner']),
     ]
   def __str__(self):
     return f"{self.Partner}"
@@ -4186,7 +4186,7 @@ class ABudget(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_budget_uc1', fields=['BudgetRevision']),
+      models.UniqueConstraint(name='a_budget_uc1', fields=['BudgetRevision', 'CostCentre', 'Account']),
     ]
   def __str__(self):
     return str(self.BudgetSequence)
@@ -4218,11 +4218,11 @@ class AAnalysisAttribute(models.Model):
   # Analysis attributes cannot be deleted, because they are needed for existing transaction analysis attributes. But they can be deactivated.
   Active = models.BooleanField(default=True, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AAnalysisAttribute_Account", on_delete=models.CASCADE)
-  CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AAnalysisAttribute_CostCentre", on_delete=models.CASCADE)
+  CostCentre = models.ForeignKey(ACostCentre, null=True, related_name="AAnalysisAttribute_CostCentre", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_analysis_attribute_pk', fields=['AnalysisType']),
+      models.UniqueConstraint(name='a_analysis_attribute_pk', fields=['AnalysisType', 'Account']),
     ]
   def __str__(self):
     return f"{self.AnalysisType}"
@@ -4268,7 +4268,7 @@ class AFeesPayable(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_fees_payable_pk', fields=['FeeCode']),
+      models.UniqueConstraint(name='a_fees_payable_pk', fields=['DrAccount', 'FeeCode']),
     ]
   def __str__(self):
     return f"{self.FeeCode}"
@@ -4293,7 +4293,7 @@ class AFeesReceivable(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_fees_receivable_pk', fields=['FeeCode']),
+      models.UniqueConstraint(name='a_fees_receivable_pk', fields=['DrAccount', 'FeeCode']),
     ]
   def __str__(self):
     return f"{self.FeeCode}"
@@ -4327,7 +4327,7 @@ class AGeneralLedgerMaster(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_general_ledger_master_uc1', fields=['Ledger', 'Year']),
+      models.UniqueConstraint(name='a_general_ledger_master_uc1', fields=['Ledger', 'Year', 'Account', 'CostCentre']),
     ]
   def __str__(self):
     return str(self.GlmSequence)
@@ -4417,6 +4417,7 @@ class AMotivationDetail(models.Model):
   WorkerSupport = models.BooleanField(default=False, null=False, blank=False)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AMotivationDetail_Account", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AMotivationDetail_CostCentre", on_delete=models.CASCADE)
+  TaxDeductibleAccount = models.ForeignKey(AAccount, null=True, related_name="AMotivationDetail_TaxDeductibleAccount", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
@@ -4517,12 +4518,12 @@ class AEpMatch(models.Model):
   # Key ministry to which this transaction applies (just for fund transfers)
   KeyMinistry = models.ForeignKey(PUnit, null=True, related_name="AEpMatch_KeyMinistry", on_delete=models.CASCADE)
   MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="AEpMatch_MotivationDetail", on_delete=models.CASCADE)
-  CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AEpMatch_CostCentre", on_delete=models.CASCADE)
-  Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AEpMatch_Account", on_delete=models.CASCADE)
+  CostCentre = models.ForeignKey(ACostCentre, null=True, related_name="AEpMatch_CostCentre", on_delete=models.CASCADE)
+  Account = models.ForeignKey(AAccount, null=True, related_name="AEpMatch_Account", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ep_match_uk', fields=['MatchText', 'Detail']),
+      models.UniqueConstraint(name='a_ep_match_uk', fields=['MatchText', 'Detail', 'Account']),
     ]
   def __str__(self):
     return str(self.EpMatchKey)
@@ -4721,13 +4722,13 @@ class ARecurringTransAnalAttrib(models.Model):
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ARecurringTransAnalAttrib_Account", on_delete=models.CASCADE)
   AnalysisAttribute = models.ForeignKey(AAnalysisAttribute, null=False, blank=False, related_name="ARecurringTransAnalAttrib_AnalysisAttribute", on_delete=models.CASCADE)
   FreeformAnalysis = models.ForeignKey(AFreeformAnalysis, null=False, blank=False, related_name="ARecurringTransAnalAttrib_FreeformAnalysis", on_delete=models.CASCADE)
-  CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="ARecurringTransAnalAttrib_CostCentre", on_delete=models.CASCADE)
+  CostCentre = models.ForeignKey(ACostCentre, null=True, related_name="ARecurringTransAnalAttrib_CostCentre", on_delete=models.CASCADE)
   RecurringBatch = models.ForeignKey(ARecurringBatch, null=False, blank=False, related_name="ARecurringTransAnalAttrib_RecurringBatch", on_delete=models.CASCADE)
   RecurringJournal = models.ForeignKey(ARecurringJournal, null=False, blank=False, related_name="ARecurringTransAnalAttrib_RecurringJournal", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_recurring_trans_anal_attr_pk', fields=['RecurringTransaction']),
+      models.UniqueConstraint(name='a_recurring_trans_anal_attr_pk', fields=['RecurringTransaction', 'FreeformAnalysis']),
     ]
   def __str__(self):
     return f"{self.RecurringTransaction}"
@@ -4755,11 +4756,11 @@ class ARecurringGiftBatch(models.Model):
   # This is how the partner paid. EgCash, Cheque etc
   MethodOfPaymentCode = models.CharField(max_length=16, null=True)
   BankAccount = models.ForeignKey(AAccount, null=False, blank=False, related_name="ARecurringGiftBatch_BankAccount", on_delete=models.CASCADE)
-  CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="ARecurringGiftBatch_CostCentre", on_delete=models.CASCADE)
+  BankCostCentre = models.ForeignKey(ACostCentre, null=True, related_name="ARecurringGiftBatch_BankCostCentre", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_recurring_gift_batch_pk', fields=['BatchNumber']),
+      models.UniqueConstraint(name='a_recurring_gift_batch_pk', fields=['BankCostCentre', 'BatchNumber']),
     ]
   def __str__(self):
     return f"{self.BatchNumber}"
@@ -4861,6 +4862,8 @@ class AGiftBatch(models.Model):
   Information describing groups (batches) of gifts.
   """
 
+  # ledger number
+  Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AGiftBatch_Ledger", on_delete=models.CASCADE)
   # Gift batch number
   BatchNumber = models.IntegerField(default=0, null=False, blank=False)
   # gift batch description
@@ -4890,14 +4893,14 @@ class AGiftBatch(models.Model):
   # This is how the partner paid. EgCash, Cheque etc
   MethodOfPaymentCode = models.CharField(max_length=16, null=True)
   BankAccount = models.ForeignKey(AAccount, null=False, blank=False, related_name="AGiftBatch_BankAccount", on_delete=models.CASCADE)
-  CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AGiftBatch_CostCentre", on_delete=models.CASCADE)
+  BankCostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AGiftBatch_BankCostCentre", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_gift_batch_pk', fields=['BatchNumber']),
+      models.UniqueConstraint(name='a_gift_batch_pk', fields=['Ledger', 'BatchNumber']),
     ]
   def __str__(self):
-    return f"{self.BatchNumber}"
+    return f"{self.Ledger} - {self.BatchNumber}"
 
 
 class AGift(models.Model):
@@ -5011,9 +5014,10 @@ class AGiftDetail(models.Model):
   # Non tax-deductible portion of gift (Intl Currency)
   NonDeductibleAmountIntl = models.DecimalField(max_digits=24, decimal_places=10, default=0, null=True)
   MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="AGiftDetail_MotivationDetail", on_delete=models.CASCADE)
-  CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AGiftDetail_CostCentre", on_delete=models.CASCADE)
+  CostCentre = models.ForeignKey(ACostCentre, null=True, related_name="AGiftDetail_CostCentre", on_delete=models.CASCADE)
   GiftBatch = models.ForeignKey(AGiftBatch, null=False, blank=False, related_name="AGiftDetail_GiftBatch", on_delete=models.CASCADE)
-  Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AGiftDetail_Account", on_delete=models.CASCADE)
+  Account = models.ForeignKey(AAccount, null=True, related_name="AGiftDetail_Account", on_delete=models.CASCADE)
+  TaxDeductibleAccount = models.ForeignKey(AAccount, null=True, related_name="AGiftDetail_TaxDeductibleAccount", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
@@ -5160,13 +5164,13 @@ class ATransAnalAttrib(models.Model):
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="ATransAnalAttrib_Account", on_delete=models.CASCADE)
   AnalysisAttribute = models.ForeignKey(AAnalysisAttribute, null=False, blank=False, related_name="ATransAnalAttrib_AnalysisAttribute", on_delete=models.CASCADE)
   FreeformAnalysis = models.ForeignKey(AFreeformAnalysis, null=False, blank=False, related_name="ATransAnalAttrib_FreeformAnalysis", on_delete=models.CASCADE)
-  CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="ATransAnalAttrib_CostCentre", on_delete=models.CASCADE)
+  CostCentre = models.ForeignKey(ACostCentre, null=True, related_name="ATransAnalAttrib_CostCentre", on_delete=models.CASCADE)
   Batch = models.ForeignKey(ABatch, null=False, blank=False, related_name="ATransAnalAttrib_Batch", on_delete=models.CASCADE)
   Journal = models.ForeignKey(AJournal, null=False, blank=False, related_name="ATransAnalAttrib_Journal", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_trans_anal_attrib_pk', fields=['Transaction']),
+      models.UniqueConstraint(name='a_trans_anal_attrib_pk', fields=['Transaction', 'FreeformAnalysis']),
     ]
   def __str__(self):
     return f"{self.Transaction}"
@@ -5262,7 +5266,7 @@ class AApDocument(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ap_document_uk', fields=['ApNumber']),
+      models.UniqueConstraint(name='a_ap_document_uk', fields=['Account', 'ApNumber']),
     ]
   def __str__(self):
     return str(self.ApDocumentId)
@@ -5307,8 +5311,8 @@ class AApDocumentDetail(models.Model):
   Amount = models.DecimalField(max_digits=24, decimal_places=10, null=True)
   # The date when this detail was approved.
   ApprovalDate = models.DateTimeField(null=True)
-  CostCentre = models.ForeignKey(ACostCentre, null=False, blank=False, related_name="AApDocumentDetail_CostCentre", on_delete=models.CASCADE)
-  Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AApDocumentDetail_Account", on_delete=models.CASCADE)
+  CostCentre = models.ForeignKey(ACostCentre, null=True, related_name="AApDocumentDetail_CostCentre", on_delete=models.CASCADE)
+  Account = models.ForeignKey(AAccount, null=True, related_name="AApDocumentDetail_Account", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
@@ -5343,7 +5347,7 @@ class AApPayment(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ap_payment_pk', fields=['PaymentNumber']),
+      models.UniqueConstraint(name='a_ap_payment_pk', fields=['Account', 'PaymentNumber']),
     ]
   def __str__(self):
     return f"{self.PaymentNumber}"
@@ -5362,7 +5366,7 @@ class AApDocumentPayment(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ap_document_payment_pk', fields=['ApDocument']),
+      models.UniqueConstraint(name='a_ap_document_payment_pk', fields=['ApDocument', 'ApPayment']),
     ]
   def __str__(self):
     return f"{self.ApDocument}"
@@ -5385,7 +5389,7 @@ class AEpPayment(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ep_payment_pk', fields=['PaymentNumber']),
+      models.UniqueConstraint(name='a_ep_payment_pk', fields=['Account', 'PaymentNumber']),
     ]
   def __str__(self):
     return f"{self.PaymentNumber}"
@@ -5417,7 +5421,7 @@ class AApAnalAttrib(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ap_anal_attrib_pk', fields=['ApDocumentDetail']),
+      models.UniqueConstraint(name='a_ap_anal_attrib_pk', fields=['ApDocumentDetail', 'FreeformAnalysis']),
     ]
   def __str__(self):
     return f"{self.ApDocumentDetail}"
@@ -5448,7 +5452,7 @@ class AArInvoice(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ar_invoice_pk', fields=['Key']),
+      models.UniqueConstraint(name='a_ar_invoice_pk', fields=['TaxTable', 'Key']),
     ]
   def __str__(self):
     return f"{self.Key}"
@@ -5695,7 +5699,7 @@ class PmShortTermApplication(models.Model):
   class Meta:
     constraints = [
       models.UniqueConstraint(name='pm_short_term_application_pk', fields=['GeneralApplication']),
-      models.UniqueConstraint(name='pm_short_term_application_nk', fields=['StAppDate', 'StApplicationType', 'StBasicOutreachId']),
+      models.UniqueConstraint(name='pm_short_term_application_nk', fields=['GeneralApplication', 'StAppDate', 'StApplicationType', 'StBasicOutreachId']),
     ]
   def __str__(self):
     return str(self.GeneralApplication)
@@ -7113,7 +7117,7 @@ class PPartnerAction(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='p_partner_action_pk', fields=['ActionNumber']),
+      models.UniqueConstraint(name='p_partner_action_pk', fields=['PartnerReminder', 'ActionNumber']),
     ]
   def __str__(self):
     return f"{self.ActionNumber}"
@@ -7167,7 +7171,7 @@ class SJobGroup(models.Model):
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='s_job_group_pk', fields=['Group']),
+      models.UniqueConstraint(name='s_job_group_pk', fields=['Job', 'Group']),
     ]
   def __str__(self):
     return f"{self.Group}"
