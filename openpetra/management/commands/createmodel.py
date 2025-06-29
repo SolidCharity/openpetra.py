@@ -224,6 +224,8 @@ class Command(BaseCommand):
                         newfieldname = 'a_bank_cost_centre_x'
                     elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_tax_deductible_account_code_c':
                         newfieldname = 'a_tax_deductible_account_x'
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_ap_account_c':
+                        newfieldname = 'a_ap_account_x'
                     else:
                         newfieldname = key.attrib['otherTable'] + "_x"
 

@@ -181,6 +181,10 @@ class Command(BaseCommand):
                     if name == "GiftTransactionNumber":
                         field = model._meta.get_field('Gift')
 
+                if field is None and classname == "AApDocument":
+                    if name == "ApDocumentId":
+                        field = model._meta.get_field('id')
+
                 if field is None and name.endswith('Code'):
                     try:
                         field = model._meta.get_field(name.replace('Code', ''))
@@ -233,9 +237,24 @@ class Command(BaseCommand):
 
                 #if self.DEBUG:
                 #    print(f"    field: {field.name} is_relation: {field.is_relation}")
-                if field.is_relation:
+
+                if field.is_relation and field.related_model.__name__ == 'AApDocument':
                     if self.DEBUG:
                         print(f"    foreign key: field {field.name} => {field.related_model.__name__}")
+                        print(f"        id")
+                    filter = {}
+                    filter['id'] = values['ApDocumentId']
+                    if self.DEBUG:
+                        print(f"      filter: {filter}")
+                    refobj = field.related_model.objects.get(**filter)
+                    if self.DEBUG:
+                        print(f"       result: {refobj}")
+                    insert[field.name] = refobj
+
+                elif field.is_relation:
+                    if self.DEBUG:
+                        print(f"    foreign key: field {field.name} => {field.related_model.__name__}")
+
                     compositekey = self.find_compositekey(field.related_model)
                     filter = {}
                     for f in compositekey:
@@ -368,8 +387,13 @@ class Command(BaseCommand):
         # get tables in order for import
         tables = self.get_sorted_tables_list(data)
 
+        ignore = False
+        if startattable is not None:
+            ignore = True
         for tablename in tables:
-            if startattable is not None and tablename != startattable:
+            if startattable is not None and tablename == startattable:
+                ignore = False
+            if ignore:
                 continue
             self.import_table(data, f"{tablename}Table")
 

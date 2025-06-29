@@ -5281,8 +5281,6 @@ class AApDocument(models.Model):
   Either an invoice or a credit note in the Accounts Payable system.
   """
 
-  # Unique key for this record
-  ApDocumentId = models.IntegerField(default=0, null=False, blank=False, unique=True)
   # Reference to the ledger for this invoice.
   Ledger = models.ForeignKey(ALedger, null=False, blank=False, related_name="AApDocument_Ledger", on_delete=models.CASCADE)
   # A unique key (together with the ledger number) to identify this document.
@@ -5315,14 +5313,15 @@ class AApDocument(models.Model):
   LastDetailNumber = models.IntegerField(default=0, null=False, blank=False)
   # The current status of the invoice. The value can (for now) be one of: OPEN, APPROVED, POSTED, PARTPAID, or PAID.
   DocumentStatus = models.CharField(max_length=16, null=True)
-  Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AApDocument_Account", on_delete=models.CASCADE)
+  ApAccount = models.ForeignKey(AAccount, null=True, related_name="AApDocument_ApAccount", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [
-      models.UniqueConstraint(name='a_ap_document_uk', fields=['Ledger', 'ApNumber']),
+      models.UniqueConstraint(name='a_ap_document_pk', fields=['Ledger', 'ApNumber']),
     ]
   def __str__(self):
-    return str(self.ApDocumentId)
+    return f"{self.Ledger} - {self.ApNumber}"
+
 
 class ACrdtNoteInvoiceLink(models.Model):
   """

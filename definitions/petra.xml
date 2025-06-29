@@ -13611,6 +13611,7 @@
          area=""
          dumpname="a_apdoc"
          group="ap">
+     <!-- CHANGED_FOR_DJANGO
     <tablefield name="a_ap_document_id_i"
                 type="integer"
                 sequence="seq_ap_document"
@@ -13619,6 +13620,7 @@
                 label="Unique Id"
                 notnull="yes"
                 initial="0"/>
+     -->
     <tablefield name="a_ledger_number_i"
                 type="integer"
                 descr="Reference to the ledger for this invoice."
@@ -13726,10 +13728,12 @@
                 format="X(8)"
                 label="Document Status"/>
     <!-- Constraints on table a_ap_document -->
+    <!-- CHANGED_FOR_DJANGO
     <primarykey name="a_ap_document_pk"
                 descr=""
                 thisFields="a_ap_document_id_i"/>
-    <uniquekey name="a_ap_document_uk"
+     -->
+    <primarykey name="a_ap_document_pk"
                descr=""
                thisFields="a_ledger_number_i, a_ap_number_i"/>
     <foreignkey name="a_ap_document_fk1"
