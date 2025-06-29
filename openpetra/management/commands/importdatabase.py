@@ -282,9 +282,6 @@ class Command(BaseCommand):
                         if not importedfield in values and len(compositekey) == 1:
                             # eg. PUnit.Partner
                             importedfield = field.name + droppedSuffix
-                        if not importedfield in values and field.null == True:
-                            # this is allowed to be null
-                            continue
                         if not importedfield in values and f == 'Ledger':
                             importedfield = "LedgerNumber"
                         if not importedfield in values and classname == "AAccountHierarchy" and f == 'Code':
@@ -325,14 +322,20 @@ class Command(BaseCommand):
                             importedfield = "PeriodNumber"
                         if not importedfield in values and classname == "AMotivationDetailFee" and f == 'MotivationGroup':
                             importedfield = "MotivationGroupCode"
+                        if not importedfield in values and classname == "AEpMatch" and f == 'MotivationGroup':
+                            importedfield = "MotivationGroupCode"
 
                         if classname == "PPartnerGiftDestination" and importedfield == "Key":
                             importedfield = field.name + "Key"
 
+                        if not importedfield in values and field.null == True:
+                            # this is allowed to be null
+                            continue
+
                         if not importedfield in values and field.name in values:
                             importedfield = field.name
 
-                        # print(f"importedfield: {importedfield}, classname: {classname}, field.name: {field.name}, f: {f}")
+                        # print(f"        importedfield: {importedfield}, classname: {classname}, field.name: {field.name}, f: {f}")
                         filter_on_field = f
                         otherfield = field.related_model._meta.get_field(f)
                         if otherfield.is_relation:
@@ -362,6 +365,12 @@ class Command(BaseCommand):
                                 # also filter on Gift number
                                 filter['Gift__GiftTransactionNumber'] = values['GiftTransactionNumber']
 
+                        if importedfield == "MotivationDetailCode":
+                            # also filter on ledger number
+                            filter['MotivationGroup__Ledger__LedgerNumber'] = values['LedgerNumber']
+                            # also filter on motivation group
+                            filter['MotivationGroup__Code'] = values['MotivationGroupCode']
+
                         filter[filter_on_field] = values[importedfield]
                         fields_of_composite_keys.append(importedfield)
                     if len(filter.keys()) > 0:
@@ -385,6 +394,10 @@ class Command(BaseCommand):
                         value = "N/A"
                     if classname == "PPartnerAttribute" and field.name == "Value" and value is None:
                         value = "N/A"
+                    if classname == "ATransaction" and field.name == "Reference" and value is None:
+                        value = "N/A"
+                    if classname == "AEpMatch" and field.name == "Action" and value is None:
+                        value = "UNMATCHED"
                     insert[field.name] = value
 
             for fieldname in missing_fields:

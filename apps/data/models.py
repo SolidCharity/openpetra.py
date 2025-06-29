@@ -4469,7 +4469,7 @@ class AEpAccount(models.Model):
   # Whether the gifts to this bank account are tax deductible
   TaxDeductible = models.BooleanField(default=True, null=True)
   Account = models.ForeignKey(AAccount, null=False, blank=False, related_name="AEpAccount_Account", on_delete=models.CASCADE)
-  MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="AEpAccount_MotivationDetail", on_delete=models.CASCADE)
+  MotivationDetail = models.ForeignKey(AMotivationDetail, null=True, related_name="AEpAccount_MotivationDetail", on_delete=models.CASCADE)
 
   def __str__(self):
     return str(self.BankingDetails)
@@ -4541,7 +4541,7 @@ class AEpMatch(models.Model):
   Restricted = models.BooleanField(default=False, null=True)
   # Key ministry to which this transaction applies (just for fund transfers)
   KeyMinistry = models.ForeignKey(PUnit, null=True, related_name="AEpMatch_KeyMinistry", on_delete=models.CASCADE)
-  MotivationDetail = models.ForeignKey(AMotivationDetail, null=False, blank=False, related_name="AEpMatch_MotivationDetail", on_delete=models.CASCADE)
+  MotivationDetail = models.ForeignKey(AMotivationDetail, null=True, related_name="AEpMatch_MotivationDetail", on_delete=models.CASCADE)
   CostCentre = models.ForeignKey(ACostCentre, null=True, related_name="AEpMatch_CostCentre", on_delete=models.CASCADE)
   Account = models.ForeignKey(AAccount, null=True, related_name="AEpMatch_Account", on_delete=models.CASCADE)
 
@@ -5131,7 +5131,7 @@ class AJournal(models.Model):
   DateOfEntry = models.DateTimeField(null=False, blank=False)
   # Indicates whether or not a journal has been reversed.
   Reversed = models.BooleanField(default=False, null=True)
-  TransactionType = models.ForeignKey(ATransactionType, null=False, blank=False, related_name="AJournal_TransactionType", on_delete=models.CASCADE)
+  TransactionType = models.ForeignKey(ATransactionType, null=True, related_name="AJournal_TransactionType", on_delete=models.CASCADE)
 
   class Meta:
     constraints = [

@@ -233,6 +233,12 @@ class Command(BaseCommand):
                     if key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_cost_centre_code_c':
                         # we want "not null" from a_cost_centre_code_c
                         copy_field_from = fields['a_cost_centre_code_c']
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_sub_system_code_c,a_transaction_type_code_c':
+                        # we want "not null" from a_transaction_type_code_c
+                        copy_field_from = fields['a_transaction_type_code_c']
+                    elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_motivation_group_code_c,a_motivation_detail_code_c':
+                        # we want "not null" from a_motivation_detail_code_c
+                        copy_field_from = fields['a_motivation_detail_code_c']
                     elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_account_code_c':
                         copy_field_from = fields['a_account_code_c']
                     elif key.attrib['thisFields'].replace(' ', '') == 'a_ledger_number_i,a_tax_deductible_account_code_c':
