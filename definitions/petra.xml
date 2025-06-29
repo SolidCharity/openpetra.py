@@ -21629,10 +21629,12 @@
          label="Partner Gift Destination"
          dumpname="p_pt_gd"
          group="partner">
+     <!-- CHANGED_FOR_DJANGO
     <tablefield name="p_key_i"
                 type="integer"
                 descr="Surrogate Primary Key"
                 notnull="yes"/>
+     -->
     <tablefield name="p_partner_key_n"
                 type="number"
                 length="10"
@@ -21692,9 +21694,11 @@
                 label="Comments"
                 help="Enter any additional comments"/>
     <!-- Constraints on table p_partner_gift_destination -->
+    <!-- CHANGED_FOR_DJANGO
     <primarykey name="p_partner_gift_destination_pk"
                 descr=""
                 thisFields="p_key_i"/>
+     -->
     <foreignkey name="p_partner_gift_destination_fk1"
                 descr=""
                 thisFields="p_partner_key_n"

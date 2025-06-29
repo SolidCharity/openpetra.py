@@ -118,6 +118,9 @@ class Command(BaseCommand):
                 # for PBankingDetailsUsage, we ignore PartnerKey
                 if classname == "PBankingDetailsUsage" and name == "PartnerKey":
                     continue
+                # for PPartnerGiftDestination, we ignore Key
+                if classname == "PPartnerGiftDestination" and name == "Key":
+                    continue
                 # for AJournal, we ignore SubSystem
                 if classname == "AJournal" and name == "SubSystemCode":
                     continue
@@ -316,6 +319,10 @@ class Command(BaseCommand):
                             importedfield = "PeriodNumber"
                         if not importedfield in values and classname == "AMotivationDetailFee" and f == 'MotivationGroup':
                             importedfield = "MotivationGroupCode"
+
+                        if classname == "PPartnerGiftDestination" and importedfield == "Key":
+                            importedfield = field.name + "Key"
+
                         if not importedfield in values and field.name in values:
                             importedfield = field.name
 

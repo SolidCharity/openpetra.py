@@ -263,19 +263,21 @@ class Command(BaseCommand):
                 # replace fields in uniquekey
                 for uniquekey in uniquekeys:
                     uniquekey.attrib['thisFields'] = uniquekey.attrib['thisFields'].replace(' ', '').replace(key.attrib['thisFields'].replace(' ', ''), newfieldname)
-                primarykey.attrib['thisFields'] = primarykey.attrib['thisFields'].replace(' ', '').replace(key.attrib['thisFields'].replace(' ', ''), newfieldname)
+                if primarykey is not None:
+                    primarykey.attrib['thisFields'] = primarykey.attrib['thisFields'].replace(' ', '').replace(key.attrib['thisFields'].replace(' ', ''), newfieldname)
                 # add new foreignkey
                 key.attrib['thisFields'] = newfieldname
                 foreignkeys.append(key)
 
         # first process fields of primary key
-        for fieldname in primarykey.attrib['thisFields'].replace(' ', '').split(','):
-            if fields[fieldname].attrib['dropped'] == "False":
-                self.process_field(f, tableNode.attrib['name'], className, fields[fieldname], primarykey, foreignkeys)
+        if primarykey is not None:
+            for fieldname in primarykey.attrib['thisFields'].replace(' ', '').split(','):
+                if fields[fieldname].attrib['dropped'] == "False":
+                    self.process_field(f, tableNode.attrib['name'], className, fields[fieldname], primarykey, foreignkeys)
 
         # then process the other fields
         for fieldname in fields.keys():
-            if fieldname in primarykey.attrib['thisFields']:
+            if primarykey is not None and fieldname in primarykey.attrib['thisFields']:
                 continue
             if fields[fieldname].attrib['dropped'] == "False":
                 self.process_field(f, tableNode.attrib['name'], className, fields[fieldname], primarykey, foreignkeys)

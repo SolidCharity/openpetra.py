@@ -7090,8 +7090,6 @@ class PPartnerGiftDestination(models.Model):
   Tracks the current gift destination for the Partner and maintains a history
   """
 
-  # Surrogate Primary Key
-  Key = models.IntegerField(null=False, blank=False, unique=True)
   # Partner key of Partner to which the field is assigned
   Partner = models.ForeignKey(PPartner, null=False, blank=False, related_name="PPartnerGiftDestination_Partner", on_delete=models.CASCADE)
   # Field to which Partner is assigned
@@ -7111,7 +7109,7 @@ class PPartnerGiftDestination(models.Model):
   StaffData = models.ForeignKey(PmStaffData, null=True, related_name="PPartnerGiftDestination_StaffData", on_delete=models.CASCADE)
 
   def __str__(self):
-    return str(self.Key)
+    return str(self.id)
 
 class PPartnerShortCode(models.Model):
   """
