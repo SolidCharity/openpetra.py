@@ -206,6 +206,12 @@ class Command(BaseCommand):
                         droppedSuffix = 'Key'
                     except:
                         None
+                if field is None and name.endswith('Name'):
+                    try:
+                        field = model._meta.get_field(name.replace('Name', ''))
+                        droppedSuffix = 'Name'
+                    except:
+                        None
                 if field is None and name.endswith('Number'):
                     try:
                         field = model._meta.get_field(name.replace('Number', ''))
@@ -341,6 +347,8 @@ class Command(BaseCommand):
                                 filter_on_field = f'{f}__BatchNumber'
                             elif otherfield.name == 'Journal':
                                 filter_on_field = f'{f}__JournalNumber'
+                            elif otherfield.name == 'PositionScope':
+                                filter_on_field = f'{f}__Code'
                             elif otherfield.name == 'MotivationGroup':
                                 filter_on_field = f'{f}__Code'
                                 # also filter on ledger number
@@ -398,7 +406,7 @@ class Command(BaseCommand):
         if startattable is not None:
             ignore = True
         for tablename in tables:
-            if startattable is not None and tablename == startattable:
+            if startattable is not None and startattable in [tablename, f"{tablename}Table"]:
                 ignore = False
             if ignore:
                 continue
