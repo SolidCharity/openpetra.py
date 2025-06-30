@@ -4,11 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-django = "~=4.2"
+django = "~=5.2"
 lxml = "*"
 pyyaml = "*"
 mysqlclient = "*"
 django-extensions = "*"
+psycopg = "*"
 
 [dev-packages]
 
