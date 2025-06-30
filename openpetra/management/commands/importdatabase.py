@@ -174,6 +174,10 @@ class Command(BaseCommand):
                     if name == "BatchNumber":
                         field = model._meta.get_field('GiftBatch')
 
+                if field is None and classname in ["ARecurringGift", "ARecurringGiftDetail"]:
+                    if name == "BatchNumber":
+                        field = model._meta.get_field('RecurringGiftBatch')
+
                 if field is None and classname in ("AProcessedFee"):
                     if name == "DetailNumber":
                         field = model._meta.get_field('GiftDetail')
@@ -183,6 +187,10 @@ class Command(BaseCommand):
                 if field is None and classname == "AGiftDetail":
                     if name == "GiftTransactionNumber":
                         field = model._meta.get_field('Gift')
+
+                if field is None and classname == "ARecurringGiftDetail":
+                    if name == "GiftTransactionNumber":
+                        field = model._meta.get_field('RecurringGift')
 
                 if field is None and classname == "AApDocument":
                     if name == "ApDocumentId":
@@ -282,8 +290,6 @@ class Command(BaseCommand):
                         if not importedfield in values and len(compositekey) == 1:
                             # eg. PUnit.Partner
                             importedfield = field.name + droppedSuffix
-                        if not importedfield in values and f == 'Ledger':
-                            importedfield = "LedgerNumber"
                         if not importedfield in values and classname == "AAccountHierarchy" and f == 'Code':
                             importedfield = "RootAccountCode"
                         if not importedfield in values and classname == "AAccountHierarchyDetail" and field.name == 'ReportingAccount':
@@ -324,9 +330,23 @@ class Command(BaseCommand):
                             importedfield = "MotivationGroupCode"
                         if not importedfield in values and classname == "AEpMatch" and f == 'MotivationGroup':
                             importedfield = "MotivationGroupCode"
+                        if not importedfield in values and classname == "ARecurringGiftDetail" and f == 'MotivationGroup':
+                            importedfield = "MotivationGroupCode"
 
-                        if classname == "PPartnerGiftDestination" and importedfield == "Key":
+                        if f == 'Ledger':
+                            importedfield = "LedgerNumber"
+                        elif classname == "PPartnerGiftDestination" and importedfield == "Key":
                             importedfield = field.name + "Key"
+                        elif classname == "ARecurringGiftBatch" and field.name == 'BankAccount':
+                            importedfield = "BankAccountCode"
+                        elif classname == "ARecurringGiftBatch" and field.name == 'BankCostCentre':
+                            importedfield = "BankCostCentre"
+                        elif classname == "ARecurringGift" and field.name == 'RecurringGiftBatch':
+                            importedfield = "BatchNumber"
+                        elif classname == "ARecurringGiftDetail" and field.name == 'RecurringGiftBatch':
+                            importedfield = "BatchNumber"
+                        elif classname == "ARecurringGiftDetail" and field.name == 'RecurringGift':
+                            importedfield = "GiftTransactionNumber"
 
                         if not importedfield in values and field.null == True:
                             # this is allowed to be null
@@ -357,13 +377,21 @@ class Command(BaseCommand):
                                 # also filter on ledger number
                                 filter['MotivationGroup__Ledger__LedgerNumber'] = values['LedgerNumber']
                             elif otherfield.name == 'Gift':
-                                filter_on_field = f'DetailNumber'
+                                filter_on_field = f'Gift__GiftTransactionNumber'
                                 # also filter on ledger number
                                 filter['Gift__Ledger__LedgerNumber'] = values['LedgerNumber']
                                 # also filter on batch number
                                 filter['GiftBatch__BatchNumber'] = values['BatchNumber']
-                                # also filter on Gift number
-                                filter['Gift__GiftTransactionNumber'] = values['GiftTransactionNumber']
+                            elif otherfield.name == 'RecurringGift':
+                                filter_on_field = None
+                                filter['GiftTransactionNumber'] = values['GiftTransactionNumber']
+                                # also filter on ledger number
+                                filter['RecurringGift__Ledger__LedgerNumber'] = values['LedgerNumber']
+                            elif otherfield.name == 'RecurringGiftBatch':
+                                filter_on_field = None
+                                filter['RecurringGiftBatch__BatchNumber'] = values['BatchNumber']
+                                # also filter on ledger number
+                                filter['RecurringGiftBatch__Ledger__LedgerNumber'] = values['LedgerNumber']
 
                         if importedfield == "MotivationDetailCode":
                             # also filter on ledger number
@@ -371,7 +399,8 @@ class Command(BaseCommand):
                             # also filter on motivation group
                             filter['MotivationGroup__Code'] = values['MotivationGroupCode']
 
-                        filter[filter_on_field] = values[importedfield]
+                        if filter_on_field is not None:
+                            filter[filter_on_field] = values[importedfield]
                         fields_of_composite_keys.append(importedfield)
                     if len(filter.keys()) > 0:
                         if self.DEBUG:
