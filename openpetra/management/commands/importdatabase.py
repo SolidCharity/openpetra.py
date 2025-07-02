@@ -5,6 +5,7 @@ from django.apps import apps
 from django.db import models
 from datetime import datetime, date
 from django.utils import timezone
+from django.contrib.auth.models import User, Group
 
 class Command(BaseCommand):
     help = "Import a database from a yaml file"
@@ -81,6 +82,9 @@ class Command(BaseCommand):
 
     def drop_prefix(self, tablename):
         return tablename[[ match.start() for match in re.finditer ("[A-Z]", tablename) ][1]:]
+
+    def fix_date(self, value):
+        return datetime(value.year, value.month, value.day, tzinfo=timezone.get_default_timezone())
 
     def get_modulename(self, data, tablename):
         for modulename in data:
@@ -412,7 +416,7 @@ class Command(BaseCommand):
                 else:
                     value = values[name]
                     if isinstance(value, date):
-                        value = datetime(value.year, value.month, value.day, tzinfo=timezone.get_default_timezone())
+                        value = self.fix_date(value)
                     elif isinstance(value, str) and len(value) == len('YYYY-MM-DD hh:mm:ss'):
                         f = model._meta.get_field(field.name)
                         if type(f) is models.DateTimeField:
@@ -459,6 +463,51 @@ class Command(BaseCommand):
         # for sequence in data["Sequences"]:
         #    print(f"  {sequence}")
 
+    def import_auth(self, data):
+
+        tabledata = data["MSysMan"]["SModuleTable"]
+        for row, values in tabledata.items():
+            Group.objects.get_or_create(name=values['ModuleId'])
+
+        tabledata = data["MSysMan"]["SUserTable"]
+        for row, values in tabledata.items():
+            print(
+                values['UserId'],
+                values['EmailAddress'] if 'EmailAddress' in values else None,
+                values['FirstName'] if 'FirstName' in values else None,
+                values['LastName'] if 'LastName' in values else None,
+                values['LastLoginDate'] if 'LastLoginDate' in values else None,
+                values['Retired'] if 'Retired' in values else None,
+                values['DateCreated'] if 'DateCreated' in values else None)
+            user = User.objects.create_user(values['UserId'],
+                values['EmailAddress'] if 'EmailAddress' in values else None)
+            if 'LastLoginDate' in values:
+                user.last_login = self.fix_date(values['LastLoginDate'])
+            if 'DateCreated' in values:
+                user.date_joined = self.fix_date(values['DateCreated'])
+            if 'Retired' in values and values['Retired'] == True:
+                user.is_active = False
+            if 'AccountLocked' in values and values['AccountLocked'] == True:
+                user.is_active = False
+            if 'FirstName' in values:
+                user.first_name = values['FirstName']
+            if 'LastName' in values:
+                user.last_name = values['LastName']
+            user.save()
+
+        tabledata = data["MSysMan"]["SUserModuleAccessPermissionTable"]
+        for row, values in tabledata.items():
+            if values['ModuleId'] == 'SYSMAN' and values['CanAccess'] == True:
+                user = User.objects.get(username = values['UserId'])
+                user.is_superuser = True
+                user.is_staff = True
+                user.save()
+            if values['CanAccess'] == True:
+                group = Group.objects.get(name = values['ModuleId'])
+                user = User.objects.get(username = values['UserId'])
+                user.groups.add(group)
+                user.save()
+
     def add_arguments(self, parser):
         parser.add_argument(
             "--ymlfile",
@@ -489,3 +538,4 @@ class Command(BaseCommand):
 
         if data is not None:
             self.import_database(data['RootNodeInternal'], options['startattable'])
+            self.import_auth(data['RootNodeInternal'])
